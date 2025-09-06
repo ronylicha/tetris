@@ -1,0 +1,240 @@
+/* Modern Tetris - Animations */
+
+/* Gradient Animation */
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Piece Drop Animation */
+@keyframes piece-drop {
+    0% { transform: translateY(-20px) scale(1.1); opacity: 0.8; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Line Clear Animation */
+@keyframes line-clear {
+    0% { 
+        background: rgba(255, 255, 255, 0.9);
+        transform: scaleX(1);
+        opacity: 1;
+    }
+    50% { 
+        background: var(--neon-blue);
+        transform: scaleX(1.1);
+        opacity: 0.8;
+    }
+    100% { 
+        background: transparent;
+        transform: scaleX(0);
+        opacity: 0;
+    }
+}
+
+/* Glow Pulse Animation */
+@keyframes glow-pulse {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        filter: brightness(1);
+    }
+    50% { 
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        filter: brightness(1.2);
+    }
+}
+
+/* Particle Animation */
+@keyframes particle-float {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Shake Animation for Game Over */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Bounce Animation for Piece Landing */
+@keyframes bounce-land {
+    0% { transform: translateY(0); }
+    20% { transform: translateY(-5px); }
+    40% { transform: translateY(0); }
+    60% { transform: translateY(-2px); }
+    80% { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+
+/* Score Pop Animation */
+@keyframes score-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: var(--neon-green); }
+    100% { transform: scale(1); }
+}
+
+/* Hold Piece Swap Animation */
+@keyframes hold-swap {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(0.8) rotate(180deg); opacity: 0.5; }
+    100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+
+/* Next Piece Slide Animation */
+@keyframes next-slide {
+    0% { transform: translateX(100px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Button Hover Effect */
+@keyframes button-glow {
+    0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+    100% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+}
+
+/* Level Up Animation */
+@keyframes level-up {
+    0% { 
+        transform: scale(1);
+        color: var(--text-accent);
+    }
+    25% { 
+        transform: scale(1.2);
+        color: var(--neon-green);
+        text-shadow: 0 0 20px var(--neon-green);
+    }
+    50% { 
+        transform: scale(1.1);
+        color: var(--neon-yellow);
+        text-shadow: 0 0 15px var(--neon-yellow);
+    }
+    75% { 
+        transform: scale(1.15);
+        color: var(--neon-pink);
+        text-shadow: 0 0 25px var(--neon-pink);
+    }
+    100% { 
+        transform: scale(1);
+        color: var(--text-accent);
+        text-shadow: var(--shadow-glow);
+    }
+}
+
+/* Ghost Piece Fade */
+@keyframes ghost-fade {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* T-Spin Flash */
+@keyframes tspin-flash {
+    0% { background: transparent; }
+    25% { background: var(--neon-purple); }
+    50% { background: var(--neon-pink); }
+    75% { background: var(--neon-blue); }
+    100% { background: transparent; }
+}
+
+/* Combo Multiplier */
+@keyframes combo-multiplier {
+    0% { 
+        transform: scale(1) rotate(0deg);
+        color: var(--text-primary);
+    }
+    50% { 
+        transform: scale(1.5) rotate(5deg);
+        color: var(--neon-orange);
+        text-shadow: 0 0 30px var(--neon-orange);
+    }
+    100% { 
+        transform: scale(1) rotate(0deg);
+        color: var(--text-primary);
+    }
+}
+
+/* Background Pattern Animation */
+@keyframes bg-pattern {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-50px) translateY(-50px); }
+}
+
+/* Piece Rotation Effect */
+@keyframes piece-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(90deg); }
+}
+
+/* Game Over Screen Animation */
+@keyframes game-over {
+    0% { 
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Utility Classes for Animations */
+.animate-drop { animation: piece-drop 0.3s ease-out; }
+.animate-clear { animation: line-clear 0.5s ease-in-out; }
+.animate-glow { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-bounce { animation: bounce-land 0.4s ease-out; }
+.animate-score-pop { animation: score-pop 0.4s ease-out; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
+.animate-level-up { animation: level-up 1s ease-in-out; }
+.animate-ghost { animation: ghost-fade 1.5s ease-in-out infinite; }
+.animate-tspin { animation: tspin-flash 0.3s ease-in-out; }
+.animate-combo { animation: combo-multiplier 0.6s ease-out; }
+.animate-game-over { animation: game-over 0.8s ease-out; }
+
+/* Particle Effects */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--neon-blue);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particle-float 2s ease-out forwards;
+}
+
+.particle.pink { background: var(--neon-pink); }
+.particle.green { background: var(--neon-green); }
+.particle.yellow { background: var(--neon-yellow); }
+.particle.purple { background: var(--neon-purple); }
+
+/* Transition Effects */
+.smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-in {
+    animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-right {
+    animation: slide-in-right 0.4s ease-out;
+}
+
+@keyframes slide-in-right {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

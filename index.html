@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Tetris</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-top">
+                <h1 class="title">TETRIS</h1>
+                <div class="header-controls">
+                    <button id="settings-button" class="btn-icon" title="Settings">⚙️</button>
+                    <button id="help-button" class="btn-icon" title="Controls">❓</button>
+                    <button id="mute-button" class="btn-icon" title="Toggle Sound">🔊</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <div class="game-sidebar left">
+                <div class="hold-area">
+                    <h3>Hold</h3>
+                    <div class="hold-piece"></div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Score</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Lines</span>
+                        <span class="stat-value" id="lines">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value" id="level">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-board">
+                <canvas id="game-canvas" width="400" height="800"></canvas>
+                <div class="game-overlay" id="game-overlay">
+                    <div class="overlay-content">
+                        <h2 id="overlay-title">Game Paused</h2>
+                        <p id="overlay-message">Press P to resume</p>
+                        <button id="start-button" class="btn-primary">Start Game</button>
+                        <button id="restart-button" class="btn-secondary" style="display: none;">Restart</button>
+                        <button id="leaderboard-button" class="btn-secondary" style="display: none;">View Leaderboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-sidebar right">
+                <div class="next-area">
+                    <h3>Next</h3>
+                    <div class="next-pieces">
+                        <div class="next-piece" id="next-0"></div>
+                        <div class="next-piece" id="next-1"></div>
+                        <div class="next-piece" id="next-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="particles-container" id="particles"></div>
+        
+        <!-- Player Name Input Modal -->
+        <div class="name-input-overlay" id="name-input-overlay" style="display: none;">
+            <div class="name-input-content">
+                <h2>New High Score!</h2>
+                <p>Enter your name for the leaderboard:</p>
+                <div class="input-group">
+                    <input type="text" id="player-name-input" placeholder="Enter your name..." maxlength="50" autocomplete="name">
+                    <div class="input-buttons">
+                        <button id="save-score-button" class="btn-primary">Save Score</button>
+                        <button id="skip-save-button" class="btn-secondary">Skip</button>
+                    </div>
+                </div>
+                <div class="score-summary" id="score-summary">
+                    <div class="score-item">
+                        <span>Score:</span>
+                        <span id="final-score">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Lines:</span>
+                        <span id="final-lines">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span>Level:</span>
+                        <span id="final-level">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Modal -->
+        <div class="leaderboard-overlay" id="leaderboard-overlay" style="display: none;">
+            <div class="leaderboard-content">
+                <div class="leaderboard-header">
+                    <h2>🏆 Leaderboard</h2>
+                    <button id="close-leaderboard" class="btn-close">×</button>
+                </div>
+                <div class="leaderboard-tabs">
+                    <button class="tab-button active" data-tab="top-scores">Top Scores</button>
+                    <button class="tab-button" data-tab="recent">Recent Games</button>
+                </div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <div class="loading">Loading scores...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Modal -->
+        <div class="settings-overlay" id="settings-overlay" style="display: none;">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>⚙️ Settings</h2>
+                    <button id="close-settings" class="btn-close">×</button>
+                </div>
+                
+                <div class="settings-tabs">
+                    <button class="settings-tab-button active" data-tab="audio">🔊 Audio</button>
+                    <button class="settings-tab-button" data-tab="controls">⌨️ Controls</button>
+                </div>
+                
+                <div class="settings-panel" id="audio-panel">
+                    <div class="setting-group">
+                        <label>Master Volume</label>
+                        <div class="volume-control">
+                            <input type="range" id="master-volume" min="0" max="100" value="70">
+                            <span id="master-volume-value">70%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Music Volume</label>
+                        <div class="volume-control">
+                            <input type="range" id="music-volume" min="0" max="100" value="50">
+                            <span id="music-volume-value">50%</span>
+                        </div>
+                        <div class="setting-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="music-enabled" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Background Music</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Sound Effects Volume</label>
+                        <div class="volume-control">
+                            <input type="range" id="sfx-volume" min="0" max="100" value="80">
+                            <span id="sfx-volume-value">80%</span>
+                        </div>
+                        <div class="setting-toggle">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="sfx-enabled" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Sound Effects</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-panel" id="controls-panel" style="display: none;">
+                    <div class="controls-info">
+                        <h3>Keyboard Controls</h3>
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <span class="control-key">←→</span>
+                                <span class="control-action">Move Left/Right</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">↓</span>
+                                <span class="control-action">Soft Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">↑</span>
+                                <span class="control-action">Rotate Clockwise</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">Space</span>
+                                <span class="control-action">Hard Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">C</span>
+                                <span class="control-action">Hold Piece</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">P</span>
+                                <span class="control-action">Pause</span>
+                            </div>
+                        </div>
+                        
+                        <h3>Alternative Keys (WASD)</h3>
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <span class="control-key">A/D</span>
+                                <span class="control-action">Move Left/Right</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">S</span>
+                                <span class="control-action">Soft Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">W/E</span>
+                                <span class="control-action">Rotate</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-key">Q</span>
+                                <span class="control-action">Rotate Counter-clockwise</span>
+                            </div>
+                        </div>
+                        
+                        <h3>Mobile/Touch Controls</h3>
+                        <div class="touch-controls-info">
+                            <div class="touch-item">
+                                <span class="touch-gesture">👆 Tap</span>
+                                <span class="control-action">Rotate</span>
+                            </div>
+                            <div class="touch-item">
+                                <span class="touch-gesture">👈👉 Swipe Left/Right</span>
+                                <span class="control-action">Move</span>
+                            </div>
+                            <div class="touch-item">
+                                <span class="touch-gesture">👇 Swipe Down</span>
+                                <span class="control-action">Soft Drop</span>
+                            </div>
+                            <div class="touch-item">
+                                <span class="touch-gesture">👆 Swipe Up</span>
+                                <span class="control-action">Hard Drop</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Modal -->
+        <div class="help-overlay" id="help-overlay" style="display: none;">
+            <div class="help-content">
+                <div class="help-header">
+                    <h2>❓ How to Play</h2>
+                    <button id="close-help" class="btn-close">×</button>
+                </div>
+                
+                <div class="help-sections">
+                    <div class="help-section">
+                        <h3>🎯 Objective</h3>
+                        <p>Arrange falling tetrominoes (puzzle pieces) to create complete horizontal lines. Completed lines disappear, giving you points and more space to play.</p>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>🎮 Basic Controls</h3>
+                        <div class="quick-controls" id="quick-controls">
+                            <!-- Will be populated by JavaScript based on device -->
+                        </div>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>⭐ Special Moves</h3>
+                        <div class="special-moves">
+                            <div class="special-item">
+                                <strong>T-Spin:</strong> Rotate a T-piece into a tight spot for bonus points
+                            </div>
+                            <div class="special-item">
+                                <strong>Tetris:</strong> Clear 4 lines at once for maximum points
+                            </div>
+                            <div class="special-item">
+                                <strong>Combo:</strong> Clear lines consecutively for multiplier bonuses
+                            </div>
+                            <div class="special-item">
+                                <strong>Perfect Clear:</strong> Clear the entire board for massive bonus
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>📊 Scoring System</h3>
+                        <div class="scoring-info">
+                            <div class="score-item">
+                                <span>Single Line:</span>
+                                <span>100 × Level</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Double Lines:</span>
+                                <span>300 × Level</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Triple Lines:</span>
+                                <span>500 × Level</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Tetris (4 lines):</span>
+                                <span>800 × Level</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/game.js"></script>
+</body>
+</html>

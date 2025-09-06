@@ -1,0 +1,430 @@
+/* Modern Tetris - Responsive Styles */
+
+/* Mobile First Approach */
+
+/* Small Mobile Devices (320px - 480px) */
+@media (max-width: 480px) {
+    .app {
+        padding: 10px;
+    }
+    
+    .title {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .controls-hint {
+        flex-direction: column;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .controls-hint span {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 20px;
+        max-width: 100%;
+    }
+    
+    .game-sidebar.left {
+        grid-row: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .game-board {
+        grid-row: 2;
+    }
+    
+    .game-sidebar.right {
+        grid-row: 3;
+    }
+    
+    #game-canvas {
+        width: 100%;
+        max-width: 300px;
+        height: 600px;
+    }
+    
+    .hold-area, .next-area, .stats {
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .hold-piece, .next-piece {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .stat {
+        padding: 8px 0;
+    }
+    
+    .stat-value {
+        font-size: 1rem;
+    }
+    
+    #overlay-title {
+        font-size: 1.8rem;
+    }
+    
+    #overlay-message {
+        font-size: 1rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        margin: 5px;
+    }
+}
+
+/* Large Mobile / Small Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 25px;
+        max-width: 500px;
+    }
+    
+    .game-sidebar.left {
+        grid-row: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .game-board {
+        grid-row: 2;
+    }
+    
+    .game-sidebar.right {
+        grid-row: 3;
+    }
+    
+    #game-canvas {
+        width: 100%;
+        max-width: 350px;
+        height: 700px;
+    }
+    
+    .hold-piece, .next-piece {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .title {
+        font-size: 3rem;
+    }
+    
+    .controls-hint {
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .game-container {
+        grid-template-columns: 180px 1fr 180px;
+        gap: 25px;
+        max-width: 800px;
+    }
+    
+    #game-canvas {
+        width: 350px;
+        height: 700px;
+    }
+    
+    .hold-area, .next-area, .stats {
+        padding: 18px;
+    }
+    
+    .hold-piece, .next-piece {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .title {
+        font-size: 3.5rem;
+    }
+}
+
+/* Desktop (1025px and up) */
+@media (min-width: 1025px) {
+    .game-container {
+        grid-template-columns: 220px 1fr 220px;
+        gap: 35px;
+    }
+    
+    #game-canvas {
+        width: 400px;
+        height: 800px;
+    }
+    
+    .title {
+        font-size: 4rem;
+    }
+}
+
+/* Large Desktop (1441px and up) */
+@media (min-width: 1441px) {
+    .game-container {
+        grid-template-columns: 250px 1fr 250px;
+        gap: 40px;
+    }
+    
+    #game-canvas {
+        width: 450px;
+        height: 900px;
+    }
+    
+    .hold-area, .next-area, .stats {
+        padding: 25px;
+    }
+    
+    .hold-piece, .next-piece {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+/* Landscape Orientation for Mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+    .app {
+        padding: 10px;
+    }
+    
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    .title {
+        font-size: 2rem;
+        margin-bottom: 5px;
+    }
+    
+    .controls-hint {
+        display: none;
+    }
+    
+    .game-container {
+        grid-template-columns: 150px 1fr 150px;
+        gap: 15px;
+        max-width: 100%;
+    }
+    
+    #game-canvas {
+        width: 300px;
+        height: 450px;
+    }
+    
+    .hold-area, .next-area, .stats {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .hold-area h3, .next-area h3 {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .hold-piece, .next-piece {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .stat {
+        padding: 6px 0;
+    }
+    
+    .stat-value {
+        font-size: 0.9rem;
+    }
+}
+
+/* High DPI / Retina Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    #game-canvas {
+        image-rendering: -webkit-crisp-edges;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .title {
+        animation: none;
+        background: var(--neon-blue);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .animate-glow {
+        animation: none;
+        box-shadow: var(--shadow-glow);
+    }
+    
+    .animate-ghost {
+        animation: none;
+        opacity: 0.4;
+    }
+}
+
+/* Dark Mode (System Preference) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-bg: #000000;
+        --secondary-bg: #111111;
+        --accent-bg: #1a1a1a;
+    }
+}
+
+/* Light Mode Override */
+@media (prefers-color-scheme: light) {
+    :root {
+        --primary-bg: #1a1a2e;
+        --secondary-bg: #16213e;
+        --accent-bg: #0f0f1a;
+    }
+}
+
+/* Focus States for Keyboard Navigation */
+@media (any-hover: none) {
+    .btn-primary:focus,
+    .btn-secondary:focus {
+        outline: 2px solid var(--neon-blue);
+        outline-offset: 2px;
+    }
+    
+    .hold-piece:focus,
+    .next-piece:focus {
+        outline: 1px solid var(--neon-blue);
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .controls-hint span:hover {
+        background: var(--glass-bg);
+        box-shadow: none;
+    }
+    
+    .btn-primary:hover,
+    .btn-secondary:hover {
+        transform: none;
+    }
+    
+    .hold-area:hover::before,
+    .next-area:hover::before,
+    .stats:hover::before {
+        opacity: 0;
+    }
+}
+
+/* Modal Responsive Styles */
+@media (max-width: 480px) {
+    .name-input-content, .leaderboard-content {
+        padding: 20px;
+        margin: 10px;
+        max-width: 95%;
+    }
+    
+    .name-input-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .score-summary {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .input-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .leaderboard-entry {
+        grid-template-columns: 40px 1fr 80px;
+        gap: 10px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .entry-lines, .entry-level {
+        display: none;
+    }
+    
+    .leaderboard-tabs {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .tab-button {
+        padding: 12px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .name-input-content, .leaderboard-content {
+        padding: 25px;
+        max-width: 90%;
+    }
+    
+    .score-summary {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .leaderboard-entry {
+        grid-template-columns: 45px 1fr 90px 50px 50px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .app {
+        background: white;
+        color: black;
+    }
+    
+    .game-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .game-sidebar {
+        display: none;
+    }
+    
+    #game-canvas {
+        border: 2px solid black;
+        background: white;
+    }
+    
+    .particles-container {
+        display: none;
+    }
+    
+    .name-input-overlay, .leaderboard-overlay {
+        display: none !important;
+    }
+}
