@@ -81,6 +81,7 @@ export class Grid {
             }
         }
         
+        console.log(`Found ${completedLines.length} completed lines:`, completedLines);
         return completedLines;
     }
 
@@ -88,35 +89,59 @@ export class Grid {
     isLineFull(y) {
         if (!this.isInBounds(0, y)) return false;
         
+        let filledCells = 0;
         for (let x = 0; x < this.width; x++) {
-            if (this.cells[y][x] === null) {
-                return false;
+            if (this.cells[y][x] !== null) {
+                filledCells++;
             }
         }
         
-        return true;
+        const isFull = filledCells === this.width;
+        if (isFull) {
+            console.log(`Line ${y} is full (${filledCells}/${this.width} cells filled)`);
+        }
+        
+        return isFull;
     }
 
     // Clear completed lines and return line count
-    clearLines() {
-        const completedLines = this.getCompletedLines();
+    clearLines(linesToClear = null) {
+        const completedLines = linesToClear || this.getCompletedLines();
         
         if (completedLines.length === 0) return 0;
         
-        // Remove completed lines from bottom to top
-        completedLines.sort((a, b) => b - a);
+        console.log(`Clearing ${completedLines.length} lines:`, completedLines);
+        console.log(`Grid height before clearing: ${this.cells.length}`);
         
-        for (const lineY of completedLines) {
-            // Remove the line
-            this.cells.splice(lineY, 1);
-            // Add empty line at top
-            this.cells.unshift(Array(this.width).fill(null));
+        // Remove completed lines from bottom to top to avoid index shifting issues
+        const sortedLines = [...completedLines].sort((a, b) => b - a);
+        console.log(`Sorted order for removal:`, sortedLines);
+        
+        let clearedCount = 0;
+        for (const lineY of sortedLines) {
+            console.log(`Removing line ${lineY} (attempt ${clearedCount + 1}/${sortedLines.length})`);
+            
+            // Verify the line is actually full before removing
+            if (this.isLineFull(lineY)) {
+                console.log(`Line ${lineY} confirmed full, removing...`);
+                // Remove the line
+                this.cells.splice(lineY, 1);
+                // Add empty line at top
+                this.cells.unshift(Array(this.width).fill(null));
+                clearedCount++;
+                console.log(`Successfully removed line ${lineY}, cleared count: ${clearedCount}`);
+            } else {
+                console.warn(`Line ${lineY} is not full anymore! Skipping removal.`);
+            }
         }
         
-        this.linesCleared = completedLines.length;
-        this.totalLines += completedLines.length;
+        console.log(`Grid height after clearing: ${this.cells.length}`);
         
-        return completedLines.length;
+        this.linesCleared = clearedCount;
+        this.totalLines += clearedCount;
+        
+        console.log(`Total lines cleared: ${clearedCount} (expected: ${completedLines.length})`);
+        return clearedCount;
     }
 
     // Get line clearing info for animations
@@ -321,6 +346,19 @@ export class Grid {
             totalLines: this.totalLines,
             isEmpty: occupiedCells === 0
         };
+    }
+
+    // Debug: Print grid state to console
+    debugPrintGrid() {
+        console.log('=== GRID STATE ===');
+        for (let y = GRID_HIDDEN_ROWS; y < this.height; y++) {
+            let line = `${y.toString().padStart(2, '0')}: `;
+            for (let x = 0; x < this.width; x++) {
+                line += this.cells[y][x] !== null ? '■' : '·';
+            }
+            console.log(line);
+        }
+        console.log('==================');
     }
 
     // Deep copy grid state

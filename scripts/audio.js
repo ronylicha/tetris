@@ -22,6 +22,7 @@ export class AudioManager {
         // Background music state
         this.currentMusic = null;
         this.musicLoop = null;
+        this.currentMusicNotes = [];
         
         this.initializeAudioContext();
     }
@@ -367,7 +368,7 @@ export class AudioManager {
         }
     }
 
-    // Background Music System
+    // Background Music System - 90s Style
     startBackgroundMusic() {
         if (!this.settings.musicEnabled || this.musicLoop) return;
         
@@ -380,73 +381,206 @@ export class AudioManager {
             clearInterval(this.musicLoop);
             this.musicLoop = null;
         }
+        
+        // Stop any currently playing notes
+        if (this.currentMusicNotes) {
+            this.currentMusicNotes.forEach(note => {
+                if (note.oscillator) {
+                    try {
+                        note.oscillator.stop();
+                    } catch (e) {
+                        // Ignore if already stopped
+                    }
+                }
+            });
+            this.currentMusicNotes = [];
+        }
     }
 
     playBackgroundLoop() {
-        // Classic Tetris-inspired melody
-        const melody = [
-            // Main theme inspired by Korobeiniki
-            { note: 659, duration: 0.5 }, // E
-            { note: 494, duration: 0.25 }, // B
-            { note: 523, duration: 0.25 }, // C
-            { note: 587, duration: 0.5 }, // D
-            { note: 523, duration: 0.25 }, // C
-            { note: 494, duration: 0.25 }, // B
-            { note: 440, duration: 0.5 }, // A
-            { note: 440, duration: 0.25 }, // A
-            { note: 523, duration: 0.25 }, // C
-            { note: 659, duration: 0.5 }, // E
-            { note: 587, duration: 0.25 }, // D
-            { note: 523, duration: 0.25 }, // C
-            { note: 494, duration: 1 }, // B
-            { note: 523, duration: 0.25 }, // C
-            { note: 587, duration: 0.5 }, // D
-            { note: 659, duration: 0.5 }, // E
-            { note: 523, duration: 0.5 }, // C
-            { note: 440, duration: 0.5 }, // A
-            { note: 440, duration: 1 } // A
+        // Enhanced 90s-style Tetris melody with harmony and bass
+        const mainMelody = [
+            // A section - Classic Tetris theme (Korobeiniki) enhanced
+            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
+            { note: 494, duration: 0.25, harmony: [392] }, // B + G
+            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
+            { note: 587, duration: 0.5, harmony: [440, 349] }, // D + A + F
+            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
+            { note: 494, duration: 0.25, harmony: [392] }, // B + G
+            { note: 440, duration: 0.5, harmony: [330, 277] }, // A + E + C#
+            { note: 440, duration: 0.25, harmony: [330] }, // A + E
+            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
+            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
+            { note: 587, duration: 0.25, harmony: [440] }, // D + A
+            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
+            { note: 494, duration: 0.75, harmony: [392, 311] }, // B + G + D#
+            { note: 0, duration: 0.25, harmony: [] }, // Rest
+            
+            // B section - Variation with 90s flair
+            { note: 587, duration: 0.5, harmony: [440, 349] }, // D + A + F
+            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
+            { note: 587, duration: 0.25, harmony: [440] }, // D + A
+            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
+            { note: 523, duration: 0.5, harmony: [415, 311] }, // C + G# + D#
+            { note: 440, duration: 0.5, harmony: [330, 277] }, // A + E + C#
+            { note: 440, duration: 1, harmony: [330, 262] }, // A + E + C
+            
+            // Bridge with bass line
+            { note: 392, duration: 0.25, harmony: [196, 262] }, // G + G(low) + C
+            { note: 440, duration: 0.25, harmony: [220, 294] }, // A + A(low) + D
+            { note: 494, duration: 0.25, harmony: [247, 330] }, // B + B(low) + E
+            { note: 523, duration: 0.25, harmony: [262, 349] }, // C + C(low) + F
+        ];
+        
+        const bassLine = [
+            // Accompanying bass pattern
+            196, 196, 220, 220, 196, 196, 175, 175, // G G A A G G F F
+            196, 196, 220, 220, 196, 196, 175, 175,
+            220, 220, 247, 247, 220, 220, 196, 196, // A A B B A A G G
+            175, 185, 196, 208, 220, 233, 247, 262  // F F# G G# A A# B C
         ];
         
         let noteIndex = 0;
-        const playNextNote = () => {
+        let bassIndex = 0;
+        this.currentMusicNotes = [];
+        
+        const playNextNote = async () => {
             if (!this.settings.musicEnabled) return;
             
-            const currentNote = melody[noteIndex];
-            const sound = this.createMusicNote(currentNote.note, currentNote.duration);
+            // Clear previous notes
+            this.currentMusicNotes.forEach(note => {
+                if (note.oscillator) {
+                    try {
+                        note.oscillator.stop();
+                    } catch (e) {
+                        // Already stopped
+                    }
+                }
+            });
+            this.currentMusicNotes = [];
             
-            if (sound) {
-                sound.oscillator.start();
-                sound.oscillator.stop(this.audioContext.currentTime + currentNote.duration);
+            const currentNote = mainMelody[noteIndex];
+            const bassNote = bassLine[bassIndex];
+            const now = this.audioContext.currentTime;
+            
+            // Play main melody note
+            if (currentNote.note > 0) {
+                const mainSound = this.createMusicNote(currentNote.note, currentNote.duration, 'lead');
+                if (mainSound) {
+                    mainSound.oscillator.start(now);
+                    mainSound.oscillator.stop(now + currentNote.duration);
+                    this.currentMusicNotes.push(mainSound);
+                }
+                
+                // Play harmony notes (90s style)
+                currentNote.harmony.forEach((harmonyFreq, index) => {
+                    const harmonySound = this.createMusicNote(harmonyFreq, currentNote.duration, 'harmony');
+                    if (harmonySound) {
+                        harmonySound.oscillator.start(now + (index * 0.02)); // Slight delay for richness
+                        harmonySound.oscillator.stop(now + currentNote.duration);
+                        this.currentMusicNotes.push(harmonySound);
+                    }
+                });
             }
             
-            noteIndex = (noteIndex + 1) % melody.length;
+            // Play bass line
+            const bassSound = this.createMusicNote(bassNote, currentNote.duration, 'bass');
+            if (bassSound) {
+                bassSound.oscillator.start(now);
+                bassSound.oscillator.stop(now + currentNote.duration);
+                this.currentMusicNotes.push(bassSound);
+            }
+            
+            noteIndex = (noteIndex + 1) % mainMelody.length;
+            bassIndex = (bassIndex + 1) % bassLine.length;
         };
         
-        // Start playing and set interval for continuous loop
+        // Start playing with smoother timing (90s feel)
         playNextNote();
-        this.musicLoop = setInterval(playNextNote, 600); // 100 BPM roughly
+        this.musicLoop = setInterval(playNextNote, 400); // 150 BPM for more energy
     }
 
-    createMusicNote(frequency, duration) {
+    createMusicNote(frequency, duration, instrument = 'lead') {
         if (!this.audioContext) return null;
         
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
+        const filterNode = this.audioContext.createBiquadFilter();
         
-        oscillator.type = 'square';
+        // 90s-style instrument configuration
+        switch (instrument) {
+            case 'lead':
+                oscillator.type = 'sawtooth'; // Richer sound than square
+                filterNode.type = 'lowpass';
+                filterNode.frequency.value = 2000;
+                filterNode.Q.value = 1.5;
+                break;
+                
+            case 'harmony':
+                oscillator.type = 'triangle'; // Softer harmony
+                filterNode.type = 'bandpass';
+                filterNode.frequency.value = 1000;
+                filterNode.Q.value = 0.7;
+                break;
+                
+            case 'bass':
+                oscillator.type = 'square'; // Classic bass sound
+                filterNode.type = 'lowpass';
+                filterNode.frequency.value = 400;
+                filterNode.Q.value = 2;
+                break;
+                
+            default:
+                oscillator.type = 'square';
+                filterNode.type = 'lowpass';
+                filterNode.frequency.value = 1500;
+        }
+        
         oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
         
-        // Softer envelope for background music
+        // 90s-style envelope with more character
         const now = this.audioContext.currentTime;
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
-        gainNode.gain.setValueAtTime(0.1, now + duration * 0.8);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        let volume;
         
-        oscillator.connect(gainNode);
+        switch (instrument) {
+            case 'lead':
+                volume = 0.08; // Main melody prominence
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.02);
+                gainNode.gain.setValueAtTime(volume * 0.9, now + duration * 0.3);
+                gainNode.gain.setValueAtTime(volume * 0.7, now + duration * 0.7);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                break;
+                
+            case 'harmony':
+                volume = 0.04; // Subtle harmony
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.05);
+                gainNode.gain.setValueAtTime(volume * 0.8, now + duration * 0.5);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                break;
+                
+            case 'bass':
+                volume = 0.06; // Solid bass foundation
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
+                gainNode.gain.setValueAtTime(volume, now + duration * 0.8);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                break;
+                
+            default:
+                volume = 0.05;
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        }
+        
+        // Connect with filter for 90s character
+        oscillator.connect(filterNode);
+        filterNode.connect(gainNode);
         gainNode.connect(this.musicGain);
         
-        return { oscillator, gainNode };
+        return { oscillator, gainNode, filterNode };
     }
 
     // Volume Controls
