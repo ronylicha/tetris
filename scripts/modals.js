@@ -302,6 +302,10 @@ export class ModalManager {
                     <span class="quick-control-key">👇 Swipe Down</span>
                     <span class="quick-control-action">Drop</span>
                 </div>
+                <div class="quick-control-item">
+                    <span class="quick-control-key">🤏 Long Press</span>
+                    <span class="quick-control-action">Hold</span>
+                </div>
             `;
         } else {
             // Show keyboard controls for desktop

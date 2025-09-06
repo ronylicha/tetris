@@ -693,21 +693,22 @@ body::before {
     background: rgba(255, 255, 255, 0.05);
     border-radius: var(--border-radius);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.setting-group label {
-    display: block;
+.setting-group > label {
     color: var(--text-primary);
     font-weight: 600;
-    margin-bottom: 10px;
     font-size: 1.1rem;
+    margin: 0;
 }
 
 .volume-control {
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 15px;
 }
 
 .volume-control input[type="range"] {
@@ -747,7 +748,9 @@ body::before {
 }
 
 .setting-toggle {
-    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .toggle-switch {

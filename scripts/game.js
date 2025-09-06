@@ -301,13 +301,52 @@ export class TetrisGame {
         // Play lock sound
         this.audioManager.playSFX('lock');
         
-        // Clear completed lines
-        const clearedLines = this.grid.clearLines();
+        // Process line clearing immediately and completely
+        this.processLineClear(tspinResult);
         
-        // Calculate score
-        this.calculateScore(clearedLines, tspinResult);
+        // Check game over after everything is processed
+        if (this.grid.isGameOver()) {
+            this.gameOver();
+        } else {
+            this.currentPiece = null;
+        }
+    }
+
+    // Process line clearing with proper sequencing
+    processLineClear(tspinResult) {
+        // Get lines to clear BEFORE clearing them for animation
+        const linesToClear = this.grid.getCompletedLines();
+        
+        if (linesToClear.length === 0) {
+            return; // No lines to clear
+        }
+        
+        // Clear the lines from the grid immediately
+        const actualCleared = this.grid.clearLines();
         
         // Track special achievements
+        this.updateSpecialAchievements(tspinResult, actualCleared);
+        
+        // Show effects and play sounds using original line positions
+        this.playLineClearEffects(actualCleared, linesToClear, tspinResult);
+        
+        // Calculate and update score
+        this.calculateScore(actualCleared, tspinResult);
+        
+        // Check for perfect clear bonus
+        if (this.grid.isPerfectClear() && actualCleared > 0) {
+            this.specialAchievements.perfectClears++;
+            this.uiManager.showPerfectClearEffect();
+            this.score += 10000 * this.level; // Bonus for perfect clear
+        }
+        
+        // Update level after processing everything
+        this.updateLevel();
+    }
+
+    // Update special achievements tracking
+    updateSpecialAchievements(tspinResult, clearedLines) {
+        // Track T-Spins
         if (tspinResult.type === 'tspin') {
             if (tspinResult.mini) {
                 this.specialAchievements.tspinMinis++;
@@ -319,11 +358,13 @@ export class TetrisGame {
         if (clearedLines === 4) {
             this.specialAchievements.tetris++;
         }
-        
-        // Show effects and play sounds
+    }
+
+    // Play line clear effects and sounds
+    playLineClearEffects(clearedLines, originalLinePositions, tspinResult) {
         if (clearedLines > 0) {
-            const completedLines = this.grid.getCompletedLines();
-            this.uiManager.showLineClearEffect(completedLines, clearedLines === 4);
+            // Show visual effects using original line positions
+            this.uiManager.showLineClearEffect(originalLinePositions, clearedLines === 4);
             
             // Play appropriate sound
             if (clearedLines === 4) {
@@ -336,23 +377,6 @@ export class TetrisGame {
         if (tspinResult.type === 'tspin') {
             this.audioManager.playSFX('tspin');
             this.uiManager.showTSpinEffect(this.currentPiece, tspinResult.mini);
-        }
-        
-        // Check for perfect clear
-        if (this.grid.isPerfectClear() && clearedLines > 0) {
-            this.specialAchievements.perfectClears++;
-            this.uiManager.showPerfectClearEffect();
-            this.score += 10000 * this.level; // Bonus for perfect clear
-        }
-        
-        // Update level
-        this.updateLevel();
-        
-        // Check game over
-        if (this.grid.isGameOver()) {
-            this.gameOver();
-        } else {
-            this.currentPiece = null;
         }
     }
 
@@ -449,10 +473,13 @@ export class TetrisGame {
     }
 
     // Game state management
-    start() {
+    async start() {
         this.state = 'playing';
         this.gameStartTime = Date.now(); // Reset game start time
         this.uiManager.hideOverlay();
+        
+        // Ensure audio context is ready
+        await this.audioManager.resumeAudioContext();
         
         // Start background music
         this.audioManager.startBackgroundMusic();

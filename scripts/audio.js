@@ -28,7 +28,15 @@ export class AudioManager {
 
     async initializeAudioContext() {
         try {
+            console.log('Attempting to initialize audio context...');
+            
+            // Check if Web Audio API is supported
+            if (!(window.AudioContext || window.webkitAudioContext)) {
+                throw new Error('Web Audio API not supported');
+            }
+            
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('Audio context created, state:', this.audioContext.state);
             
             // Create gain nodes for volume control
             this.masterGain = this.audioContext.createGain();
@@ -43,15 +51,78 @@ export class AudioManager {
             // Set initial volumes
             this.updateVolumes();
             
+            console.log('Audio context initialized successfully');
+            console.log('Sample rate:', this.audioContext.sampleRate);
+            console.log('Destination channels:', this.audioContext.destination.channelCount);
+            
+            // Try to resume context immediately if possible
+            if (this.audioContext.state === 'suspended') {
+                console.log('Audio context suspended, will resume on user interaction');
+            } else if (this.audioContext.state === 'running') {
+                console.log('Audio context is already running');
+            }
+            
         } catch (error) {
-            console.warn('Audio context not supported:', error);
+            console.error('Audio context initialization failed:', error);
+            this.audioContext = null;
+            
+            // Add fallback notification
+            this.showAudioError('Audio not available: ' + error.message);
         }
+    }
+
+    // Show audio error to user
+    showAudioError(message) {
+        console.warn('Audio Error:', message);
+        
+        // Create a temporary notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
     }
 
     // Ensure audio context is resumed (required for user interaction)
     async resumeAudioContext() {
-        if (this.audioContext && this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+        if (!this.audioContext) {
+            console.warn('No audio context available');
+            return false;
+        }
+        
+        if (this.audioContext.state === 'suspended') {
+            try {
+                await this.audioContext.resume();
+                console.log('Audio context resumed successfully, state:', this.audioContext.state);
+                return true;
+            } catch (error) {
+                console.error('Failed to resume audio context:', error);
+                this.showAudioError('Failed to resume audio: ' + error.message);
+                return false;
+            }
+        } else if (this.audioContext.state === 'running') {
+            console.log('Audio context already running');
+            return true;
+        } else {
+            console.warn('Audio context in unexpected state:', this.audioContext.state);
+            return false;
         }
     }
 
@@ -102,42 +173,66 @@ export class AudioManager {
     }
 
     // Play a synthesized sound effect
-    playSFX(type) {
-        if (!this.settings.sfxEnabled || !this.audioContext) return;
+    async playSFX(type) {
+        console.log(`SFX Request: ${type}`);
         
-        this.resumeAudioContext();
+        if (!this.settings.sfxEnabled) {
+            console.log(`SFX ${type} skipped: SFX disabled in settings`);
+            return;
+        }
         
-        switch (type) {
-            case 'move':
-                this.playMoveSound();
-                break;
-            case 'rotate':
-                this.playRotateSound();
-                break;
-            case 'drop':
-                this.playDropSound();
-                break;
-            case 'lock':
-                this.playLockSound();
-                break;
-            case 'lineClear':
-                this.playLineClearSound();
-                break;
-            case 'tetris':
-                this.playTetrisSound();
-                break;
-            case 'levelUp':
-                this.playLevelUpSound();
-                break;
-            case 'gameOver':
-                this.playGameOverSound();
-                break;
-            case 'hold':
-                this.playHoldSound();
-                break;
-            case 'tspin':
-                this.playTSpinSound();
-                break;
+        if (!this.audioContext) {
+            console.log(`SFX ${type} skipped: No audio context available`);
+            return;
+        }
+        
+        // Ensure audio context is resumed before playing
+        const resumed = await this.resumeAudioContext();
+        if (!resumed) {
+            console.warn(`SFX ${type} skipped: Failed to resume audio context`);
+            return;
+        }
+        
+        console.log(`Playing SFX: ${type} (context state: ${this.audioContext.state})`);
+        
+        try {
+            switch (type) {
+                case 'move':
+                    this.playMoveSound();
+                    break;
+                case 'rotate':
+                    this.playRotateSound();
+                    break;
+                case 'drop':
+                    this.playDropSound();
+                    break;
+                case 'lock':
+                    this.playLockSound();
+                    break;
+                case 'lineClear':
+                    this.playLineClearSound();
+                    break;
+                case 'tetris':
+                    this.playTetrisSound();
+                    break;
+                case 'levelUp':
+                    this.playLevelUpSound();
+                    break;
+                case 'gameOver':
+                    this.playGameOverSound();
+                    break;
+                case 'hold':
+                    this.playHoldSound();
+                    break;
+                case 'tspin':
+                    this.playTSpinSound();
+                    break;
+                default:
+                    console.warn(`Unknown SFX type: ${type}`);
+            }
+        } catch (error) {
+            console.error(`Error playing SFX ${type}:`, error);
+            this.showAudioError(`Sound effect error: ${error.message}`);
         }
     }
 

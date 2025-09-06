@@ -40,7 +40,11 @@ export class UIManager {
     initializeUI() {
         // Button event listeners
         if (this.elements.startButton) {
-            this.elements.startButton.addEventListener('click', () => {
+            this.elements.startButton.addEventListener('click', async () => {
+                // Trigger audio context on first user interaction
+                if (this.game.audioManager) {
+                    await this.game.audioManager.resumeAudioContext();
+                }
                 this.game.start();
             });
         }

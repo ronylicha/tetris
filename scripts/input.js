@@ -48,7 +48,10 @@ export class InputManager {
             startX: 0,
             startY: 0,
             threshold: 30,
-            isActive: false
+            isActive: false,
+            startTime: 0,
+            longPressThreshold: 500, // 500ms for long press
+            longPressTriggered: false
         };
         
         this.initializeEventListeners();
@@ -198,7 +201,17 @@ export class InputManager {
         const touch = e.touches[0];
         this.touchControls.startX = touch.clientX;
         this.touchControls.startY = touch.clientY;
+        this.touchControls.startTime = Date.now();
         this.touchControls.isActive = true;
+        this.touchControls.longPressTriggered = false;
+        
+        // Set timeout for long press detection
+        this.longPressTimeout = setTimeout(() => {
+            if (this.touchControls.isActive && !this.touchControls.longPressTriggered) {
+                this.touchControls.longPressTriggered = true;
+                this.executeAction('hold');
+            }
+        }, this.touchControls.longPressThreshold);
     }
 
     handleTouchMove(e) {
@@ -210,10 +223,23 @@ export class InputManager {
         if (!this.touchControls.isActive) return;
         e.preventDefault();
         
+        // Clear long press timeout
+        if (this.longPressTimeout) {
+            clearTimeout(this.longPressTimeout);
+            this.longPressTimeout = null;
+        }
+        
+        // If long press was triggered, don't process other gestures
+        if (this.touchControls.longPressTriggered) {
+            this.touchControls.isActive = false;
+            return;
+        }
+        
         const touch = e.changedTouches[0];
         const deltaX = touch.clientX - this.touchControls.startX;
         const deltaY = touch.clientY - this.touchControls.startY;
         const threshold = this.touchControls.threshold;
+        const touchDuration = Date.now() - this.touchControls.startTime;
         
         // Determine gesture
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -233,8 +259,8 @@ export class InputManager {
                 } else {
                     this.executeAction('hardDrop');
                 }
-            } else {
-                // Tap - rotate
+            } else if (touchDuration < this.touchControls.longPressThreshold) {
+                // Quick tap - rotate
                 this.executeAction('rotateClockwise');
             }
         }
@@ -450,6 +476,13 @@ export class InputManager {
         this.firstPress.right = false;
         this.firstPress.down = false;
         this.touchControls.isActive = false;
+        this.touchControls.longPressTriggered = false;
+        
+        // Clear any pending long press timeout
+        if (this.longPressTimeout) {
+            clearTimeout(this.longPressTimeout);
+            this.longPressTimeout = null;
+        }
     }
 
     // Cleanup event listeners
