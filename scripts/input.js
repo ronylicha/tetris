@@ -62,7 +62,8 @@ export class InputManager {
         // Prevent default for game controls and handle key repeat issues
         document.addEventListener('keydown', (e) => {
             // Don't prevent default when modals are active to allow typing
-            if (this.isNameInputActive() || this.isLeaderboardActive()) {
+            if (this.isNameInputActive() || this.isLeaderboardActive() || 
+                this.isSettingsActive() || this.isHelpActive()) {
                 return;
             }
             
@@ -90,8 +91,9 @@ export class InputManager {
     }
 
     handleKeyDown(e) {
-        // Check if name input or leaderboard is active - if so, ignore game controls
-        if (this.isNameInputActive() || this.isLeaderboardActive()) {
+        // Check if any modal is active - if so, ignore game controls
+        if (this.isNameInputActive() || this.isLeaderboardActive() || 
+            this.isSettingsActive() || this.isHelpActive()) {
             // Only allow specific keys during name input
             if (this.isNameInputActive()) {
                 // Allow normal typing, Enter for save, Escape to close
@@ -111,6 +113,20 @@ export class InputManager {
             // For leaderboard, only allow Escape to close
             if (this.isLeaderboardActive() && e.code === 'Escape') {
                 const closeButton = document.getElementById('close-leaderboard');
+                if (closeButton) closeButton.click();
+                return;
+            }
+            
+            // For settings, only allow Escape to close
+            if (this.isSettingsActive() && e.code === 'Escape') {
+                const closeButton = document.getElementById('close-settings');
+                if (closeButton) closeButton.click();
+                return;
+            }
+            
+            // For help, only allow Escape to close
+            if (this.isHelpActive() && e.code === 'Escape') {
+                const closeButton = document.getElementById('close-help');
                 if (closeButton) closeButton.click();
                 return;
             }
@@ -153,8 +169,9 @@ export class InputManager {
     }
 
     handleKeyUp(e) {
-        // Check if name input or leaderboard is active - if so, ignore game key releases
-        if (this.isNameInputActive() || this.isLeaderboardActive()) {
+        // Check if any modal is active - if so, ignore game key releases
+        if (this.isNameInputActive() || this.isLeaderboardActive() || 
+            this.isSettingsActive() || this.isHelpActive()) {
             return;
         }
         
@@ -271,8 +288,9 @@ export class InputManager {
     update(deltaTime) {
         if (!this.game || this.game.state !== 'playing') return;
         
-        // Check if name input modal is active - if so, disable game controls
-        if (this.isNameInputActive() || this.isLeaderboardActive()) return;
+        // Check if any modal is active - if so, disable game controls
+        if (this.isNameInputActive() || this.isLeaderboardActive() || 
+            this.isSettingsActive() || this.isHelpActive()) return;
         
         // Handle DAS (Delayed Auto Shift)
         this.updateDAS(deltaTime);
@@ -398,6 +416,20 @@ export class InputManager {
     // Check if leaderboard modal is active
     isLeaderboardActive() {
         const overlay = document.getElementById('leaderboard-overlay');
+        return overlay && overlay.style.display !== 'none' && 
+               window.getComputedStyle(overlay).display !== 'none';
+    }
+    
+    // Check if settings modal is active
+    isSettingsActive() {
+        const overlay = document.getElementById('settings-overlay');
+        return overlay && overlay.style.display !== 'none' && 
+               window.getComputedStyle(overlay).display !== 'none';
+    }
+    
+    // Check if help modal is active
+    isHelpActive() {
+        const overlay = document.getElementById('help-overlay');
         return overlay && overlay.style.display !== 'none' && 
                window.getComputedStyle(overlay).display !== 'none';
     }

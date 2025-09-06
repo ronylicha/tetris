@@ -4,6 +4,8 @@ import { Grid, GRID_WIDTH, GRID_HEIGHT } from './grid.js';
 import { Piece, PieceBag, TSpinDetector, PIECE_TYPES } from './pieces.js';
 import { InputManager } from './input.js';
 import { UIManager } from './ui.js';
+import { AudioManager } from './audio.js';
+import { ModalManager } from './modals.js';
 
 export class TetrisGame {
     constructor() {
@@ -48,8 +50,10 @@ export class TetrisGame {
         this.lastPiecePosition = null;
         
         // Systems
+        this.audioManager = new AudioManager();
         this.inputManager = new InputManager(this);
         this.uiManager = new UIManager(this);
+        this.modalManager = new ModalManager(this.audioManager);
         
         // Store piece module reference for UI
         this.pieceModule = { Piece, PIECE_TYPES };
@@ -191,6 +195,9 @@ export class TetrisGame {
             this.lastPiecePosition = this.currentPiece.copy();
             this.currentPiece = newPiece;
             
+            // Play move sound
+            this.audioManager.playSFX('move');
+            
             // Reset lock delay on successful movement
             if (this.currentPiece.shouldLock(this.grid)) {
                 this.currentPiece.resetLockDelay();
@@ -211,6 +218,10 @@ export class TetrisGame {
         if (rotatedPiece) {
             this.lastPiecePosition = this.currentPiece.copy();
             this.currentPiece = rotatedPiece;
+            
+            // Play rotate sound
+            this.audioManager.playSFX('rotate');
+            
             return true;
         }
         
@@ -222,6 +233,7 @@ export class TetrisGame {
         if (this.movePiece(0, 1)) {
             this.score += 1;
             this.dropTimer = 0;
+            // Move sound is already played in movePiece
         }
     }
 
@@ -232,9 +244,17 @@ export class TetrisGame {
         const originalY = this.currentPiece.y;
         let dropDistance = 0;
         
+        // Temporarily disable move sound for hard drop
+        const originalPlaySFX = this.audioManager.playSFX;
+        this.audioManager.playSFX = () => {};
+        
         while (this.movePiece(0, 1)) {
             dropDistance++;
         }
+        
+        // Restore sound and play drop sound
+        this.audioManager.playSFX = originalPlaySFX;
+        this.audioManager.playSFX('drop');
         
         this.score += dropDistance * 2;
         this.lockPiece();
@@ -264,6 +284,7 @@ export class TetrisGame {
         }
         
         this.heldPieceUsed = true;
+        this.audioManager.playSFX('hold');
         this.uiManager.updateHoldPiece(this.heldPiece ? new Piece(this.heldPiece) : null);
     }
 
@@ -276,6 +297,9 @@ export class TetrisGame {
         
         // Place piece on grid
         this.grid.placePiece(this.currentPiece);
+        
+        // Play lock sound
+        this.audioManager.playSFX('lock');
         
         // Clear completed lines
         const clearedLines = this.grid.clearLines();
@@ -296,13 +320,21 @@ export class TetrisGame {
             this.specialAchievements.tetris++;
         }
         
-        // Show effects
+        // Show effects and play sounds
         if (clearedLines > 0) {
             const completedLines = this.grid.getCompletedLines();
             this.uiManager.showLineClearEffect(completedLines, clearedLines === 4);
+            
+            // Play appropriate sound
+            if (clearedLines === 4) {
+                this.audioManager.playSFX('tetris');
+            } else {
+                this.audioManager.playSFX('lineClear');
+            }
         }
         
         if (tspinResult.type === 'tspin') {
+            this.audioManager.playSFX('tspin');
             this.uiManager.showTSpinEffect(this.currentPiece, tspinResult.mini);
         }
         
@@ -373,6 +405,7 @@ export class TetrisGame {
         const newLevel = Math.floor(this.lines / 10) + 1;
         if (newLevel > this.level) {
             this.level = newLevel;
+            this.audioManager.playSFX('levelUp');
             this.updateDropSpeed();
         }
     }
@@ -420,6 +453,10 @@ export class TetrisGame {
         this.state = 'playing';
         this.gameStartTime = Date.now(); // Reset game start time
         this.uiManager.hideOverlay();
+        
+        // Start background music
+        this.audioManager.startBackgroundMusic();
+        
         this.spawnNextPiece();
     }
 
@@ -486,6 +523,10 @@ export class TetrisGame {
 
     gameOver() {
         this.state = 'gameover';
+        
+        // Stop background music and play game over sound
+        this.audioManager.stopBackgroundMusic();
+        this.audioManager.playSFX('gameOver');
         
         // Prepare final stats
         const finalStats = {
