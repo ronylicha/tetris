@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Tetris</title>
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f0f23">
+    <meta name="description" content="Modern Tetris game with neon graphics and 90s-style music">
+    
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/animations.css">
     <link rel="stylesheet" href="styles/responsive.css">
@@ -13,7 +26,10 @@
     <div class="app">
         <header class="header">
             <div class="header-top">
-                <h1 class="title">TETRIS</h1>
+                <div class="logo-container">
+                    <img src="logo.svg" alt="Modern Tetris" class="logo">
+                    <h1 class="title sr-only">TETRIS</h1>
+                </div>
                 <div class="header-controls">
                     <button id="settings-button" class="btn-icon" title="Settings">⚙️</button>
                     <button id="help-button" class="btn-icon" title="Controls">❓</button>

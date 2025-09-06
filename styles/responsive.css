@@ -8,6 +8,14 @@
         padding: 10px;
     }
     
+    .logo {
+        height: 40px;
+    }
+    
+    .logo-container {
+        gap: 10px;
+    }
+    
     .title {
         font-size: 2rem;
         margin-bottom: 10px;
