@@ -314,34 +314,15 @@ export class TetrisGame {
 
     // Process line clearing with proper sequencing
     processLineClear(tspinResult) {
-        console.log('=== LINE CLEARING PROCESS START ===');
-        
-        // Debug: Print grid state before line detection
-        this.grid.debugPrintGrid();
-        
         // Get lines to clear BEFORE clearing them for animation
         const linesToClear = this.grid.getCompletedLines();
         
-        console.log(`processLineClear: Found ${linesToClear.length} lines to clear:`, linesToClear);
-        
         if (linesToClear.length === 0) {
-            console.log('=== LINE CLEARING PROCESS END (no lines) ===');
             return; // No lines to clear
         }
         
         // Clear the lines from the grid immediately using the detected lines
         const actualCleared = this.grid.clearLines(linesToClear);
-        
-        console.log(`processLineClear: Actually cleared ${actualCleared} lines`);
-        
-        // Debug: Print grid state after clearing
-        this.grid.debugPrintGrid();
-        
-        if (actualCleared !== linesToClear.length) {
-            console.error(`Line clearing mismatch! Expected ${linesToClear.length}, but cleared ${actualCleared}`);
-        }
-        
-        console.log('=== LINE CLEARING PROCESS END ===');
         
         // Track special achievements
         this.updateSpecialAchievements(tspinResult, actualCleared);

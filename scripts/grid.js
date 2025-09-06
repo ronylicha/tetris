@@ -81,7 +81,6 @@ export class Grid {
             }
         }
         
-        console.log(`Found ${completedLines.length} completed lines:`, completedLines);
         return completedLines;
     }
 
@@ -89,19 +88,13 @@ export class Grid {
     isLineFull(y) {
         if (!this.isInBounds(0, y)) return false;
         
-        let filledCells = 0;
         for (let x = 0; x < this.width; x++) {
-            if (this.cells[y][x] !== null) {
-                filledCells++;
+            if (this.cells[y][x] === null) {
+                return false;
             }
         }
         
-        const isFull = filledCells === this.width;
-        if (isFull) {
-            console.log(`Line ${y} is full (${filledCells}/${this.width} cells filled)`);
-        }
-        
-        return isFull;
+        return true;
     }
 
     // Clear completed lines and return line count
@@ -110,12 +103,8 @@ export class Grid {
         
         if (completedLines.length === 0) return 0;
         
-        console.log(`Clearing ${completedLines.length} lines:`, completedLines);
-        console.log(`Grid height before clearing: ${this.cells.length}`);
-        
         // Create a new grid without the completed lines
         const newCells = [];
-        const originalExpectedCount = completedLines.length;
         let actualClearedCount = 0;
         
         // Add empty lines at the top for each cleared line
@@ -129,22 +118,15 @@ export class Grid {
                 newCells.push([...this.cells[y]]);
             } else {
                 actualClearedCount++;
-                console.log(`Line ${y} is being cleared`);
             }
         }
-        
-        console.log(`Built new grid with ${newCells.length} rows`);
-        console.log(`Cleared ${actualClearedCount} lines (expected ${originalExpectedCount})`);
         
         // Replace the old grid with the new one
         this.cells = newCells;
         
-        console.log(`Grid height after clearing: ${this.cells.length}`);
-        
         this.linesCleared = actualClearedCount;
         this.totalLines += actualClearedCount;
         
-        console.log(`Total lines cleared: ${actualClearedCount} (expected: ${originalExpectedCount})`);
         return actualClearedCount;
     }
 
@@ -352,18 +334,6 @@ export class Grid {
         };
     }
 
-    // Debug: Print grid state to console
-    debugPrintGrid() {
-        console.log('=== GRID STATE ===');
-        for (let y = GRID_HIDDEN_ROWS; y < this.height; y++) {
-            let line = `${y.toString().padStart(2, '0')}: `;
-            for (let x = 0; x < this.width; x++) {
-                line += this.cells[y][x] !== null ? '■' : '·';
-            }
-            console.log(line);
-        }
-        console.log('==================');
-    }
 
     // Deep copy grid state
     copy() {

@@ -22,6 +22,7 @@ export class AudioManager {
         // Background music state
         this.currentMusic = null;
         this.musicLoop = null;
+        this.musicTimeout = null;
         this.currentMusicNotes = [];
         
         this.initializeAudioContext();
@@ -29,15 +30,12 @@ export class AudioManager {
 
     async initializeAudioContext() {
         try {
-            console.log('Attempting to initialize audio context...');
-            
             // Check if Web Audio API is supported
             if (!(window.AudioContext || window.webkitAudioContext)) {
                 throw new Error('Web Audio API not supported');
             }
             
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('Audio context created, state:', this.audioContext.state);
             
             // Create gain nodes for volume control
             this.masterGain = this.audioContext.createGain();
@@ -52,22 +50,8 @@ export class AudioManager {
             // Set initial volumes
             this.updateVolumes();
             
-            console.log('Audio context initialized successfully');
-            console.log('Sample rate:', this.audioContext.sampleRate);
-            console.log('Destination channels:', this.audioContext.destination.channelCount);
-            
-            // Try to resume context immediately if possible
-            if (this.audioContext.state === 'suspended') {
-                console.log('Audio context suspended, will resume on user interaction');
-            } else if (this.audioContext.state === 'running') {
-                console.log('Audio context is already running');
-            }
-            
         } catch (error) {
-            console.error('Audio context initialization failed:', error);
             this.audioContext = null;
-            
-            // Add fallback notification
             this.showAudioError('Audio not available: ' + error.message);
         }
     }
@@ -104,27 +88,20 @@ export class AudioManager {
     // Ensure audio context is resumed (required for user interaction)
     async resumeAudioContext() {
         if (!this.audioContext) {
-            console.warn('No audio context available');
             return false;
         }
         
         if (this.audioContext.state === 'suspended') {
             try {
                 await this.audioContext.resume();
-                console.log('Audio context resumed successfully, state:', this.audioContext.state);
                 return true;
             } catch (error) {
-                console.error('Failed to resume audio context:', error);
                 this.showAudioError('Failed to resume audio: ' + error.message);
                 return false;
             }
-        } else if (this.audioContext.state === 'running') {
-            console.log('Audio context already running');
-            return true;
-        } else {
-            console.warn('Audio context in unexpected state:', this.audioContext.state);
-            return false;
         }
+        
+        return this.audioContext.state === 'running';
     }
 
     // Load audio settings from localStorage
@@ -175,26 +152,15 @@ export class AudioManager {
 
     // Play a synthesized sound effect
     async playSFX(type) {
-        console.log(`SFX Request: ${type}`);
-        
-        if (!this.settings.sfxEnabled) {
-            console.log(`SFX ${type} skipped: SFX disabled in settings`);
-            return;
-        }
-        
-        if (!this.audioContext) {
-            console.log(`SFX ${type} skipped: No audio context available`);
+        if (!this.settings.sfxEnabled || !this.audioContext) {
             return;
         }
         
         // Ensure audio context is resumed before playing
         const resumed = await this.resumeAudioContext();
         if (!resumed) {
-            console.warn(`SFX ${type} skipped: Failed to resume audio context`);
             return;
         }
-        
-        console.log(`Playing SFX: ${type} (context state: ${this.audioContext.state})`);
         
         try {
             switch (type) {
@@ -228,11 +194,8 @@ export class AudioManager {
                 case 'tspin':
                     this.playTSpinSound();
                     break;
-                default:
-                    console.warn(`Unknown SFX type: ${type}`);
             }
         } catch (error) {
-            console.error(`Error playing SFX ${type}:`, error);
             this.showAudioError(`Sound effect error: ${error.message}`);
         }
     }
@@ -382,6 +345,12 @@ export class AudioManager {
             this.musicLoop = null;
         }
         
+        // Clear any scheduled timeouts
+        if (this.musicTimeout) {
+            clearTimeout(this.musicTimeout);
+            this.musicTimeout = null;
+        }
+        
         // Stop any currently playing notes
         if (this.currentMusicNotes) {
             this.currentMusicNotes.forEach(note => {
@@ -398,50 +367,90 @@ export class AudioManager {
     }
 
     playBackgroundLoop() {
-        // Enhanced 90s-style Tetris melody with harmony and bass
-        const mainMelody = [
-            // A section - Classic Tetris theme (Korobeiniki) enhanced
-            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
-            { note: 494, duration: 0.25, harmony: [392] }, // B + G
-            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
-            { note: 587, duration: 0.5, harmony: [440, 349] }, // D + A + F
-            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
-            { note: 494, duration: 0.25, harmony: [392] }, // B + G
-            { note: 440, duration: 0.5, harmony: [330, 277] }, // A + E + C#
-            { note: 440, duration: 0.25, harmony: [330] }, // A + E
-            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
-            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
-            { note: 587, duration: 0.25, harmony: [440] }, // D + A
-            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
-            { note: 494, duration: 0.75, harmony: [392, 311] }, // B + G + D#
-            { note: 0, duration: 0.25, harmony: [] }, // Rest
+        // Extended modern electronic composition - 4+ minutes of unique music
+        const composition = [
+            // === INTRO SECTION === (16 beats)
+            { note: 329.63, duration: 1.0, harmony: [261.63, 196.00], section: 'intro' }, // E3 + C3 + G2
+            { note: 0, duration: 0.5, harmony: [], section: 'intro' },
+            { note: 440.00, duration: 0.5, harmony: [329.63, 220.00], section: 'intro' }, // A4 + E3 + A2
+            { note: 523.25, duration: 1.0, harmony: [415.30, 261.63], section: 'intro' }, // C5 + G#4 + C3
             
-            // B section - Variation with 90s flair
-            { note: 587, duration: 0.5, harmony: [440, 349] }, // D + A + F
-            { note: 523, duration: 0.25, harmony: [415] }, // C + G#
-            { note: 587, duration: 0.25, harmony: [440] }, // D + A
-            { note: 659, duration: 0.5, harmony: [523, 392] }, // E + C + G
-            { note: 523, duration: 0.5, harmony: [415, 311] }, // C + G# + D#
-            { note: 440, duration: 0.5, harmony: [330, 277] }, // A + E + C#
-            { note: 440, duration: 1, harmony: [330, 262] }, // A + E + C
+            // === MAIN THEME A === (32 beats) - Enhanced Korobeiniki
+            { note: 659.25, duration: 0.5, harmony: [523.25, 392.00, 196.00], section: 'themeA' }, // E5 + C5 + G4 + G2
+            { note: 493.88, duration: 0.25, harmony: [392.00, 220.00], section: 'themeA' }, // B4 + G4 + A2
+            { note: 523.25, duration: 0.25, harmony: [415.30, 233.08], section: 'themeA' }, // C5 + G#4 + A#2
+            { note: 587.33, duration: 0.5, harmony: [440.00, 349.23, 246.94], section: 'themeA' }, // D5 + A4 + F4 + B2
+            { note: 523.25, duration: 0.25, harmony: [415.30, 261.63], section: 'themeA' }, // C5 + G#4 + C3
+            { note: 493.88, duration: 0.25, harmony: [392.00, 277.18], section: 'themeA' }, // B4 + G4 + C#3
+            { note: 440.00, duration: 0.5, harmony: [329.63, 220.00], section: 'themeA' }, // A4 + E4 + A2
+            { note: 440.00, duration: 0.25, harmony: [329.63, 196.00], section: 'themeA' }, // A4 + E4 + G2
+            { note: 523.25, duration: 0.25, harmony: [415.30, 220.00], section: 'themeA' }, // C5 + G#4 + A2
+            { note: 659.25, duration: 0.5, harmony: [523.25, 392.00, 246.94], section: 'themeA' }, // E5 + C5 + G4 + B2
+            { note: 587.33, duration: 0.25, harmony: [440.00, 261.63], section: 'themeA' }, // D5 + A4 + C3
+            { note: 523.25, duration: 0.25, harmony: [415.30, 277.18], section: 'themeA' }, // C5 + G#4 + C#3
+            { note: 493.88, duration: 1.0, harmony: [392.00, 293.66, 196.00], section: 'themeA' }, // B4 + G4 + D4 + G2
+            { note: 0, duration: 0.25, harmony: [], section: 'themeA' },
             
-            // Bridge with bass line
-            { note: 392, duration: 0.25, harmony: [196, 262] }, // G + G(low) + C
-            { note: 440, duration: 0.25, harmony: [220, 294] }, // A + A(low) + D
-            { note: 494, duration: 0.25, harmony: [247, 330] }, // B + B(low) + E
-            { note: 523, duration: 0.25, harmony: [262, 349] }, // C + C(low) + F
+            // === BREAKDOWN SECTION === (16 beats) - Minimal electronic
+            { note: 880.00, duration: 0.125, harmony: [659.25, 440.00], section: 'breakdown' }, // A5 + E5 + A4
+            { note: 0, duration: 0.125, harmony: [], section: 'breakdown' },
+            { note: 783.99, duration: 0.125, harmony: [587.33, 392.00], section: 'breakdown' }, // G5 + D5 + G4
+            { note: 0, duration: 0.125, harmony: [], section: 'breakdown' },
+            { note: 659.25, duration: 0.125, harmony: [493.88, 329.63], section: 'breakdown' }, // E5 + B4 + E4
+            { note: 0, duration: 0.375, harmony: [], section: 'breakdown' },
+            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'breakdown' }, // C6 + G5 + C5 + C3
+            { note: 0, duration: 0.5, harmony: [], section: 'breakdown' },
+            
+            // === THEME B === (32 beats) - New melodic variation
+            { note: 587.33, duration: 0.75, harmony: [440.00, 349.23, 220.00], section: 'themeB' }, // D5 + A4 + F4 + A2
+            { note: 659.25, duration: 0.25, harmony: [523.25, 392.00], section: 'themeB' }, // E5 + C5 + G4
+            { note: 739.99, duration: 0.5, harmony: [554.37, 415.30, 246.94], section: 'themeB' }, // F#5 + C#5 + G#4 + B2
+            { note: 659.25, duration: 0.25, harmony: [523.25, 329.63], section: 'themeB' }, // E5 + C5 + E4
+            { note: 587.33, duration: 0.25, harmony: [440.00, 293.66], section: 'themeB' }, // D5 + A4 + D4
+            { note: 523.25, duration: 0.5, harmony: [392.00, 261.63], section: 'themeB' }, // C5 + G4 + C3
+            { note: 493.88, duration: 0.5, harmony: [369.99, 277.18], section: 'themeB' }, // B4 + F#4 + C#3
+            { note: 554.37, duration: 0.75, harmony: [415.30, 311.13, 185.00], section: 'themeB' }, // C#5 + G#4 + D#4 + F#2
+            { note: 523.25, duration: 0.25, harmony: [392.00, 196.00], section: 'themeB' }, // C5 + G4 + G2
+            
+            // === BUILD UP === (16 beats) - Energy increase
+            { note: 880.00, duration: 0.25, harmony: [659.25, 440.00, 220.00], section: 'buildup' }, // A5 + E5 + A4 + A2
+            { note: 932.33, duration: 0.25, harmony: [698.46, 466.16, 233.08], section: 'buildup' }, // A#5 + F5 + A#4 + A#2
+            { note: 987.77, duration: 0.25, harmony: [739.99, 493.88, 246.94], section: 'buildup' }, // B5 + F#5 + B4 + B2
+            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'buildup' }, // C6 + G5 + C5 + C3
+            { note: 1108.73, duration: 0.5, harmony: [830.61, 554.37, 277.18], section: 'buildup' }, // C#6 + G#5 + C#5 + C#3
+            { note: 1174.66, duration: 0.5, harmony: [880.00, 587.33, 293.66], section: 'buildup' }, // D6 + A5 + D5 + D3
+            { note: 1244.51, duration: 1.0, harmony: [932.33, 622.25, 311.13], section: 'buildup' }, // D#6 + A#5 + D#5 + D#3
+            
+            // === CLIMAX === (32 beats) - Full orchestration
+            { note: 1318.51, duration: 0.5, harmony: [987.77, 659.25, 329.63, 164.81], section: 'climax' }, // E6 + B5 + E5 + E4 + E2
+            { note: 1174.66, duration: 0.25, harmony: [880.00, 587.33, 293.66], section: 'climax' }, // D6 + A5 + D5 + D3
+            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'climax' }, // C6 + G5 + C5 + C3
+            { note: 987.77, duration: 0.5, harmony: [739.99, 493.88, 246.94], section: 'climax' }, // B5 + F#5 + B4 + B2
+            { note: 880.00, duration: 0.25, harmony: [659.25, 440.00, 220.00], section: 'climax' }, // A5 + E5 + A4 + A2
+            { note: 783.99, duration: 0.25, harmony: [587.33, 392.00, 196.00], section: 'climax' }, // G5 + D5 + G4 + G2
+            { note: 698.46, duration: 0.5, harmony: [523.25, 349.23, 174.61], section: 'climax' }, // F5 + C5 + F4 + F2
+            { note: 659.25, duration: 1.0, harmony: [493.88, 329.63, 164.81], section: 'climax' }, // E5 + B4 + E4 + E2
+            
+            // === OUTRO === (16 beats) - Fade to ambient
+            { note: 523.25, duration: 1.5, harmony: [392.00, 261.63, 130.81], section: 'outro' }, // C5 + G4 + C3 + C2
+            { note: 440.00, duration: 1.0, harmony: [329.63, 220.00, 110.00], section: 'outro' }, // A4 + E4 + A2 + A1
+            { note: 392.00, duration: 1.5, harmony: [293.66, 196.00, 98.00], section: 'outro' }, // G4 + D4 + G2 + G1
+            { note: 329.63, duration: 2.0, harmony: [246.94, 164.81, 82.41], section: 'outro' }, // E4 + B3 + E2 + E1
         ];
         
-        const bassLine = [
-            // Accompanying bass pattern
-            196, 196, 220, 220, 196, 196, 175, 175, // G G A A G G F F
-            196, 196, 220, 220, 196, 196, 175, 175,
-            220, 220, 247, 247, 220, 220, 196, 196, // A A B B A A G G
-            175, 185, 196, 208, 220, 233, 247, 262  // F F# G G# A A# B C
-        ];
+        // Advanced bass patterns for each section
+        const bassPatterns = {
+            intro: [130.81, 164.81, 110.00, 146.83], // C2 E2 A1 D2
+            themeA: [196.00, 196.00, 220.00, 220.00, 196.00, 196.00, 175.00, 175.00, 220.00, 233.08, 246.94, 261.63], // Extended bass
+            breakdown: [82.41, 0, 98.00, 0, 110.00, 0, 123.47, 130.81], // Minimal bass
+            themeB: [185.00, 207.65, 220.00, 246.94, 261.63, 293.66, 311.13, 329.63], // Progressive bass
+            buildup: [220.00, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63], // Rising bass
+            climax: [164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13], // Full bass
+            outro: [130.81, 123.47, 110.00, 98.00] // Descending bass
+        };
         
         let noteIndex = 0;
-        let bassIndex = 0;
+        let sectionBassIndex = 0;
         this.currentMusicNotes = [];
         
         const playNextNote = async () => {
@@ -459,8 +468,11 @@ export class AudioManager {
             });
             this.currentMusicNotes = [];
             
-            const currentNote = mainMelody[noteIndex];
-            const bassNote = bassLine[bassIndex];
+            const currentNote = composition[noteIndex];
+            const currentSection = currentNote.section;
+            const bassPattern = bassPatterns[currentSection];
+            const bassNote = bassPattern[sectionBassIndex % bassPattern.length];
+            
             const now = this.audioContext.currentTime;
             
             // Play main melody note
@@ -472,11 +484,12 @@ export class AudioManager {
                     this.currentMusicNotes.push(mainSound);
                 }
                 
-                // Play harmony notes (90s style)
+                // Play harmony notes with advanced spacing
                 currentNote.harmony.forEach((harmonyFreq, index) => {
                     const harmonySound = this.createMusicNote(harmonyFreq, currentNote.duration, 'harmony');
                     if (harmonySound) {
-                        harmonySound.oscillator.start(now + (index * 0.02)); // Slight delay for richness
+                        const delay = index * 0.015 + (Math.random() * 0.01); // Slight randomization for organic feel
+                        harmonySound.oscillator.start(now + delay);
                         harmonySound.oscillator.stop(now + currentNote.duration);
                         this.currentMusicNotes.push(harmonySound);
                     }
@@ -484,20 +497,36 @@ export class AudioManager {
             }
             
             // Play bass line
-            const bassSound = this.createMusicNote(bassNote, currentNote.duration, 'bass');
-            if (bassSound) {
-                bassSound.oscillator.start(now);
-                bassSound.oscillator.stop(now + currentNote.duration);
-                this.currentMusicNotes.push(bassSound);
+            if (bassNote > 0) {
+                const bassSound = this.createMusicNote(bassNote, currentNote.duration, 'bass');
+                if (bassSound) {
+                    bassSound.oscillator.start(now);
+                    bassSound.oscillator.stop(now + currentNote.duration);
+                    this.currentMusicNotes.push(bassSound);
+                }
             }
             
-            noteIndex = (noteIndex + 1) % mainMelody.length;
-            bassIndex = (bassIndex + 1) % bassLine.length;
+            noteIndex = (noteIndex + 1) % composition.length;
+            sectionBassIndex++;
+            
+            // Reset bass index when changing sections
+            const nextSection = composition[noteIndex].section;
+            if (nextSection !== currentSection) {
+                sectionBassIndex = 0;
+            }
         };
         
-        // Start playing with smoother timing (90s feel)
-        playNextNote();
-        this.musicLoop = setInterval(playNextNote, 400); // 150 BPM for more energy
+        // Start playing with dynamic timing based on note duration
+        const scheduleNextNote = () => {
+            if (!this.settings.musicEnabled) return;
+            
+            playNextNote();
+            const currentNote = composition[noteIndex];
+            const nextDelay = (currentNote.duration * 300) + 50; // Convert to ms with slight overlap
+            setTimeout(scheduleNextNote, nextDelay);
+        };
+        
+        scheduleNextNote();
     }
 
     createMusicNote(frequency, duration, instrument = 'lead') {
