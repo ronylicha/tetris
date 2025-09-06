@@ -106,42 +106,46 @@ export class Grid {
 
     // Clear completed lines and return line count
     clearLines(linesToClear = null) {
-        const completedLines = linesToClear || this.getCompletedLines();
+        let completedLines = linesToClear || this.getCompletedLines();
         
         if (completedLines.length === 0) return 0;
         
         console.log(`Clearing ${completedLines.length} lines:`, completedLines);
         console.log(`Grid height before clearing: ${this.cells.length}`);
         
-        // Remove completed lines from bottom to top to avoid index shifting issues
-        const sortedLines = [...completedLines].sort((a, b) => b - a);
-        console.log(`Sorted order for removal:`, sortedLines);
+        // Create a new grid without the completed lines
+        const newCells = [];
+        const originalExpectedCount = completedLines.length;
+        let actualClearedCount = 0;
         
-        let clearedCount = 0;
-        for (const lineY of sortedLines) {
-            console.log(`Removing line ${lineY} (attempt ${clearedCount + 1}/${sortedLines.length})`);
-            
-            // Verify the line is actually full before removing
-            if (this.isLineFull(lineY)) {
-                console.log(`Line ${lineY} confirmed full, removing...`);
-                // Remove the line
-                this.cells.splice(lineY, 1);
-                // Add empty line at top
-                this.cells.unshift(Array(this.width).fill(null));
-                clearedCount++;
-                console.log(`Successfully removed line ${lineY}, cleared count: ${clearedCount}`);
+        // Add empty lines at the top for each cleared line
+        for (let i = 0; i < completedLines.length; i++) {
+            newCells.push(Array(this.width).fill(null));
+        }
+        
+        // Copy all non-completed lines to the new grid
+        for (let y = 0; y < this.height; y++) {
+            if (!completedLines.includes(y)) {
+                newCells.push([...this.cells[y]]);
             } else {
-                console.warn(`Line ${lineY} is not full anymore! Skipping removal.`);
+                actualClearedCount++;
+                console.log(`Line ${y} is being cleared`);
             }
         }
         
+        console.log(`Built new grid with ${newCells.length} rows`);
+        console.log(`Cleared ${actualClearedCount} lines (expected ${originalExpectedCount})`);
+        
+        // Replace the old grid with the new one
+        this.cells = newCells;
+        
         console.log(`Grid height after clearing: ${this.cells.length}`);
         
-        this.linesCleared = clearedCount;
-        this.totalLines += clearedCount;
+        this.linesCleared = actualClearedCount;
+        this.totalLines += actualClearedCount;
         
-        console.log(`Total lines cleared: ${clearedCount} (expected: ${completedLines.length})`);
-        return clearedCount;
+        console.log(`Total lines cleared: ${actualClearedCount} (expected: ${originalExpectedCount})`);
+        return actualClearedCount;
     }
 
     // Get line clearing info for animations
