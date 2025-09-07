@@ -1,45 +1,49 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v1.3.5';
-const CACHE_VERSION = 'v1.3.5';
+const CACHE_NAME = 'tetris-v1.3.6';
+const CACHE_VERSION = 'v1.3.6';
 const API_CACHE = 'tetris-api-v1';
 const AUDIO_CACHE = 'tetris-audio-v1';
 
+// Determine base path based on the service worker's location
+const BASE_PATH = self.location.pathname.replace('/sw.js', '');
+const ROOT_PATH = BASE_PATH ? BASE_PATH + '/' : '/';
+
 // Resources to cache immediately on install
 const STATIC_CACHE_URLS = [
-    '/tetris/',
-    '/tetris/index.html',
-    '/tetris/manifest.json',
-    '/tetris/favicon.ico',
-    '/tetris/favicon.svg',
-    '/tetris/logo.svg',
-    '/tetris/favicon-192x192.png',
-    '/tetris/favicon-512x512.png',
-    '/tetris/apple-touch-icon.png',
-    '/tetris/styles/main.css',
-    '/tetris/styles/responsive.css',
-    '/tetris/styles/animations.css',
-    '/tetris/styles/modes.css',
-    '/tetris/scripts/game.js',
-    '/tetris/scripts/pieces.js',
-    '/tetris/scripts/grid.js',
-    '/tetris/scripts/input.js',
-    '/tetris/scripts/ui.js',
-    '/tetris/scripts/audio.js',
-    '/tetris/scripts/modals.js',
-    '/tetris/scripts/leaderboard.js',
-    '/tetris/scripts/offline-storage.js',
-    '/tetris/scripts/storage-adapter.js',
-    '/tetris/scripts/modeSelector.js',
-    '/tetris/scripts/modes/gameMode.js',
-    '/tetris/scripts/modes/classicMode.js',
-    '/tetris/scripts/modes/sprintMode.js',
-    '/tetris/scripts/modes/marathonMode.js',
-    '/tetris/scripts/modes/zenMode.js',
-    '/tetris/scripts/modes/puzzleMode.js',
-    '/tetris/scripts/modes/battleMode.js',
-    '/tetris/scripts/puzzles/puzzleData.js',
-    '/tetris/scripts/puzzles/puzzleValidator.js',
-    '/tetris/scripts/ai/tetrisAI.js'
+    ROOT_PATH,
+    ROOT_PATH + 'index.html',
+    ROOT_PATH + 'manifest.json',
+    ROOT_PATH + 'favicon.ico',
+    ROOT_PATH + 'favicon.svg',
+    ROOT_PATH + 'logo.svg',
+    ROOT_PATH + 'favicon-192x192.png',
+    ROOT_PATH + 'favicon-512x512.png',
+    ROOT_PATH + 'apple-touch-icon.png',
+    ROOT_PATH + 'styles/main.css',
+    ROOT_PATH + 'styles/responsive.css',
+    ROOT_PATH + 'styles/animations.css',
+    ROOT_PATH + 'styles/modes.css',
+    ROOT_PATH + 'scripts/game.js',
+    ROOT_PATH + 'scripts/pieces.js',
+    ROOT_PATH + 'scripts/grid.js',
+    ROOT_PATH + 'scripts/input.js',
+    ROOT_PATH + 'scripts/ui.js',
+    ROOT_PATH + 'scripts/audio.js',
+    ROOT_PATH + 'scripts/modals.js',
+    ROOT_PATH + 'scripts/leaderboard.js',
+    ROOT_PATH + 'scripts/offline-storage.js',
+    ROOT_PATH + 'scripts/storage-adapter.js',
+    ROOT_PATH + 'scripts/modeSelector.js',
+    ROOT_PATH + 'scripts/modes/gameMode.js',
+    ROOT_PATH + 'scripts/modes/classicMode.js',
+    ROOT_PATH + 'scripts/modes/sprintMode.js',
+    ROOT_PATH + 'scripts/modes/marathonMode.js',
+    ROOT_PATH + 'scripts/modes/zenMode.js',
+    ROOT_PATH + 'scripts/modes/puzzleMode.js',
+    ROOT_PATH + 'scripts/modes/battleMode.js',
+    ROOT_PATH + 'scripts/puzzles/puzzleData.js',
+    ROOT_PATH + 'scripts/puzzles/puzzleValidator.js',
+    ROOT_PATH + 'scripts/ai/tetrisAI.js'
 ];
 
 // Audio files to cache when available
@@ -127,9 +131,9 @@ self.addEventListener('fetch', (event) => {
     // For navigation requests, always serve the app shell
     if (request.mode === 'navigate') {
         event.respondWith(
-            caches.match('/tetris/index.html')
-                .then(response => response || fetch('/tetris/index.html'))
-                .catch(() => caches.match('/tetris/'))
+            caches.match(ROOT_PATH + 'index.html')
+                .then(response => response || fetch(ROOT_PATH + 'index.html'))
+                .catch(() => caches.match(ROOT_PATH))
         );
         return;
     }

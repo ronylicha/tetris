@@ -507,9 +507,14 @@
             window.TetrisContext.hasServiceWorker = true;
             window.addEventListener('load', () => {
                 // Detect the correct path for Service Worker
-                const swPath = window.location.pathname.includes('/tetris/') 
-                    ? '/tetris/sw.js' 
-                    : './sw.js';
+                let swPath;
+                if (window.location.hostname === 'tetris.giga-crm.com') {
+                    swPath = '/sw.js';  // Root domain
+                } else if (window.location.pathname.includes('/tetris/')) {
+                    swPath = '/tetris/sw.js';  // Subdirectory
+                } else {
+                    swPath = './sw.js';  // Relative path
+                }
                     
                 navigator.serviceWorker.register(swPath)
                     .then(registration => {
