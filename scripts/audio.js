@@ -62,7 +62,7 @@ export class AudioManager {
 
     // Show audio error to user
     showAudioError(message) {
-        console.warn('Audio Error:', message);
+        // Silent error handling - removed console.warn
         
         // Create a temporary notification element
         const notification = document.createElement('div');
@@ -342,7 +342,7 @@ export class AudioManager {
     // Features authentic chiptune melodies inspired by Korobeiniki,
     // proper square wave instrumentation, and energetic rhythms
     startBackgroundMusic() {
-        console.log('startBackgroundMusic called - musicEnabled:', this.settings.musicEnabled, 'musicLoop exists:', !!this.musicLoop);
+        // Start background music
         if (!this.settings.musicEnabled || this.musicLoop) return;
         
         this.resumeAudioContext();
@@ -398,7 +398,7 @@ export class AudioManager {
     }
 
     playBackgroundLoop() {
-        console.log('playBackgroundLoop called');
+        // Play background loop
         // ENHANCED TETRIS THEME - Korobeiniki-inspired but unique composition
         // Optimized for extended gameplay with perfect looping and non-fatiguing mix
         const composition = [
@@ -478,7 +478,7 @@ export class AudioManager {
         const playNextNote = async () => {
             if (!this.settings.musicEnabled) return;
             
-            console.log('Playing note', noteIndex, 'of', composition.length);
+            // Playing note
             
             // Clean up old notes to prevent memory leaks
             const now = this.audioContext ? this.audioContext.currentTime : 0;

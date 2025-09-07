@@ -28,12 +28,15 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 - **Multi-touch support** with gesture conflict prevention
 
 ### 🏆 **Game Features**
+- **6 Unique Game Modes** - Classic, Sprint, Marathon, Zen, Puzzle, and Battle
 - **Modern Tetris mechanics** (SRS rotation, hold piece, ghost piece)
 - **T-Spin detection** and bonus scoring system  
 - **Combo system** with multiplier bonuses
 - **Perfect clear** detection and massive bonus points
 - **Progressive difficulty** with adaptive level progression
-- **Leaderboard system** with local storage and statistics
+- **Leaderboard system** with local storage and statistics per mode
+- **150 Puzzle Challenges** with varied objectives and difficulty levels
+- **AI Battle System** with 5 difficulty levels from Easy to Grandmaster
 
 ### ⚙️ **Customization & Settings**
 - **Audio controls** - separate volume controls for music and SFX
@@ -50,6 +53,39 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 - **Cross-platform compatibility** - works on all modern browsers
 - **Touch-optimized UI** with 44px minimum touch targets
 - **Efficient rendering** with optimized canvas operations
+
+## 🎯 Game Modes
+
+### Classic Mode 🎮
+The original endless Tetris experience with progressive difficulty.
+
+### Sprint Mode ⏱️
+Race against the clock to clear 40 lines as fast as possible. Track your best times and compete for speed records.
+
+### Marathon Mode 🏃
+Survive 150 lines with increasing difficulty. Features checkpoint saves every 50 lines and auto-save functionality.
+
+### Zen Mode 🧘
+Relaxing endless gameplay with no game over. Features:
+- Customizable drop speed
+- Detailed statistics tracking
+- Session export to JSON
+- Save and resume anytime
+
+### Puzzle Mode 🧩
+150 unique challenges with varied objectives:
+- Line clearing puzzles
+- T-Spin challenges
+- Perfect clear objectives
+- Combo requirements
+- Survival challenges
+
+### Battle Mode ⚔️
+Face off against intelligent AI opponents with:
+- 5 difficulty levels (Easy to Grandmaster)
+- Power-ups system (Freeze, Bomb, Shield, Speed)
+- Garbage line mechanics
+- Best of 3 rounds
 
 ## 🎮 How to Play
 
@@ -95,9 +131,23 @@ Arrange falling tetrominoes to create complete horizontal lines. Completed lines
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
-- A web server (Apache, Nginx, or simple HTTP server)
+- Optional: A web server for full features (Apache, Nginx, or simple HTTP server)
 
-### Installation
+### Installation Options
+
+#### 🎯 **Option 1: Standalone Version (Recommended for offline)**
+Simply open `tetris-standalone.html` directly in your browser - no server needed!
+
+```bash
+# Download the standalone file
+wget https://example.com/tetris-standalone.html
+# Or build it yourself
+node build-standalone.js
+# Open in browser
+open tetris-standalone.html
+```
+
+#### 🌐 **Option 2: Full Version with Server**
 
 1. **Clone the repository**
    ```bash
@@ -107,17 +157,17 @@ Arrange falling tetrominoes to create complete horizontal lines. Completed lines
 
 2. **Serve the files**
    
-   **Option A: Using Python (for development)**
+   **Using Python (for development)**
    ```bash
    python3 -m http.server 3000
    ```
    
-   **Option B: Using Node.js**
+   **Using Node.js**
    ```bash
    npx serve .
    ```
    
-   **Option C: Using Apache/Nginx**
+   **Using Apache/Nginx**
    - Copy files to your web server directory
    - Configure virtual host if needed
 
@@ -126,13 +176,20 @@ Arrange falling tetrominoes to create complete horizontal lines. Completed lines
    http://localhost:3000
    ```
 
+#### 📁 **Option 3: Direct File Access**
+Open `index.html` directly in your browser (file:// protocol). 
+Note: Some features like Service Worker won't be available, but the game is fully playable!
+
 ## 📁 Project Structure
 
 ```
 modern-tetris/
 ├── index.html              # Main HTML file
+├── tetris-standalone.html  # Single-file version (generated)
 ├── manifest.json           # PWA manifest
 ├── sw.js                   # Service Worker for offline support
+├── build-standalone.js     # Build script for standalone version
+├── test-offline.html       # Offline compatibility tester
 ├── scripts/
 │   ├── game.js             # Main game logic and initialization
 │   ├── grid.js             # Game grid management
@@ -142,11 +199,26 @@ modern-tetris/
 │   ├── ui.js               # UI components and overlays
 │   ├── modals.js           # Modal dialogs (settings, help, etc.)
 │   ├── leaderboard.js      # Leaderboard with offline support
-│   └── offline-storage.js  # IndexedDB and offline sync management
+│   ├── offline-storage.js  # IndexedDB and offline sync management
+│   ├── storage-adapter.js  # Unified storage for file:// and http://
+│   ├── modeSelector.js     # Game mode selection logic
+│   ├── modes/
+│   │   ├── gameMode.js     # Base game mode class
+│   │   ├── classicMode.js  # Classic endless mode
+│   │   ├── sprintMode.js   # 40 lines speed run
+│   │   ├── marathonMode.js # 150 lines survival
+│   │   ├── zenMode.js      # Relaxed endless mode
+│   │   ├── puzzleMode.js   # 150 puzzle challenges
+│   │   └── battleMode.js   # AI battle system
+│   ├── puzzles/
+│   │   └── puzzleData.js   # Puzzle definitions
+│   └── ai/
+│       └── tetrisAI.js     # AI opponent logic
 ├── styles/
 │   ├── main.css            # Main styles and neon theme
 │   ├── animations.css      # CSS animations and effects
-│   └── responsive.css      # Mobile and responsive styles
+│   ├── responsive.css      # Mobile and responsive styles
+│   └── modes.css           # Game mode specific styles
 ├── api/
 │   └── scores.php          # Backend API for score management
 ├── database/
@@ -159,7 +231,8 @@ modern-tetris/
 ├── apple-touch-icon.png    # iOS app icon
 ├── logo.svg                # Game logo
 ├── LICENSE                 # MIT License
-└── README.md               # This file
+├── README.md               # This file
+└── CLAUDE.md               # Development documentation
 ```
 
 ## 🎯 Game Mechanics
@@ -274,6 +347,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Web Audio API documentation and examples
 
 ## 🆕 Latest Updates & Features
+
+### ✨ **Version 1.3.0 - Universal Offline Support**
+- **📁 File Protocol Support**: Play directly from file:// without any server
+- **🎯 Standalone Version**: Single HTML file (410KB) with everything included
+- **🔄 Unified Storage Adapter**: Automatic detection and adaptation for file:// vs http://
+- **📊 Storage Migration**: Automatic migration from localStorage to IndexedDB
+- **🎮 150 Puzzle Challenges**: All playable offline with progress saving
+- **📱 Enhanced Mode Indicator**: Shows connection status (Online/Offline/File Mode)
+- **🏗️ Build System**: Node.js script to generate standalone version
+- **🧪 Offline Tester**: Diagnostic tool to verify offline compatibility
 
 ### ✨ **Version 1.2.0 - PWA & Offline Mode**
 - **🌐 Complete Offline Support**: Play anywhere, anytime without internet

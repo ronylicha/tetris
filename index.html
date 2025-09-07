@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/animations.css">
     <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="styles/modes.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -31,6 +32,7 @@
                     <h1 class="title sr-only">TETRIS</h1>
                 </div>
                 <div class="header-controls">
+                    <button id="mode-selector-button" class="btn-icon" title="Select Mode">🎮</button>
                     <button id="header-leaderboard-button" class="btn-icon" title="View Leaderboard">🏆</button>
                     <button id="settings-button" class="btn-icon" title="Settings">⚙️</button>
                     <button id="help-button" class="btn-icon" title="Controls">❓</button>
@@ -133,6 +135,46 @@
         </main>
 
         <div class="particles-container" id="particles"></div>
+        
+        <!-- Mode Selection Modal -->
+        <div class="mode-selector-modal" id="mode-selector" style="display: none;">
+            <div class="mode-selector-content">
+                <h2>Select Game Mode</h2>
+                <div class="mode-grid">
+                    <div class="mode-card" data-mode="classic">
+                        <div class="mode-icon">🎮</div>
+                        <h3>Classic</h3>
+                        <p>The original endless Tetris experience</p>
+                    </div>
+                    <div class="mode-card" data-mode="sprint">
+                        <div class="mode-icon">⏱️</div>
+                        <h3>Sprint</h3>
+                        <p>Clear 40 lines as fast as possible</p>
+                    </div>
+                    <div class="mode-card" data-mode="marathon">
+                        <div class="mode-icon">🏃</div>
+                        <h3>Marathon</h3>
+                        <p>Survive 150 lines with increasing difficulty</p>
+                    </div>
+                    <div class="mode-card" data-mode="zen">
+                        <div class="mode-icon">🧘</div>
+                        <h3>Zen</h3>
+                        <p>Relaxing endless mode with no pressure</p>
+                    </div>
+                    <div class="mode-card" data-mode="puzzle">
+                        <div class="mode-icon">🧩</div>
+                        <h3>Puzzle</h3>
+                        <p>Solve 150 unique challenges</p>
+                    </div>
+                    <div class="mode-card" data-mode="battle">
+                        <div class="mode-icon">⚔️</div>
+                        <h3>Battle</h3>
+                        <p>Face off against intelligent AI opponents</p>
+                    </div>
+                </div>
+                <button class="close-mode-selector" id="close-mode-selector">×</button>
+            </div>
+        </div>
         
         <!-- Player Name Input Modal -->
         <div class="name-input-overlay" id="name-input-overlay" style="display: none;">
@@ -378,9 +420,72 @@
 
     <script type="module" src="scripts/game.js"></script>
     
-    <!-- Service Worker Registration -->
+    <!-- Context Detection and Service Worker Registration -->
     <script>
-        if ('serviceWorker' in navigator) {
+        // Detect execution context
+        window.TetrisContext = {
+            isFileProtocol: window.location.protocol === 'file:',
+            isLocalhost: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
+            hasServiceWorker: false,
+            mode: 'unknown'
+        };
+        
+        // Determine mode
+        if (window.TetrisContext.isFileProtocol) {
+            window.TetrisContext.mode = 'file';
+            console.log('🎮 Tetris running in FILE mode (offline-only)');
+        } else {
+            window.TetrisContext.mode = 'server';
+            console.log('🎮 Tetris running in SERVER mode (full features)');
+        }
+        
+        // Show mode indicator
+        window.addEventListener('DOMContentLoaded', () => {
+            const indicator = document.createElement('div');
+            indicator.id = 'mode-indicator';
+            indicator.className = 'mode-indicator';
+            indicator.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                border-radius: 5px;
+                font-size: 12px;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            `;
+            
+            if (window.TetrisContext.isFileProtocol) {
+                indicator.innerHTML = '📁 Local File Mode';
+            } else if (navigator.onLine) {
+                indicator.innerHTML = '🌐 Online';
+            } else {
+                indicator.innerHTML = '📴 Offline';
+            }
+            
+            document.body.appendChild(indicator);
+            
+            // Update on connection change
+            window.addEventListener('online', () => {
+                if (!window.TetrisContext.isFileProtocol) {
+                    indicator.innerHTML = '🌐 Online';
+                }
+            });
+            
+            window.addEventListener('offline', () => {
+                if (!window.TetrisContext.isFileProtocol) {
+                    indicator.innerHTML = '📴 Offline';
+                }
+            });
+        });
+        
+        // Service Worker registration (only for server mode)
+        if ('serviceWorker' in navigator && !window.TetrisContext.isFileProtocol) {
+            window.TetrisContext.hasServiceWorker = true;
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/tetris/sw.js')
                     .then(registration => {

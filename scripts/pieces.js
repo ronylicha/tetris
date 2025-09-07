@@ -173,6 +173,28 @@ export class Piece {
         testPiece.y += 1;
         return grid.checkCollision(testPiece);
     }
+    
+    // Save piece state
+    saveState() {
+        return {
+            type: this.type,
+            x: this.x,
+            y: this.y,
+            rotation: this.rotation,
+            color: this.color
+        };
+    }
+    
+    // Load piece state
+    loadState(state) {
+        if (state) {
+            this.type = state.type;
+            this.x = state.x;
+            this.y = state.y;
+            this.rotation = state.rotation;
+            this.color = state.color;
+        }
+    }
 }
 
 // 7-Bag Random Generator for fair piece distribution

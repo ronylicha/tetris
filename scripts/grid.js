@@ -187,6 +187,73 @@ export class Grid {
         this.linesCleared = 0;
         this.totalLines = 0;
     }
+    
+    // Load grid from array (for puzzle mode)
+    loadFromArray(gridArray) {
+        if (!gridArray || !Array.isArray(gridArray)) return;
+        
+        // Create a new grid with the provided data
+        this.cells = this.createEmptyGrid();
+        
+        // The gridArray represents the visible portion of the grid (20 rows)
+        // We need to map it to our internal grid which has hidden rows at the top
+        const startRow = GRID_HIDDEN_ROWS; // Start after hidden rows
+        
+        for (let row = 0; row < gridArray.length && row < GRID_HEIGHT; row++) {
+            if (!gridArray[row]) continue;
+            for (let col = 0; col < gridArray[row].length && col < this.width; col++) {
+                // Map non-zero values to colors (1-7 for standard pieces)
+                const value = gridArray[row][col];
+                if (value > 0) {
+                    // Place in the visible area of the grid
+                    this.cells[startRow + row][col] = value;
+                }
+            }
+        }
+    }
+    
+    // Check if grid is empty (for perfect clear)
+    isEmpty() {
+        for (let row = 0; row < this.height; row++) {
+            for (let col = 0; col < this.width; col++) {
+                if (this.cells[row][col] !== null && this.cells[row][col] !== 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    // Save grid state
+    saveState() {
+        return {
+            cells: this.cells.map(row => [...row]),
+            linesCleared: this.linesCleared,
+            totalLines: this.totalLines
+        };
+    }
+    
+    // Load grid state
+    loadState(state) {
+        if (state && state.cells) {
+            this.cells = state.cells.map(row => [...row]);
+            this.linesCleared = state.linesCleared || 0;
+            this.totalLines = state.totalLines || 0;
+        }
+    }
+    
+    // Check for game over
+    checkGameOver() {
+        // Check if any cells in the hidden rows (top 4 rows) are occupied
+        for (let row = 0; row < GRID_HIDDEN_ROWS; row++) {
+            for (let col = 0; col < this.width; col++) {
+                if (this.cells[row][col] !== null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     // Get grid state for rendering
     getRenderData() {

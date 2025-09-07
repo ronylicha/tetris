@@ -5,7 +5,16 @@ export class LeaderboardManager {
     constructor() {
         this.apiBaseUrl = 'api/scores.php';
         this.currentTab = 'top-scores';
+        this.currentMode = 'classic'; // Default to classic mode
         this.offlineStorage = offlineStorage;
+        this.gameModes = [
+            { id: 'classic', name: 'Classic', icon: '🎮' },
+            { id: 'sprint', name: 'Sprint', icon: '⏱️' },
+            { id: 'marathon', name: 'Marathon', icon: '🏃' },
+            { id: 'zen', name: 'Zen', icon: '🧘' },
+            { id: 'puzzle', name: 'Puzzle', icon: '🧩' },
+            { id: 'battle', name: 'Battle', icon: '⚔️' }
+        ];
         this.initializeEventListeners();
     }
 
@@ -36,8 +45,8 @@ export class LeaderboardManager {
         }
     }
 
-    // Show leaderboard modal
-    async showLeaderboard() {
+    // Show leaderboard modal with optional mode
+    async showLeaderboard(mode = null) {
         const overlay = document.getElementById('leaderboard-overlay');
         if (overlay) {
             overlay.style.display = 'flex';
@@ -47,7 +56,13 @@ export class LeaderboardManager {
                 window.tetrisGame.inputManager.reset();
             }
             
+            // Set mode if provided
+            if (mode) {
+                this.currentMode = mode;
+            }
+            
             this.currentTab = 'top-scores';
+            this.createModeSelector();
             this.updateTabButtons();
             await this.loadLeaderboardData();
         }
@@ -101,7 +116,7 @@ export class LeaderboardManager {
     // Fetch top scores from API with offline fallback
     async fetchTopScores(limit = 50) {
         try {
-            const response = await fetch(`${this.apiBaseUrl}?action=leaderboard&limit=${limit}`);
+            const response = await fetch(`${this.apiBaseUrl}?action=leaderboard&mode=${this.currentMode}&limit=${limit}`);
             const result = await response.json();
             
             if (!result.success) {
@@ -147,7 +162,7 @@ export class LeaderboardManager {
     // Fetch recent scores from API with offline fallback
     async fetchRecentScores(limit = 20) {
         try {
-            const response = await fetch(`${this.apiBaseUrl}?action=recent&limit=${limit}`);
+            const response = await fetch(`${this.apiBaseUrl}?action=recent&mode=${this.currentMode}&limit=${limit}`);
             const result = await response.json();
             
             if (!result.success) {
@@ -212,7 +227,7 @@ export class LeaderboardManager {
         return merged;
     }
 
-    // Render leaderboard entries
+    // Render leaderboard entries based on mode
     renderLeaderboard(scores) {
         const listContainer = document.getElementById('leaderboard-list');
         if (!listContainer || !scores || scores.length === 0) {
@@ -226,17 +241,37 @@ export class LeaderboardManager {
             const date = new Date(score.date_achieved);
             const achievements = this.formatAchievements(score.special_achievements);
             
+            // Mode-specific display
+            let modeSpecificInfo = '';
+            if (this.currentMode === 'sprint') {
+                const time = score.time || score.game_duration || 0;
+                modeSpecificInfo = `<div class="entry-time">Time: ${this.formatTime(time)}</div>`;
+            } else if (this.currentMode === 'puzzle') {
+                const puzzleId = score.puzzle_id || 1;
+                const stars = score.stars || 0;
+                modeSpecificInfo = `<div class="entry-puzzle">Puzzle #${puzzleId} ${'⭐'.repeat(stars)}</div>`;
+            } else if (this.currentMode === 'marathon') {
+                modeSpecificInfo = `<div class="entry-checkpoint">Lines: ${score.lines}/150</div>`;
+            } else if (this.currentMode === 'zen') {
+                const duration = score.game_duration || 0;
+                modeSpecificInfo = `<div class="entry-duration">Duration: ${Math.floor(duration / 60)}m</div>`;
+            } else if (this.currentMode === 'battle') {
+                const wins = score.wins || 0;
+                modeSpecificInfo = `<div class="entry-wins">Wins: ${wins}</div>`;
+            }
+            
             return `
                 <div class="leaderboard-entry">
                     <div class="entry-rank ${rankClass}">${this.formatRank(rank)}</div>
                     <div class="entry-info">
                         <div class="entry-name">${this.escapeHtml(score.player_name)}</div>
                         <div class="entry-date">${date.toLocaleDateString()}</div>
+                        ${modeSpecificInfo}
                         ${achievements ? `<div class="entry-achievements">${achievements}</div>` : ''}
                     </div>
                     <div class="entry-score">${score.score.toLocaleString()}</div>
-                    <div class="entry-lines">${score.lines}</div>
-                    <div class="entry-level">${score.level}</div>
+                    <div class="entry-lines">${score.lines || 0}</div>
+                    <div class="entry-level">${score.level || 1}</div>
                 </div>
             `;
         }).join('');
@@ -280,6 +315,61 @@ export class LeaderboardManager {
         }
     }
 
+    // Create mode selector UI
+    createModeSelector() {
+        let selectorContainer = document.getElementById('mode-selector-container');
+        if (!selectorContainer) {
+            // Create container if it doesn't exist
+            const header = document.querySelector('.leaderboard-header');
+            if (header) {
+                selectorContainer = document.createElement('div');
+                selectorContainer.id = 'mode-selector-container';
+                selectorContainer.className = 'mode-selector-container';
+                header.appendChild(selectorContainer);
+            }
+        }
+        
+        if (selectorContainer) {
+            const selectorHTML = `
+                <div class="mode-selector">
+                    ${this.gameModes.map(mode => `
+                        <button class="mode-select-btn ${mode.id === this.currentMode ? 'active' : ''}" 
+                                data-mode="${mode.id}">
+                            <span class="mode-icon">${mode.icon}</span>
+                            <span class="mode-name">${mode.name}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+            selectorContainer.innerHTML = selectorHTML;
+            
+            // Add event listeners
+            selectorContainer.querySelectorAll('.mode-select-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const mode = e.currentTarget.dataset.mode;
+                    if (mode !== this.currentMode) {
+                        this.currentMode = mode;
+                        this.createModeSelector(); // Update UI
+                        await this.loadLeaderboardData();
+                    }
+                });
+            });
+        }
+    }
+    
+    // Format time for Sprint mode
+    formatTime(seconds) {
+        if (typeof seconds === 'string') {
+            // If it's already formatted, return as is
+            if (seconds.includes(':')) return seconds;
+            seconds = parseInt(seconds);
+        }
+        
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+    
     // Escape HTML to prevent XSS
     escapeHtml(text) {
         const div = document.createElement('div');
@@ -294,6 +384,8 @@ export class ScoreSaver {
         this.apiBaseUrl = 'api/scores.php';
         this.gameStartTime = Date.now();
         this.offlineStorage = offlineStorage;
+        this.currentMode = 'classic';
+        this.modeSpecificData = {};
         this.initializeEventListeners();
     }
 
@@ -336,14 +428,19 @@ export class ScoreSaver {
     }
 
     // Show name input dialog with score data
-    showNameInput(gameStats, specialAchievements = {}) {
+    showNameInput(gameStats, specialAchievements = {}, mode = 'classic', modeData = {}) {
         this.currentGameStats = gameStats;
         this.currentAchievements = specialAchievements;
+        this.currentMode = mode;
+        this.modeSpecificData = modeData;
         
         // Update score display
         document.getElementById('final-score').textContent = gameStats.score.toLocaleString();
         document.getElementById('final-lines').textContent = gameStats.lines;
         document.getElementById('final-level').textContent = gameStats.level;
+        
+        // Add mode-specific display
+        this.updateModeSpecificDisplay();
         
         // Load saved player name if available
         this.loadSavedPlayerName();
@@ -414,7 +511,9 @@ export class ScoreSaver {
                 lines: this.currentGameStats.lines,
                 level: this.currentGameStats.level,
                 gameDuration: gameDuration,
-                specialAchievements: this.currentAchievements
+                specialAchievements: this.currentAchievements,
+                mode: this.currentMode,
+                ...this.modeSpecificData // Include mode-specific data
             };
 
             let result;
@@ -550,5 +649,43 @@ export class ScoreSaver {
             nameInput.value = savedName;
         }
         return savedName;
+    }
+    
+    // Update mode-specific display in the save dialog
+    updateModeSpecificDisplay() {
+        const modeDisplay = document.getElementById('mode-specific-display');
+        if (!modeDisplay) return;
+        
+        let displayHTML = '';
+        
+        switch (this.currentMode) {
+            case 'sprint':
+                if (this.modeSpecificData.time) {
+                    const minutes = Math.floor(this.modeSpecificData.time / 60000);
+                    const seconds = Math.floor((this.modeSpecificData.time % 60000) / 1000);
+                    const ms = Math.floor((this.modeSpecificData.time % 1000) / 10);
+                    displayHTML = `<div class="mode-info">Time: ${minutes}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}</div>`;
+                }
+                break;
+            case 'puzzle':
+                if (this.modeSpecificData.puzzleId) {
+                    displayHTML = `<div class="mode-info">Puzzle #${this.modeSpecificData.puzzleId} ${'⭐'.repeat(this.modeSpecificData.stars || 0)}</div>`;
+                }
+                break;
+            case 'marathon':
+                displayHTML = `<div class="mode-info">Progress: ${this.currentGameStats.lines}/150 lines</div>`;
+                break;
+            case 'zen':
+                const duration = this.modeSpecificData.duration || this.gameDuration;
+                displayHTML = `<div class="mode-info">Duration: ${Math.floor(duration / 60)}m ${duration % 60}s</div>`;
+                break;
+            case 'battle':
+                if (this.modeSpecificData.wins !== undefined) {
+                    displayHTML = `<div class="mode-info">Wins: ${this.modeSpecificData.wins}</div>`;
+                }
+                break;
+        }
+        
+        modeDisplay.innerHTML = displayHTML;
     }
 }

@@ -13,6 +13,10 @@ export class UIManager {
         this.scoreSaver = new ScoreSaver();
         this.leaderboardManager = new LeaderboardManager();
         
+        // Mode-specific UI elements
+        this.modeUI = null;
+        this.currentModeDisplay = null;
+        
         this.initializeUI();
     }
 
@@ -283,6 +287,572 @@ export class UIManager {
             this.elements.overlay.classList.add('hidden');
         }
     }
+    
+    // Update mode-specific display
+    updateModeDisplay(modeConfig) {
+        if (!modeConfig) return;
+        
+        this.modeUI = modeConfig;
+        
+        // Show/hide UI elements based on mode
+        if (this.elements.score) {
+            this.elements.score.parentElement.style.display = modeConfig.showScore ? 'block' : 'none';
+        }
+        if (this.elements.lines) {
+            this.elements.lines.parentElement.style.display = modeConfig.showLines ? 'block' : 'none';
+        }
+        if (this.elements.level) {
+            this.elements.level.parentElement.style.display = modeConfig.showLevel ? 'block' : 'none';
+        }
+        
+        // Add mode-specific elements
+        if (modeConfig.customDisplay) {
+            this.createModeSpecificUI(modeConfig.customDisplay);
+        }
+    }
+    
+    // Create mode-specific UI elements
+    createModeSpecificUI(customDisplay) {
+        // Remove existing mode UI if any
+        if (this.currentModeDisplay) {
+            this.currentModeDisplay.remove();
+        }
+        
+        const modeUIContainer = document.createElement('div');
+        modeUIContainer.className = 'mode-specific-ui';
+        
+        // Add timer for Sprint mode
+        if (customDisplay.timer) {
+            const timerElement = document.createElement('div');
+            timerElement.className = 'sprint-timer';
+            timerElement.id = 'mode-timer';
+            timerElement.textContent = customDisplay.timer;
+            modeUIContainer.appendChild(timerElement);
+        }
+        
+        // Add progress bar for Marathon mode
+        if (customDisplay.progress) {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'marathon-progress';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'marathon-progress-bar';
+            progressBar.style.width = customDisplay.progress;
+            progressContainer.appendChild(progressBar);
+            modeUIContainer.appendChild(progressContainer);
+        }
+        
+        // Add objective display for Puzzle mode
+        if (customDisplay.objective) {
+            const objectiveElement = document.createElement('div');
+            objectiveElement.className = 'puzzle-objective';
+            objectiveElement.innerHTML = `
+                <div class="puzzle-objective-title">Objective</div>
+                <div class="puzzle-objective-desc" id="puzzle-objective-text">${customDisplay.objective}</div>
+            `;
+            modeUIContainer.appendChild(objectiveElement);
+        }
+        
+        // Add pieces counter for Puzzle mode
+        if (customDisplay.pieces) {
+            const piecesElement = document.createElement('div');
+            piecesElement.className = 'puzzle-pieces';
+            piecesElement.innerHTML = `
+                <div class="puzzle-pieces-title">Pieces Used</div>
+                <div class="puzzle-pieces-count" id="puzzle-pieces-count">${customDisplay.pieces}</div>
+            `;
+            modeUIContainer.appendChild(piecesElement);
+        }
+        
+        // Add puzzle number display
+        if (customDisplay.puzzle) {
+            const puzzleNumElement = document.createElement('div');
+            puzzleNumElement.className = 'puzzle-number';
+            puzzleNumElement.innerHTML = `
+                <div class="puzzle-number-text">Puzzle ${customDisplay.puzzle}</div>
+            `;
+            modeUIContainer.appendChild(puzzleNumElement);
+        }
+        
+        // Insert into game area
+        const gameBoard = document.querySelector('.game-board');
+        if (gameBoard) {
+            gameBoard.appendChild(modeUIContainer);
+            this.currentModeDisplay = modeUIContainer;
+        }
+    }
+    
+    // Update mode-specific UI continuously
+    updateModeUI(modeConfig) {
+        if (!modeConfig || !modeConfig.customDisplay) return;
+        
+        // Update timer for Sprint mode
+        if (modeConfig.customDisplay.timer) {
+            const timerElement = document.getElementById('mode-timer');
+            if (timerElement) {
+                timerElement.textContent = modeConfig.customDisplay.timer;
+            }
+        }
+        
+        // Update progress for Marathon mode
+        if (modeConfig.customDisplay.progress) {
+            const progressBar = document.querySelector('.marathon-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = modeConfig.customDisplay.progress;
+            }
+        }
+        
+        // Update objective for Puzzle mode
+        if (modeConfig.customDisplay.objective) {
+            const objectiveElement = document.getElementById('puzzle-objective-text');
+            if (objectiveElement) {
+                objectiveElement.textContent = modeConfig.customDisplay.objective;
+            }
+        }
+        
+        // Update pieces counter for Puzzle mode
+        if (modeConfig.customDisplay.pieces) {
+            const piecesElement = document.getElementById('puzzle-pieces-count');
+            if (piecesElement) {
+                piecesElement.textContent = modeConfig.customDisplay.pieces;
+            }
+        }
+    }
+    
+    // Show mode-specific messages
+    showMessage(text, type = 'info', duration = 2000) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `game-message message-${type}`;
+        messageElement.textContent = text;
+        messageElement.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            z-index: 10000;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        `;
+        
+        document.body.appendChild(messageElement);
+        
+        setTimeout(() => {
+            messageElement.style.opacity = '0';
+            messageElement.style.transition = 'opacity 0.5s';
+            setTimeout(() => messageElement.remove(), 500);
+        }, duration);
+    }
+    
+    // Show puzzle completion
+    showPuzzleComplete(puzzle, stars, stats) {
+        // Create a more elaborate completion screen
+        const overlay = document.createElement('div');
+        overlay.className = 'puzzle-complete-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.5s;
+        `;
+        
+        const content = document.createElement('div');
+        content.className = 'puzzle-complete-content';
+        content.style.cssText = `
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            border: 3px solid #ff8800;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 136, 0, 0.5);
+            max-width: 500px;
+        `;
+        
+        content.innerHTML = `
+            <h2 style="color: #ff8800; font-size: 2.5rem; margin-bottom: 20px;">
+                🎉 PUZZLE COMPLETE! 🎉
+            </h2>
+            <h3 style="color: #fff; font-size: 1.5rem; margin-bottom: 15px;">
+                Puzzle #${puzzle.id}: ${puzzle.name}
+            </h3>
+            <div style="font-size: 3rem; margin: 20px 0;">
+                ${'⭐'.repeat(stars)}${'☆'.repeat(Math.max(0, 3 - stars))}
+            </div>
+            <div style="color: #ccc; margin: 20px 0;">
+                <p>Lines Cleared: ${stats.linesCleared}</p>
+                <p>Pieces Used: ${stats.piecesUsed}</p>
+                <p>Time: ${stats.timeElapsed}s</p>
+            </div>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                <button id="next-puzzle-btn" style="
+                    background: #ff8800;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                ">Next Puzzle →</button>
+                <button id="retry-puzzle-btn" style="
+                    background: #666;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                ">Retry</button>
+            </div>
+        `;
+        
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+        
+        // Add event listeners
+        const nextBtn = document.getElementById('next-puzzle-btn');
+        const retryBtn = document.getElementById('retry-puzzle-btn');
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                overlay.remove();
+                // Load next puzzle
+                if (this.game && this.game.gameMode && this.game.gameMode.loadPuzzle) {
+                    const nextPuzzleId = puzzle.id + 1;
+                    console.log(`Loading next puzzle: ${nextPuzzleId}`);
+                    
+                    // Reset game state first
+                    this.game.state = 'playing';
+                    this.game.gameMode.isComplete = false;
+                    this.game.gameMode.pendingCompletion = false;
+                    
+                    // Load the next puzzle
+                    this.game.gameMode.loadPuzzle(nextPuzzleId);
+                    
+                    // Clear the grid and reset the game
+                    this.game.grid.reset();
+                    this.game.gameMode.loadPuzzle(nextPuzzleId); // Load again to apply grid
+                    
+                    // Continue playing without full restart
+                    this.game.currentPiece = null;
+                }
+            });
+        }
+        
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                overlay.remove();
+                // Retry current puzzle
+                if (this.game && this.game.gameMode) {
+                    // Reset game state
+                    this.game.state = 'playing';
+                    this.game.gameMode.isComplete = false;
+                    this.game.gameMode.pendingCompletion = false;
+                    
+                    // Reload current puzzle
+                    const currentPuzzleId = puzzle.id;
+                    this.game.grid.reset();
+                    this.game.gameMode.loadPuzzle(currentPuzzleId);
+                    this.game.currentPiece = null;
+                }
+            });
+        }
+        
+        // Auto-remove after 10 seconds if no action
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.remove();
+            }
+        }, 10000);
+    }
+    
+    // Show puzzle failed
+    showPuzzleFailed(puzzle, reason, stats) {
+        const message = `Puzzle #${puzzle.id} Failed\n${reason}`;
+        this.showMessage(message, 'error', 3000);
+    }
+    
+    // Show puzzle selection menu
+    async showPuzzleSelection() {
+        // Use storage adapter for better compatibility
+        const storage = window.TetrisStorage || { 
+            load: (key) => Promise.resolve(JSON.parse(localStorage.getItem('tetris_' + key) || 'null'))
+        };
+        
+        const progress = await storage.load('puzzle_progress') || {};
+        const completedPuzzles = await storage.load('puzzle_completed') || [];
+        const highestUnlocked = progress.highestUnlocked || 1;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'puzzle-selection-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            border: 3px solid #ff8800;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        `;
+        
+        let html = `
+            <h2 style="color: #ff8800; font-size: 2rem; margin-bottom: 20px; text-align: center;">
+                🧩 Select Puzzle
+            </h2>
+            <div style="text-align: center; margin-bottom: 20px; color: #ccc;">
+                Progress: ${completedPuzzles.length}/150 puzzles completed
+            </div>
+        `;
+        
+        // Create category tabs
+        const categories = ['tutorial', 'beginner', 'intermediate', 'advanced', 'expert', 'master', 'grandmaster'];
+        html += '<div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">';
+        categories.forEach(cat => {
+            html += `
+                <button class="category-tab" data-category="${cat}" style="
+                    background: #333;
+                    color: #fff;
+                    border: 1px solid #555;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    text-transform: capitalize;
+                ">${cat}</button>
+            `;
+        });
+        html += '</div>';
+        
+        // Puzzle grid container
+        html += '<div id="puzzle-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 20px;"></div>';
+        
+        // Buttons
+        html += `
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                ${progress.currentPuzzleId ? `
+                    <button id="resume-puzzle-btn" style="
+                        background: #00ff00;
+                        color: #000;
+                        border: none;
+                        padding: 15px 30px;
+                        font-size: 1.2rem;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">Resume Puzzle #${progress.currentPuzzleId}</button>
+                ` : ''}
+                <button id="close-selection-btn" style="
+                    background: #666;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    border-radius: 10px;
+                    cursor: pointer;
+                ">Close</button>
+            </div>
+        `;
+        
+        content.innerHTML = html;
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+        
+        // Function to show puzzles for a category
+        const showCategory = (category) => {
+            const gridElement = document.getElementById('puzzle-grid');
+            gridElement.innerHTML = '';
+            
+            // Get puzzles from puzzleData
+            let puzzles = [];
+            if (window.PUZZLES) {
+                puzzles = window.PUZZLES.filter(p => p.category === category);
+            }
+            
+            // Create puzzle buttons
+            puzzles.forEach(puzzle => {
+                const isCompleted = completedPuzzles.some(p => p.puzzleId === puzzle.id);
+                const isUnlocked = puzzle.id <= highestUnlocked;
+                
+                const puzzleBtn = document.createElement('button');
+                puzzleBtn.style.cssText = `
+                    background: ${isCompleted ? '#00ff00' : (isUnlocked ? '#ff8800' : '#444')};
+                    color: ${isCompleted ? '#000' : '#fff'};
+                    border: 2px solid ${isCompleted ? '#00ff00' : (isUnlocked ? '#ff8800' : '#666')};
+                    padding: 15px;
+                    border-radius: 10px;
+                    cursor: ${isUnlocked ? 'pointer' : 'not-allowed'};
+                    font-size: 1rem;
+                    font-weight: bold;
+                    opacity: ${isUnlocked ? 1 : 0.5};
+                    position: relative;
+                `;
+                
+                puzzleBtn.innerHTML = `
+                    #${puzzle.id}
+                    ${isCompleted ? '<span style="position: absolute; top: 2px; right: 2px; font-size: 0.8rem;">✓</span>' : ''}
+                `;
+                
+                puzzleBtn.disabled = !isUnlocked;
+                
+                if (isUnlocked) {
+                    puzzleBtn.addEventListener('click', () => {
+                        overlay.remove();
+                        // Load selected puzzle
+                        if (this.game && this.game.gameMode && this.game.gameMode.loadPuzzle) {
+                            this.game.state = 'playing';
+                            this.game.gameMode.isComplete = false;
+                            this.game.gameMode.pendingCompletion = false;
+                            this.game.gameMode.puzzleId = puzzle.id;
+                            this.game.gameMode.loadPuzzle(puzzle.id);
+                            this.game.gameMode.saveCurrentProgress();
+                        }
+                    });
+                }
+                
+                gridElement.appendChild(puzzleBtn);
+            });
+        };
+        
+        // Add category tab listeners
+        setTimeout(() => {
+            const tabs = overlay.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update active tab styling
+                    tabs.forEach(t => t.style.background = '#333');
+                    tab.style.background = '#ff8800';
+                    showCategory(tab.dataset.category);
+                });
+            });
+            
+            // Show first category by default
+            if (tabs.length > 0) {
+                tabs[0].click();
+            }
+            
+            // Resume button
+            const resumeBtn = document.getElementById('resume-puzzle-btn');
+            if (resumeBtn) {
+                resumeBtn.addEventListener('click', () => {
+                    overlay.remove();
+                    if (this.game && this.game.gameMode && this.game.gameMode.loadPuzzle) {
+                        this.game.state = 'playing';
+                        this.game.gameMode.isComplete = false;
+                        this.game.gameMode.pendingCompletion = false;
+                        this.game.gameMode.loadPuzzle(progress.currentPuzzleId);
+                    }
+                });
+            }
+            
+            // Close button
+            const closeBtn = document.getElementById('close-selection-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    overlay.remove();
+                });
+            }
+        }, 0);
+    }
+    
+    // Show continue prompt for Marathon mode
+    showContinuePrompt(state, callback) {
+        const promptDiv = document.createElement('div');
+        promptDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--neon-blue);
+            z-index: 10000;
+            text-align: center;
+            color: white;
+        `;
+        promptDiv.innerHTML = `
+            <h3>Continue Previous Game?</h3>
+            <p>Lines: ${state.lines} | Level: ${state.level}</p>
+            <button id="continue-yes" style="margin: 10px; padding: 10px 20px;">Continue</button>
+            <button id="continue-no" style="margin: 10px; padding: 10px 20px;">New Game</button>
+        `;
+        
+        document.body.appendChild(promptDiv);
+        
+        document.getElementById('continue-yes').onclick = () => {
+            promptDiv.remove();
+            callback(true);
+        };
+        document.getElementById('continue-no').onclick = () => {
+            promptDiv.remove();
+            callback(false);
+        };
+    }
+    
+    // Show load game prompt for Zen mode
+    showLoadGamePrompt(saves, callback) {
+        // Similar to continue prompt
+        this.showMessage('Saved games available', 'info', 2000);
+    }
+    
+    // Show power-up effect for Battle mode
+    showPowerUp(type, target) {
+        this.showMessage(`${type.toUpperCase()} activated!`, 'powerup', 1500);
+    }
+    
+    // Show damage for Battle mode
+    showDamage(target, lines) {
+        const side = target === 'player' ? 'You' : 'AI';
+        this.showMessage(`${side}: ${lines} damage!`, 'damage', 1000);
+    }
+    
+    // Show round result for Battle mode
+    showRoundResult(playerWon, round, playerWins, aiWins) {
+        const message = playerWon ? 'Round Won!' : 'Round Lost!';
+        this.showMessage(`${message}\nScore: ${playerWins}-${aiWins}`, playerWon ? 'success' : 'error', 2000);
+    }
+    
+    // Show match result for Battle mode
+    showMatchResult(result) {
+        const message = result.won ? 'Victory!' : 'Defeat!';
+        this.showMessage(message, result.won ? 'success' : 'error', 3000);
+    }
+    
+    // Update AI grid for Battle mode
+    updateAIGrid(grid) {
+        // This would update a visual representation of the AI's grid
+        // For now, just a placeholder
+    }
 
     // Show pause overlay
     showPauseOverlay() {
@@ -295,9 +865,47 @@ export class UIManager {
     }
 
     // Show game over overlay
-    async showGameOverOverlay(stats, specialAchievements = {}) {
-        const message = `Final Score: ${stats.score.toLocaleString()}\nLines: ${stats.lines}\nLevel: ${stats.level}`;
-        this.showOverlay('Game Over', message, true);
+    async showGameOverOverlay(stats, specialAchievements = {}, mode = null, modeData = {}) {
+        // Get current game mode if not provided
+        if (!mode && this.game && this.game.gameMode) {
+            mode = this.game.gameMode.name.toLowerCase();
+        }
+        
+        // Create mode-specific message
+        let message = `Final Score: ${stats.score.toLocaleString()}\nLines: ${stats.lines}\nLevel: ${stats.level}`;
+        
+        // Add mode-specific info
+        if (mode === 'sprint' && modeData.time) {
+            const minutes = Math.floor(modeData.time / 60000);
+            const seconds = Math.floor((modeData.time % 60000) / 1000);
+            const ms = Math.floor((modeData.time % 1000) / 10);
+            message += `\nTime: ${minutes}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+            if (modeData.isNewRecord) {
+                message += '\n🏆 NEW RECORD!';
+            }
+        } else if (mode === 'puzzle' && modeData.puzzleId) {
+            message = `Puzzle #${modeData.puzzleId} ${modeData.isVictory ? 'Complete!' : 'Failed'}\n`;
+            message += `${'\u2b50'.repeat(modeData.stars || 0)}\n`;
+            message += `Score: ${stats.score.toLocaleString()}`;
+        } else if (mode === 'marathon') {
+            message += `\nProgress: ${stats.lines}/150 lines`;
+            if (stats.lines >= 150) {
+                message += '\n🎆 MARATHON COMPLETE!';
+            }
+        } else if (mode === 'zen') {
+            const duration = modeData.duration || 0;
+            message += `\nDuration: ${Math.floor(duration / 60)}m ${duration % 60}s`;
+            message += `\nEfficiency: ${modeData.efficiency || '0'}%`;
+        } else if (mode === 'battle') {
+            message = modeData.victory ? 'VICTORY!' : 'DEFEAT';
+            message += `\nScore: ${stats.score.toLocaleString()}`;
+            if (modeData.wins !== undefined) {
+                message += `\nWins: ${modeData.wins}`;
+            }
+        }
+        
+        const title = mode === 'puzzle' && modeData.isVictory ? 'Victory!' : 'Game Over';
+        this.showOverlay(title, message, true);
         
         // Create game over particles
         this.particleSystem.createGameOverEffect();
@@ -311,16 +919,16 @@ export class UIManager {
         // Check if this is a high score and show name input
         try {
             const isHighScore = await this.scoreSaver.isHighScore(stats.score);
-            if (isHighScore) {
+            if (isHighScore || mode === 'sprint' || mode === 'puzzle') {
                 setTimeout(() => {
-                    this.scoreSaver.showNameInput(stats, specialAchievements);
+                    this.scoreSaver.showNameInput(stats, specialAchievements, mode, modeData);
                 }, 1500); // Delay to let game over animation play
             }
         } catch (error) {
             console.warn('Could not check high score status:', error);
             // Show name input anyway if we can't check
             setTimeout(() => {
-                this.scoreSaver.showNameInput(stats, specialAchievements);
+                this.scoreSaver.showNameInput(stats, specialAchievements, mode, modeData);
             }, 1500);
         }
         

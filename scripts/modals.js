@@ -6,10 +6,35 @@ export class ModalManager {
         this.audioManager = audioManager;
         this.currentModal = null;
         this.leaderboardManager = new LeaderboardManager();
+        this.game = null; // Will be set by game instance
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
+        // Mode selector button
+        const modeSelectorButton = document.getElementById('mode-selector-button');
+        if (modeSelectorButton) {
+            modeSelectorButton.addEventListener('click', () => {
+                this.showModeSelector();
+            });
+        }
+        
+        // Mode cards
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const mode = e.currentTarget.dataset.mode;
+                this.selectMode(mode);
+            });
+        });
+        
+        // Close mode selector
+        const closeModeSelector = document.getElementById('close-mode-selector');
+        if (closeModeSelector) {
+            closeModeSelector.addEventListener('click', () => {
+                this.hideModeSelector();
+            });
+        }
+        
         // Header leaderboard button
         const headerLeaderboardButton = document.getElementById('header-leaderboard-button');
         if (headerLeaderboardButton) {
@@ -214,7 +239,52 @@ export class ModalManager {
             this.hideSettings();
         } else if (this.currentModal === 'help') {
             this.hideHelp();
+        } else if (this.currentModal === 'mode-selector') {
+            this.hideModeSelector();
         }
+    }
+    
+    // Mode selector methods
+    showModeSelector() {
+        const modal = document.getElementById('mode-selector');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.currentModal = 'mode-selector';
+        }
+    }
+    
+    hideModeSelector() {
+        const modal = document.getElementById('mode-selector');
+        if (modal) {
+            modal.style.display = 'none';
+            this.currentModal = null;
+        }
+    }
+    
+    selectMode(modeName) {
+        // Set the game mode
+        if (this.game) {
+            this.game.selectMode(modeName);
+            this.hideModeSelector();
+            
+            // Show puzzle selection menu for puzzle mode
+            if (modeName === 'puzzle' && this.game.ui) {
+                setTimeout(() => {
+                    this.game.ui.showPuzzleSelection();
+                }, 100);
+            } else {
+                // Restart game with new mode
+                this.game.restart();
+            }
+        } else {
+            // Store for when game is ready
+            localStorage.setItem('selected_mode', modeName);
+            this.hideModeSelector();
+        }
+    }
+    
+    setGame(game) {
+        this.game = game;
     }
 
     switchSettingsTab(tab) {

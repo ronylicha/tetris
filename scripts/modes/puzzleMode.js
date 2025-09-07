@@ -1,0 +1,597 @@
+// Puzzle Mode - Solve 150 unique challenges
+import { GameMode } from './gameMode.js';
+import { PUZZLES, getPuzzleById, getUnlockedPuzzles, getNextPuzzle, PUZZLE_OBJECTIVES } from '../puzzles/puzzleData.js';
+import { storage } from '../storage-adapter.js';
+
+export class PuzzleMode extends GameMode {
+    constructor(game) {
+        super(game);
+        this.name = 'Puzzle';
+        this.description = 'Solve 150 unique Tetris challenges!';
+        this.icon = '🧩';
+        this.themeColor = '#ff8800';
+        
+        this.currentPuzzle = null;
+        this.puzzleId = 1;
+        this.completedPuzzles = [];
+        this.puzzleStats = {};
+        // Load async data after initialization
+        this.loadCompletedPuzzles().then(data => {
+            this.completedPuzzles = data;
+        });
+        this.availablePieces = [];
+        this.usedPieces = 0;
+        this.timeElapsed = 0;
+        this.timerInterval = null;
+        this.pendingCompletion = false;
+    }
+
+    async initialize() {
+        // Wait for completed puzzles to load
+        this.completedPuzzles = await this.loadCompletedPuzzles();
+        
+        // Try to load saved progress first
+        const progress = await this.loadCurrentProgress();
+        if (progress && progress.currentPuzzleId) {
+            this.puzzleId = progress.currentPuzzleId;
+        } else {
+            // Load first puzzle or continue from last
+            this.puzzleId = this.getLastUncompletedPuzzle();
+        }
+        this.loadPuzzle(this.puzzleId);
+        await this.saveCurrentProgress(); // Save current puzzle being played
+    }
+
+    loadPuzzle(puzzleId) {
+        this.currentPuzzle = getPuzzleById(puzzleId);
+        if (!this.currentPuzzle) {
+            console.error(`Puzzle ${puzzleId} not found`);
+            return;
+        }
+        
+        // Reset game state
+        this.game.lines = 0;
+        this.game.score = 0;
+        this.game.level = 1;
+        this.game.combo = 0;
+        
+        // Load puzzle grid
+        if (this.game.grid && this.currentPuzzle.initialGrid) {
+            this.game.grid.loadFromArray(this.currentPuzzle.initialGrid);
+        }
+        
+        // Set available pieces
+        if (this.currentPuzzle.pieces === 'random') {
+            this.availablePieces = [];
+        } else {
+            this.availablePieces = [...this.currentPuzzle.pieces];
+        }
+        
+        // Initialize puzzle stats
+        this.puzzleStats = {
+            puzzleId: puzzleId,
+            objective: this.currentPuzzle.objective,
+            targetLines: this.currentPuzzle.targetLines || 0,
+            targetTSpins: this.currentPuzzle.targetTSpins || 0,
+            targetTetris: this.currentPuzzle.targetTetris || 0,
+            targetCombo: this.currentPuzzle.targetCombo || 0,
+            minScore: this.currentPuzzle.minScore || 0,
+            linesCleared: 0,
+            tspinsPerformed: 0,
+            tetrisPerformed: 0,
+            maxCombo: 0,
+            piecesUsed: 0,
+            timeElapsed: 0
+        };
+        
+        this.usedPieces = 0;
+        this.timeElapsed = 0;
+        this.pendingCompletion = false;
+        this.isComplete = false;
+        
+        // Start timer if puzzle has time limit
+        if (this.currentPuzzle.timeLimit > 0) {
+            this.startTimer();
+        }
+        
+        // Show puzzle info
+        if (this.game.uiManager) {
+            this.game.uiManager.showMessage(
+                `Puzzle ${puzzleId}: ${this.currentPuzzle.name}`,
+                'info',
+                3000
+            );
+        }
+    }
+
+    startTimer() {
+        this.timeElapsed = 0;
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        this.timerInterval = setInterval(() => {
+            if (!this.isPaused && !this.isComplete) {
+                this.timeElapsed++;
+                this.puzzleStats.timeElapsed = this.timeElapsed;
+                
+                // Check time limit
+                if (this.currentPuzzle.timeLimit > 0 && 
+                    this.timeElapsed >= this.currentPuzzle.timeLimit) {
+                    this.handlePuzzleFailed('Time limit exceeded');
+                }
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    update(deltaTime) {
+        // If puzzle is already complete, don't process further
+        if (this.isComplete) {
+            return false;
+        }
+        
+        if (!this.currentPuzzle) return false;
+        
+        // Handle pending completion from line clear
+        if (this.pendingCompletion) {
+            this.pendingCompletion = false;
+            this.handlePuzzleComplete();
+            return false;
+        }
+        
+        // Check objective completion
+        if (this.checkObjectiveComplete()) {
+            this.handlePuzzleComplete();
+            return false;
+        }
+        
+        // Don't check failure conditions if objective is met
+        if (!this.checkObjectiveComplete() && this.checkFailureConditions()) {
+            this.handlePuzzleFailed('Objective failed');
+            return false;
+        }
+        
+        return true;
+    }
+
+    handleLineClears(linesCleared, specialClear) {
+        // Don't process if puzzle is already complete
+        if (this.isComplete) return;
+        
+        if (!linesCleared || linesCleared === 0) {
+            // Reset combo
+            if (this.game.combo > this.puzzleStats.maxCombo) {
+                this.puzzleStats.maxCombo = this.game.combo;
+            }
+            this.game.combo = 0;
+            return;
+        }
+        
+        // Update stats BEFORE checking completion
+        this.puzzleStats.linesCleared += linesCleared;
+        this.game.lines += linesCleared;
+        this.game.combo++;
+        
+        if (this.game.combo > this.puzzleStats.maxCombo) {
+            this.puzzleStats.maxCombo = this.game.combo;
+        }
+        
+        // Check for special clears
+        if (specialClear) {
+            if (specialClear.type === 'tspin') {
+                this.puzzleStats.tspinsPerformed++;
+            }
+        }
+        
+        if (linesCleared === 4) {
+            this.puzzleStats.tetrisPerformed++;
+        }
+        
+        // Calculate score
+        let score = linesCleared * 100;
+        if (specialClear && specialClear.type === 'tspin') {
+            score += 400;
+        }
+        if (linesCleared === 4) {
+            score += 400;
+        }
+        this.game.score += score;
+        
+        // Check if objective is completed IMMEDIATELY
+        if (this.checkObjectiveComplete()) {
+            // Mark as complete immediately to prevent game over
+            this.isComplete = true;
+            this.pendingCompletion = true;
+            
+            // Call handlePuzzleComplete directly with a small delay
+            setTimeout(() => {
+                this.handlePuzzleComplete();
+            }, 100);
+        }
+    }
+
+    handlePiecePlaced() {
+        // Don't process if puzzle is already complete
+        if (this.isComplete) return;
+        
+        this.usedPieces++;
+        this.puzzleStats.piecesUsed = this.usedPieces;
+        
+        // Check piece limit only if objective is not complete
+        if (this.currentPuzzle.maxPieces > 0 && 
+            this.usedPieces >= this.currentPuzzle.maxPieces) {
+            // Give time for line clears to process
+            setTimeout(() => {
+                if (!this.isComplete && !this.checkObjectiveComplete()) {
+                    this.handlePuzzleFailed('Piece limit exceeded');
+                }
+            }, 100);
+        }
+    }
+
+    checkObjectiveComplete() {
+        const stats = this.puzzleStats;
+        const puzzle = this.currentPuzzle;
+        
+        switch (puzzle.objective) {
+            case 'clear':
+                return stats.linesCleared >= (puzzle.targetLines || 1);
+                
+            case 'tspin':
+                return stats.tspinsPerformed >= (puzzle.targetTSpins || 1);
+                
+            case 'tetris':
+                return stats.tetrisPerformed >= (puzzle.targetTetris || 1);
+                
+            case 'perfectclear':
+                return this.game.grid && this.game.grid.isEmpty();
+                
+            case 'combo':
+                return stats.maxCombo >= (puzzle.targetCombo || 3);
+                
+            case 'mixed':
+                return (
+                    stats.linesCleared >= (puzzle.targetLines || 0) &&
+                    stats.tspinsPerformed >= (puzzle.targetTSpins || 0) &&
+                    stats.maxCombo >= (puzzle.targetCombo || 0)
+                );
+                
+            case 'survival':
+                return (
+                    stats.linesCleared >= (puzzle.targetLines || 0) &&
+                    this.game.score >= (puzzle.minScore || 0)
+                );
+                
+            default:
+                return false;
+        }
+    }
+
+    checkFailureConditions() {
+        // Check if pieces exhausted without completing objective
+        if (this.currentPuzzle.maxPieces > 0 && 
+            this.usedPieces >= this.currentPuzzle.maxPieces) {
+            return !this.checkObjectiveComplete();
+        }
+        
+        // Check if specific pieces are exhausted
+        if (this.availablePieces.length > 0 && 
+            this.usedPieces >= this.availablePieces.length) {
+            return !this.checkObjectiveComplete();
+        }
+        
+        return false;
+    }
+
+    handlePuzzleComplete() {
+        // Prevent multiple calls
+        if (this.isComplete && this.game.state === 'victory') {
+            return;
+        }
+        
+        this.stopTimer();
+        this.isComplete = true;
+        
+        // Calculate stars (1-3 based on performance)
+        const stars = this.calculateStars();
+        
+        // Save completion
+        this.savePuzzleCompletion(this.puzzleId, stars);
+        
+        // Show completion message
+        if (this.game.uiManager) {
+            this.game.uiManager.showPuzzleComplete(
+                this.currentPuzzle,
+                stars,
+                this.puzzleStats
+            );
+            
+            // Show success message
+            this.game.uiManager.showMessage(
+                `✨ Puzzle Complete! ${'\u2b50'.repeat(stars)}`,
+                'success',
+                3000
+            );
+        }
+        
+        // Play victory sound
+        if (this.game.audioManager) {
+            this.game.audioManager.playSFX('victory');
+        }
+        
+        // Store results but don't end game immediately
+        if (this.game) {
+            // Store puzzle results for the game over screen
+            this.game.puzzleResults = {
+                puzzleId: this.puzzleId,
+                puzzleName: this.currentPuzzle.name,
+                stars: stars,
+                stats: this.puzzleStats,
+                nextPuzzle: getNextPuzzle(this.puzzleId, this.completedPuzzles),
+                isVictory: true
+            };
+            
+            // Set game state to prevent further input
+            this.game.state = 'victory';
+            
+            // The UI will handle the next action (next puzzle or retry)
+            // Don't call gameOver here
+        }
+        
+        return {
+            puzzleId: this.puzzleId,
+            puzzleName: this.currentPuzzle.name,
+            stars: stars,
+            stats: this.puzzleStats,
+            nextPuzzle: getNextPuzzle(this.puzzleId, this.completedPuzzles)
+        };
+    }
+
+    handlePuzzleFailed(reason) {
+        this.stopTimer();
+        this.isComplete = true;
+        
+        // Show failure message
+        if (this.game.uiManager) {
+            this.game.uiManager.showPuzzleFailed(
+                this.currentPuzzle,
+                reason,
+                this.puzzleStats
+            );
+        }
+        
+        // End the game with failure
+        if (this.game) {
+            // Store puzzle results for the game over screen
+            this.game.puzzleResults = {
+                puzzleId: this.puzzleId,
+                puzzleName: this.currentPuzzle.name,
+                failed: true,
+                reason: reason,
+                stats: this.puzzleStats
+            };
+            this.game.gameOver();
+        }
+        
+        return {
+            puzzleId: this.puzzleId,
+            puzzleName: this.currentPuzzle.name,
+            failed: true,
+            reason: reason,
+            stats: this.puzzleStats
+        };
+    }
+
+    calculateStars() {
+        let stars = 1; // Base star for completion
+        
+        // Efficiency bonus
+        if (this.currentPuzzle.maxPieces > 0) {
+            const efficiency = this.usedPieces / this.currentPuzzle.maxPieces;
+            if (efficiency <= 0.5) stars++;
+        }
+        
+        // Time bonus
+        if (this.currentPuzzle.timeLimit > 0) {
+            const timeRatio = this.timeElapsed / this.currentPuzzle.timeLimit;
+            if (timeRatio <= 0.5) stars++;
+        }
+        
+        // Perfect clear bonus
+        if (this.currentPuzzle.objective === 'perfectclear' && 
+            this.game.grid && this.game.grid.isEmpty()) {
+            stars = 3;
+        }
+        
+        return Math.min(3, stars);
+    }
+
+    getNextPiece() {
+        if (this.currentPuzzle.pieces === 'random') {
+            // Random pieces
+            return null; // Let game generate random piece
+        } else if (this.availablePieces.length > 0) {
+            // Specific piece sequence
+            if (this.usedPieces < this.availablePieces.length) {
+                return this.availablePieces[this.usedPieces];
+            }
+            // After using all specified pieces, generate random ones
+            return null; // Let game generate random piece
+        }
+        return null;
+    }
+
+    async loadCompletedPuzzles() {
+        const saved = await storage.load('puzzle_completed');
+        if (saved) {
+            return saved;
+        }
+        // Try legacy localStorage fallback
+        const legacySaved = localStorage.getItem('tetris_puzzle_completed');
+        if (legacySaved) {
+            try {
+                const data = JSON.parse(legacySaved);
+                // Migrate to new storage
+                await storage.save('puzzle_completed', data);
+                return data;
+            } catch (e) {
+                console.error('Failed to load completed puzzles:', e);
+            }
+        }
+        return [];
+    }
+
+    savePuzzleCompletion(puzzleId, stars) {
+        const completion = {
+            puzzleId: puzzleId,
+            stars: stars,
+            timestamp: Date.now()
+        };
+        
+        // Update completed list
+        const existing = this.completedPuzzles.findIndex(p => p.puzzleId === puzzleId);
+        if (existing >= 0) {
+            // Update if better stars
+            if (stars > this.completedPuzzles[existing].stars) {
+                this.completedPuzzles[existing] = completion;
+            }
+        } else {
+            this.completedPuzzles.push(completion);
+        }
+        
+        storage.save('puzzle_completed', this.completedPuzzles);
+        
+        // Also save current progress
+        this.saveCurrentProgress();
+    }
+    
+    async saveCurrentProgress() {
+        const progress = {
+            currentPuzzleId: this.puzzleId,
+            highestUnlocked: Math.max(...this.completedPuzzles.map(p => p.puzzleId), this.puzzleId),
+            lastPlayed: Date.now()
+        };
+        await storage.save('puzzle_progress', progress);
+    }
+    
+    async loadCurrentProgress() {
+        const saved = await storage.load('puzzle_progress');
+        if (saved) {
+            return saved;
+        }
+        // Try legacy localStorage fallback
+        const legacySaved = localStorage.getItem('tetris_puzzle_progress');
+        if (legacySaved) {
+            try {
+                const data = JSON.parse(legacySaved);
+                // Migrate to new storage
+                await storage.save('puzzle_progress', data);
+                return data;
+            } catch (e) {
+                console.error('Failed to load puzzle progress:', e);
+            }
+        }
+        return null;
+    }
+
+    getLastUncompletedPuzzle() {
+        const unlocked = getUnlockedPuzzles(this.completedPuzzles.map(p => p.puzzleId));
+        for (let puzzle of unlocked) {
+            if (!this.completedPuzzles.find(p => p.puzzleId === puzzle.id)) {
+                return puzzle.id;
+            }
+        }
+        return 1; // Default to first puzzle
+    }
+
+    selectPuzzle(puzzleId) {
+        const unlocked = getUnlockedPuzzles(this.completedPuzzles.map(p => p.puzzleId));
+        if (unlocked.find(p => p.id === puzzleId)) {
+            this.loadPuzzle(puzzleId);
+            return true;
+        }
+        return false;
+    }
+
+    getObjective() {
+        if (!this.currentPuzzle) return 'Select a puzzle';
+        
+        // Return a clear description of what the player needs to do
+        return this.currentPuzzle.name || this.currentPuzzle.description || 'Complete the objective';
+    }
+
+    getModeUI() {
+        return {
+            showScore: true,
+            showLines: true,
+            showLevel: false,
+            showHold: true,
+            showNext: true,
+            showTimer: this.currentPuzzle && this.currentPuzzle.timeLimit > 0,
+            showObjective: true,
+            customDisplay: this.currentPuzzle ? {
+                puzzle: `#${this.currentPuzzle.id}`,
+                pieces: this.currentPuzzle.maxPieces > 0 ? 
+                    `${this.usedPieces}/${this.currentPuzzle.maxPieces}` : 
+                    `${this.usedPieces}`,
+                objective: this.getObjectiveProgress()
+            } : {}
+        };
+    }
+
+    getObjectiveProgress() {
+        if (!this.currentPuzzle) return '';
+        
+        switch (this.currentPuzzle.objective) {
+            case 'clear':
+                return `Clear ${this.puzzleStats.linesCleared}/${this.currentPuzzle.targetLines || 1} lines`;
+            case 'tspin':
+                return `Perform ${this.puzzleStats.tspinsPerformed}/${this.currentPuzzle.targetTSpins || 1} T-Spins`;
+            case 'tetris':
+                return `Get ${this.puzzleStats.tetrisPerformed}/${this.currentPuzzle.targetTetris || 1} Tetris`;
+            case 'combo':
+                return `Reach ${this.puzzleStats.maxCombo}/${this.currentPuzzle.targetCombo || 5} combo`;
+            case 'perfect':
+                return `Clear the board completely`;
+            case 'survive':
+                return `Survive for ${this.currentPuzzle.timeLimit || 60} seconds`;
+            default:
+                return this.currentPuzzle.description || 'Complete the objective';
+        }
+    }
+
+    pause() {
+        super.pause();
+    }
+
+    resume() {
+        super.resume();
+    }
+
+    cleanup() {
+        this.stopTimer();
+    }
+
+    getLeaderboardCategory() {
+        return 'puzzle';
+    }
+
+    supportsSaving() {
+        return false; // Puzzles are quick challenges
+    }
+
+    getIcon() {
+        return '🧩';
+    }
+
+    getThemeColor() {
+        return '#ff8800';
+    }
+}

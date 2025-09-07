@@ -6,6 +6,8 @@ import { InputManager } from './input.js';
 import { UIManager } from './ui.js';
 import { AudioManager } from './audio.js';
 import { ModalManager } from './modals.js';
+import { ModeSelector } from './modeSelector.js';
+import { ClassicMode } from './modes/classicMode.js';
 
 export class TetrisGame {
     constructor() {
@@ -54,6 +56,12 @@ export class TetrisGame {
         this.inputManager = new InputManager(this);
         this.uiManager = new UIManager(this);
         this.modalManager = new ModalManager(this.audioManager);
+        this.modalManager.setGame(this); // Connect modal manager to game
+        
+        // Mode system
+        this.modeSelector = new ModeSelector();
+        this.gameMode = null;
+        this.currentModeName = 'classic';
         
         // Store piece module reference for UI
         this.pieceModule = { Piece, PIECE_TYPES };
@@ -130,6 +138,15 @@ export class TetrisGame {
     }
 
     updateGameLogic(deltaTime) {
+        // Update game mode first
+        if (this.gameMode) {
+            const continueGame = this.gameMode.update(deltaTime);
+            if (!continueGame) {
+                // Mode has ended
+                return;
+            }
+        }
+        
         if (!this.currentPiece) {
             this.spawnNextPiece();
             return;
@@ -298,14 +315,39 @@ export class TetrisGame {
         // Place piece on grid
         this.grid.placePiece(this.currentPiece);
         
+        // Notify game mode that a piece was placed
+        if (this.gameMode && this.gameMode.handlePiecePlaced) {
+            this.gameMode.handlePiecePlaced();
+        }
+        
         // Play lock sound
         this.audioManager.playSFX('lock');
         
         // Process line clearing immediately and completely
         this.processLineClear(tspinResult);
         
-        // Check game over after everything is processed
+        // Check if the game mode is complete or will be complete
+        const isModeComplete = this.gameMode && 
+            (this.gameMode.isComplete || this.gameMode.pendingCompletion);
+        
+        // For puzzle mode, don't check game over if objective is met or pending
+        if (isModeComplete) {
+            this.currentPiece = null;
+            return; // Exit early if mode is complete
+        }
+        
+        // Check game over only if mode is not complete
         if (this.grid.isGameOver()) {
+            // For puzzle mode, give it one last chance to check objective
+            if (this.gameMode && this.gameMode.name === 'Puzzle') {
+                // Final check for objective completion
+                if (this.gameMode.checkObjectiveComplete && this.gameMode.checkObjectiveComplete()) {
+                    this.gameMode.isComplete = true;
+                    this.gameMode.pendingCompletion = true;
+                    this.currentPiece = null;
+                    return;
+                }
+            }
             this.gameOver();
         } else {
             this.currentPiece = null;
@@ -382,6 +424,18 @@ export class TetrisGame {
 
     // Calculate score based on lines cleared and special moves
     calculateScore(linesCleared, tspinResult) {
+        // Delegate to game mode if available
+        if (this.gameMode) {
+            const specialClear = {
+                type: tspinResult.type,
+                mini: tspinResult.mini,
+                perfectClear: this.grid.isPerfectClear()
+            };
+            this.gameMode.handleLineClears(linesCleared, specialClear);
+            return;
+        }
+        
+        // Fallback to default scoring (for backward compatibility)
         if (linesCleared === 0) {
             this.combo = 0;
             return;
@@ -474,11 +528,34 @@ export class TetrisGame {
         });
     }
 
+    // Select and initialize game mode
+    selectMode(modeName) {
+        this.currentModeName = modeName || 'classic';
+        this.gameMode = this.modeSelector.createModeInstance(this.currentModeName, this);
+        
+        if (this.gameMode) {
+            this.gameMode.initialize();
+            this.uiManager.updateModeDisplay(this.gameMode.getModeUI());
+            return true;
+        }
+        return false;
+    }
+    
     // Game state management
     async start() {
+        // Initialize game mode if not already done
+        if (!this.gameMode) {
+            this.selectMode('classic');
+        }
+        
         this.state = 'playing';
         this.gameStartTime = Date.now(); // Reset game start time
         this.uiManager.hideOverlay();
+        
+        // Start the game mode
+        if (this.gameMode) {
+            this.gameMode.start();
+        }
         
         // Ensure audio context is ready
         await this.audioManager.resumeAudioContext();
@@ -598,6 +675,11 @@ export class TetrisGame {
             this.renderGhostPiece();
             this.renderCurrentPiece();
             this.renderGridLines();
+            
+            // Update mode-specific UI
+            if (this.gameMode && this.uiManager) {
+                this.uiManager.updateModeUI(this.gameMode.getModeUI());
+            }
         }
     }
 

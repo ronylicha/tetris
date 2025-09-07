@@ -1,6 +1,7 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v1.2.0';
+const CACHE_NAME = 'tetris-v1.3.0';
 const API_CACHE = 'tetris-api-v1';
+const AUDIO_CACHE = 'tetris-audio-v1';
 
 // Resources to cache immediately on install
 const STATIC_CACHE_URLS = [
@@ -16,6 +17,7 @@ const STATIC_CACHE_URLS = [
     '/tetris/styles/main.css',
     '/tetris/styles/responsive.css',
     '/tetris/styles/animations.css',
+    '/tetris/styles/modes.css',
     '/tetris/scripts/game.js',
     '/tetris/scripts/pieces.js',
     '/tetris/scripts/grid.js',
@@ -24,7 +26,30 @@ const STATIC_CACHE_URLS = [
     '/tetris/scripts/audio.js',
     '/tetris/scripts/modals.js',
     '/tetris/scripts/leaderboard.js',
-    '/tetris/scripts/offline-storage.js'
+    '/tetris/scripts/offline-storage.js',
+    '/tetris/scripts/storage-adapter.js',
+    '/tetris/scripts/modeSelector.js',
+    '/tetris/scripts/modes/gameMode.js',
+    '/tetris/scripts/modes/classicMode.js',
+    '/tetris/scripts/modes/sprintMode.js',
+    '/tetris/scripts/modes/marathonMode.js',
+    '/tetris/scripts/modes/zenMode.js',
+    '/tetris/scripts/modes/puzzleMode.js',
+    '/tetris/scripts/modes/battleMode.js',
+    '/tetris/scripts/puzzles/puzzleData.js',
+    '/tetris/scripts/ai/tetrisAI.js'
+];
+
+// Audio files to cache when available
+const AUDIO_URLS = [
+    // Add audio file paths here when they exist
+    // '/tetris/audio/theme.mp3',
+    // '/tetris/audio/move.ogg',
+    // '/tetris/audio/rotate.ogg',
+    // '/tetris/audio/drop.ogg',
+    // '/tetris/audio/clear.ogg',
+    // '/tetris/audio/tetris.ogg',
+    // '/tetris/audio/gameover.ogg'
 ];
 
 // Install event - cache all static resources
@@ -103,6 +128,32 @@ self.addEventListener('fetch', (event) => {
             caches.match('/tetris/index.html')
                 .then(response => response || fetch('/tetris/index.html'))
                 .catch(() => caches.match('/tetris/'))
+        );
+        return;
+    }
+    
+    // Handle audio files with cache-first strategy
+    if (request.url.match(/\.(mp3|ogg|wav)$/)) {
+        event.respondWith(
+            caches.open(AUDIO_CACHE).then(cache => {
+                return cache.match(request).then(response => {
+                    if (response) {
+                        return response;
+                    }
+                    // Cache audio files on first request
+                    return fetch(request).then(networkResponse => {
+                        if (networkResponse && networkResponse.status === 200) {
+                            cache.put(request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    }).catch(() => {
+                        // Return empty audio if offline
+                        return new Response('', {
+                            headers: { 'Content-Type': 'audio/mpeg' }
+                        });
+                    });
+                });
+            })
         );
         return;
     }
