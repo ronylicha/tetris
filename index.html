@@ -377,5 +377,95 @@
     </div>
 
     <script type="module" src="scripts/game.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/tetris/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration);
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60000); // Check every minute
+                        
+                        // Handle updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    console.log('New version available! Refresh to update.');
+                                    
+                                    // Show update notification
+                                    const updateNotification = document.createElement('div');
+                                    updateNotification.className = 'update-notification';
+                                    updateNotification.innerHTML = `
+                                        <span>New version available!</span>
+                                        <button onclick="location.reload()">Update Now</button>
+                                    `;
+                                    document.body.appendChild(updateNotification);
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('ServiceWorker registration failed:', error);
+                    });
+                    
+                // Handle messages from Service Worker
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'CACHE_UPDATED') {
+                        console.log('Cache updated:', event.data.message);
+                    }
+                });
+            });
+        }
+        
+        // PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button if not already installed
+            const installButton = document.createElement('button');
+            installButton.id = 'install-pwa';
+            installButton.className = 'btn-icon pwa-install';
+            installButton.title = 'Install App';
+            installButton.innerHTML = '📥';
+            
+            installButton.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('PWA installed');
+                    installButton.remove();
+                }
+                
+                deferredPrompt = null;
+            });
+            
+            // Add to header controls
+            const headerControls = document.querySelector('.header-controls');
+            if (headerControls && !document.getElementById('install-pwa')) {
+                headerControls.appendChild(installButton);
+            }
+        });
+        
+        // Detect if app is installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            const installButton = document.getElementById('install-pwa');
+            if (installButton) {
+                installButton.remove();
+            }
+        });
+    </script>
 </body>
 </html>

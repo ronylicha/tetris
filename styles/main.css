@@ -990,3 +990,160 @@ body::before {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
 }
+
+/* Offline Mode Indicators */
+.offline-indicator {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: var(--bg-dark);
+    border: 2px solid var(--neon-orange);
+    border-radius: 10px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 159, 64, 0.3);
+}
+
+.offline-indicator.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.offline-indicator.offline {
+    border-color: var(--neon-red);
+    box-shadow: 0 0 20px rgba(255, 89, 94, 0.3);
+}
+
+.offline-indicator.syncing {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.offline-indicator .offline-icon,
+.offline-indicator .sync-icon {
+    font-size: 1.2rem;
+    animation: pulse 2s infinite;
+}
+
+.offline-indicator .pending-count {
+    background: var(--neon-orange);
+    color: var(--bg-dark);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+/* Offline Notifications */
+.offline-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-dark);
+    border: 2px solid var(--neon-blue);
+    border-radius: 10px;
+    padding: 15px 20px;
+    max-width: 300px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s ease;
+}
+
+.offline-notification.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.offline-notification.success {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.offline-notification.warning {
+    border-color: var(--neon-orange);
+    box-shadow: 0 0 20px rgba(255, 159, 64, 0.3);
+}
+
+.offline-notification.error {
+    border-color: var(--neon-red);
+    box-shadow: 0 0 20px rgba(255, 89, 94, 0.3);
+}
+
+.offline-notification.info {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+/* Update Notification */
+.update-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-dark);
+    border: 2px solid var(--neon-green);
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10001;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+    animation: slideDown 0.5s ease;
+}
+
+.update-notification button {
+    background: var(--neon-green);
+    color: var(--bg-dark);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.update-notification button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+}
+
+/* PWA Install Button */
+.pwa-install {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+    border: 2px solid transparent;
+    animation: gradient-border 3s ease infinite;
+}
+
+.pwa-install:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(187, 134, 252, 0.5);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes gradient-border {
+    0%, 100% {
+        border-color: var(--neon-purple);
+    }
+    50% {
+        border-color: var(--neon-blue);
+    }
+}

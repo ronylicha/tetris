@@ -1,9 +1,11 @@
 // Modern Tetris - Leaderboard Management System
+import { offlineStorage } from './offline-storage.js';
 
 export class LeaderboardManager {
     constructor() {
         this.apiBaseUrl = 'api/scores.php';
         this.currentTab = 'top-scores';
+        this.offlineStorage = offlineStorage;
         this.initializeEventListeners();
     }
 
@@ -96,28 +98,118 @@ export class LeaderboardManager {
         }
     }
 
-    // Fetch top scores from API
+    // Fetch top scores from API with offline fallback
     async fetchTopScores(limit = 50) {
-        const response = await fetch(`${this.apiBaseUrl}?action=leaderboard&limit=${limit}`);
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to fetch scores');
+        try {
+            const response = await fetch(`${this.apiBaseUrl}?action=leaderboard&limit=${limit}`);
+            const result = await response.json();
+            
+            if (!result.success) {
+                // Check if offline response
+                if (result.offline) {
+                    throw new Error('offline');
+                }
+                throw new Error(result.error || 'Failed to fetch scores');
+            }
+            
+            // Cache the data for offline use
+            await this.offlineStorage.cacheLeaderboardData('top-scores', result.data);
+            
+            return result.data;
+        } catch (error) {
+            console.log('Failed to fetch from server, using offline mode:', error.message);
+            
+            // Try to get cached data
+            const cached = await this.offlineStorage.getCachedLeaderboardData('top-scores');
+            
+            if (cached && cached.data) {
+                console.log('Using cached leaderboard data');
+                // Add local scores if offline
+                if (!navigator.onLine) {
+                    const localScores = await this.offlineStorage.getAllLocalScores();
+                    return this.mergeScores(cached.data, localScores);
+                }
+                return cached.data;
+            }
+            
+            // If no cache, return local scores only
+            const localScores = await this.offlineStorage.getAllLocalScores();
+            return localScores.map((score, index) => ({
+                ...score,
+                rank: index + 1,
+                player_name: score.playerName,
+                date_achieved: new Date(score.timestamp).toISOString(),
+                special_achievements: score.specialAchievements || {}
+            }));
         }
-        
-        return result.data;
     }
 
-    // Fetch recent scores from API
+    // Fetch recent scores from API with offline fallback
     async fetchRecentScores(limit = 20) {
-        const response = await fetch(`${this.apiBaseUrl}?action=recent&limit=${limit}`);
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to fetch scores');
+        try {
+            const response = await fetch(`${this.apiBaseUrl}?action=recent&limit=${limit}`);
+            const result = await response.json();
+            
+            if (!result.success) {
+                if (result.offline) {
+                    throw new Error('offline');
+                }
+                throw new Error(result.error || 'Failed to fetch scores');
+            }
+            
+            // Cache the data for offline use
+            await this.offlineStorage.cacheLeaderboardData('recent', result.data);
+            
+            return result.data;
+        } catch (error) {
+            console.log('Failed to fetch recent scores, using offline mode');
+            
+            // Try to get cached data
+            const cached = await this.offlineStorage.getCachedLeaderboardData('recent');
+            
+            if (cached && cached.data) {
+                return cached.data;
+            }
+            
+            // Return local scores sorted by timestamp
+            const localScores = await this.offlineStorage.getAllLocalScores();
+            return localScores
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, limit)
+                .map(score => ({
+                    ...score,
+                    player_name: score.playerName,
+                    date_achieved: new Date(score.timestamp).toISOString(),
+                    special_achievements: score.specialAchievements || {}
+                }));
         }
+    }
+    
+    // Merge server scores with local unsynced scores
+    mergeScores(serverScores, localScores) {
+        const merged = [...serverScores];
         
-        return result.data;
+        // Add unsynced local scores
+        localScores.forEach(localScore => {
+            if (!localScore.synced) {
+                merged.push({
+                    ...localScore,
+                    rank: 0, // Will be recalculated
+                    player_name: localScore.playerName,
+                    date_achieved: new Date(localScore.timestamp).toISOString(),
+                    special_achievements: localScore.specialAchievements || {},
+                    isLocal: true // Mark as local
+                });
+            }
+        });
+        
+        // Re-sort and re-rank
+        merged.sort((a, b) => b.score - a.score);
+        merged.forEach((score, index) => {
+            score.rank = index + 1;
+        });
+        
+        return merged;
     }
 
     // Render leaderboard entries
@@ -201,6 +293,7 @@ export class ScoreSaver {
     constructor() {
         this.apiBaseUrl = 'api/scores.php';
         this.gameStartTime = Date.now();
+        this.offlineStorage = offlineStorage;
         this.initializeEventListeners();
     }
 
@@ -324,15 +417,53 @@ export class ScoreSaver {
                 specialAchievements: this.currentAchievements
             };
 
-            const response = await fetch(this.apiBaseUrl + '?action=save', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(scoreData)
-            });
+            let result;
+            
+            try {
+                const response = await fetch(this.apiBaseUrl + '?action=save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(scoreData)
+                });
 
-            const result = await response.json();
+                result = await response.json();
+                
+                if (!result.success) {
+                    // Check if offline
+                    if (result.offline) {
+                        // Save locally
+                        await this.offlineStorage.saveScoreLocally(scoreData);
+                        this.showOfflineSave();
+                        
+                        // Store player name for next time
+                        localStorage.setItem('tetris_player_name', playerName);
+                        
+                        // Hide modal after delay
+                        setTimeout(() => {
+                            this.hideNameInput();
+                        }, 2000);
+                        return;
+                    }
+                    throw new Error(result.error || 'Failed to save score');
+                }
+            } catch (fetchError) {
+                // Network error - save locally
+                console.log('Network error, saving locally:', fetchError);
+                await this.offlineStorage.saveScoreLocally(scoreData);
+                await this.offlineStorage.registerBackgroundSync();
+                this.showOfflineSave();
+                
+                // Store player name for next time
+                localStorage.setItem('tetris_player_name', playerName);
+                
+                // Hide modal after delay
+                setTimeout(() => {
+                    this.hideNameInput();
+                }, 2000);
+                return;
+            }
 
             if (result.success) {
                 // Show success message
@@ -377,6 +508,15 @@ export class ScoreSaver {
                 saveButton.textContent = 'Save Score';
                 saveButton.style.background = '';
             }, 3000);
+        }
+    }
+    
+    // Show offline save message
+    showOfflineSave() {
+        const saveButton = document.getElementById('save-score-button');
+        if (saveButton) {
+            saveButton.textContent = 'Saved Locally! 📴';
+            saveButton.style.background = 'var(--neon-orange)';
         }
     }
 
