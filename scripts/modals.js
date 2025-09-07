@@ -8,6 +8,14 @@ export class ModalManager {
     }
 
     initializeEventListeners() {
+        // Header leaderboard button
+        const headerLeaderboardButton = document.getElementById('header-leaderboard-button');
+        if (headerLeaderboardButton) {
+            headerLeaderboardButton.addEventListener('click', () => {
+                this.showLeaderboard();
+            });
+        }
+
         // Settings button
         const settingsButton = document.getElementById('settings-button');
         if (settingsButton) {

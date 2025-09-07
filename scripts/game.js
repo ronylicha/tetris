@@ -430,6 +430,8 @@ export class TetrisGame {
         if (newLevel > this.level) {
             this.level = newLevel;
             this.audioManager.playSFX('levelUp');
+            // Update music tempo based on new level
+            this.audioManager.setGameLevel(this.level);
             this.updateDropSpeed();
         }
     }
@@ -481,6 +483,9 @@ export class TetrisGame {
         // Ensure audio context is ready
         await this.audioManager.resumeAudioContext();
         
+        // Set initial game level for music tempo
+        this.audioManager.setGameLevel(this.level);
+        
         // Start background music
         this.audioManager.startBackgroundMusic();
         
@@ -515,6 +520,8 @@ export class TetrisGame {
         this.score = 0;
         this.lines = 0;
         this.level = 1;
+        // Reset music tempo to level 1
+        this.audioManager.setGameLevel(1);
         this.combo = 0;
         this.dropTimer = 0;
         

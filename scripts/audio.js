@@ -7,11 +7,11 @@ export class AudioManager {
         this.musicGain = null;
         this.sfxGain = null;
         
-        // Audio settings
+        // Audio settings - Balanced for comfortable extended play
         this.settings = {
-            masterVolume: 0.7,
-            musicVolume: 0.5,
-            sfxVolume: 0.8,
+            masterVolume: 0.7,    // Reduced master for better headroom
+            musicVolume: 0.5,     // Background music level - present but not overwhelming
+            sfxVolume: 0.7,       // Clear sound effects that cut through
             musicEnabled: true,
             sfxEnabled: true
         };
@@ -27,6 +27,7 @@ export class AudioManager {
         this.musicLoop = null;
         this.musicTimeout = null;
         this.currentMusicNotes = [];
+        this.currentGameLevel = 1; // Track game level for adaptive music
         
         this.initializeAudioContext();
     }
@@ -337,8 +338,11 @@ export class AudioManager {
         }
     }
 
-    // Background Music System - 90s Style
+    // Background Music System - Classic Tetris Style
+    // Features authentic chiptune melodies inspired by Korobeiniki,
+    // proper square wave instrumentation, and energetic rhythms
     startBackgroundMusic() {
+        console.log('startBackgroundMusic called - musicEnabled:', this.settings.musicEnabled, 'musicLoop exists:', !!this.musicLoop);
         if (!this.settings.musicEnabled || this.musicLoop) return;
         
         this.resumeAudioContext();
@@ -347,7 +351,7 @@ export class AudioManager {
 
     stopBackgroundMusic() {
         if (this.musicLoop) {
-            clearInterval(this.musicLoop);
+            clearTimeout(this.musicLoop);
             this.musicLoop = null;
         }
         
@@ -357,102 +361,114 @@ export class AudioManager {
             this.musicTimeout = null;
         }
         
-        // Stop any currently playing notes
+        // Gradually fade out currently playing notes instead of abrupt stop
         if (this.currentMusicNotes) {
+            const now = this.audioContext ? this.audioContext.currentTime : 0;
             this.currentMusicNotes.forEach(note => {
-                if (note.oscillator) {
+                if (note.gainNode && this.audioContext) {
                     try {
-                        note.oscillator.stop();
+                        // Fade out over 2 seconds for smooth transition
+                        note.gainNode.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+                        if (note.oscillator) {
+                            setTimeout(() => {
+                                try {
+                                    note.oscillator.stop();
+                                } catch (e) {
+                                    // Ignore if already stopped
+                                }
+                            }, 2100);
+                        }
                     } catch (e) {
-                        // Ignore if already stopped
+                        // Fallback to immediate stop if smooth fade fails
+                        if (note.oscillator) {
+                            try {
+                                note.oscillator.stop();
+                            } catch (e2) {
+                                // Ignore if already stopped
+                            }
+                        }
                     }
                 }
             });
-            this.currentMusicNotes = [];
+            // Clear the array after fade completes
+            setTimeout(() => {
+                this.currentMusicNotes = [];
+            }, 2200);
         }
     }
 
     playBackgroundLoop() {
-        // Extended modern electronic composition - 4+ minutes of unique music
+        console.log('playBackgroundLoop called');
+        // ENHANCED TETRIS THEME - Korobeiniki-inspired but unique composition
+        // Optimized for extended gameplay with perfect looping and non-fatiguing mix
         const composition = [
-            // === INTRO SECTION === (16 beats)
-            { note: 329.63, duration: 1.0, harmony: [261.63, 196.00], section: 'intro' }, // E3 + C3 + G2
-            { note: 0, duration: 0.5, harmony: [], section: 'intro' },
-            { note: 440.00, duration: 0.5, harmony: [329.63, 220.00], section: 'intro' }, // A4 + E3 + A2
-            { note: 523.25, duration: 1.0, harmony: [415.30, 261.63], section: 'intro' }, // C5 + G#4 + C3
+            // === PART A: THE ICONIC OPENING (8 bars) ===
+            // More accurate to the original Tetris theme rhythm and intervals
+            { note: 659.25, duration: 1.0, harmony: [329.63], section: 'main' }, // E5 - Iconic opening
+            { note: 493.88, duration: 0.5, harmony: [246.94], section: 'main' }, // B4
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'main' }, // C5
+            { note: 587.33, duration: 1.0, harmony: [293.66], section: 'main' }, // D5
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'main' }, // C5
+            { note: 493.88, duration: 0.5, harmony: [246.94], section: 'main' }, // B4
             
-            // === MAIN THEME A === (32 beats) - Enhanced Korobeiniki
-            { note: 659.25, duration: 0.5, harmony: [523.25, 392.00, 196.00], section: 'themeA' }, // E5 + C5 + G4 + G2
-            { note: 493.88, duration: 0.25, harmony: [392.00, 220.00], section: 'themeA' }, // B4 + G4 + A2
-            { note: 523.25, duration: 0.25, harmony: [415.30, 233.08], section: 'themeA' }, // C5 + G#4 + A#2
-            { note: 587.33, duration: 0.5, harmony: [440.00, 349.23, 246.94], section: 'themeA' }, // D5 + A4 + F4 + B2
-            { note: 523.25, duration: 0.25, harmony: [415.30, 261.63], section: 'themeA' }, // C5 + G#4 + C3
-            { note: 493.88, duration: 0.25, harmony: [392.00, 277.18], section: 'themeA' }, // B4 + G4 + C#3
-            { note: 440.00, duration: 0.5, harmony: [329.63, 220.00], section: 'themeA' }, // A4 + E4 + A2
-            { note: 440.00, duration: 0.25, harmony: [329.63, 196.00], section: 'themeA' }, // A4 + E4 + G2
-            { note: 523.25, duration: 0.25, harmony: [415.30, 220.00], section: 'themeA' }, // C5 + G#4 + A2
-            { note: 659.25, duration: 0.5, harmony: [523.25, 392.00, 246.94], section: 'themeA' }, // E5 + C5 + G4 + B2
-            { note: 587.33, duration: 0.25, harmony: [440.00, 261.63], section: 'themeA' }, // D5 + A4 + C3
-            { note: 523.25, duration: 0.25, harmony: [415.30, 277.18], section: 'themeA' }, // C5 + G#4 + C#3
-            { note: 493.88, duration: 1.0, harmony: [392.00, 293.66, 196.00], section: 'themeA' }, // B4 + G4 + D4 + G2
-            { note: 0, duration: 0.25, harmony: [], section: 'themeA' },
+            { note: 440.00, duration: 1.0, harmony: [220.00], section: 'main' }, // A4
+            { note: 440.00, duration: 0.5, harmony: [220.00], section: 'main' }, // A4
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'main' }, // C5
+            { note: 659.25, duration: 1.0, harmony: [329.63], section: 'main' }, // E5
+            { note: 587.33, duration: 0.5, harmony: [293.66], section: 'main' }, // D5
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'main' }, // C5
             
-            // === BREAKDOWN SECTION === (16 beats) - Minimal electronic
-            { note: 880.00, duration: 0.125, harmony: [659.25, 440.00], section: 'breakdown' }, // A5 + E5 + A4
-            { note: 0, duration: 0.125, harmony: [], section: 'breakdown' },
-            { note: 783.99, duration: 0.125, harmony: [587.33, 392.00], section: 'breakdown' }, // G5 + D5 + G4
-            { note: 0, duration: 0.125, harmony: [], section: 'breakdown' },
-            { note: 659.25, duration: 0.125, harmony: [493.88, 329.63], section: 'breakdown' }, // E5 + B4 + E4
-            { note: 0, duration: 0.375, harmony: [], section: 'breakdown' },
-            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'breakdown' }, // C6 + G5 + C5 + C3
-            { note: 0, duration: 0.5, harmony: [], section: 'breakdown' },
+            { note: 493.88, duration: 1.5, harmony: [246.94], section: 'main' }, // B4 - extended
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'main' }, // C5
+            { note: 587.33, duration: 1.0, harmony: [293.66], section: 'main' }, // D5
+            { note: 659.25, duration: 1.0, harmony: [329.63], section: 'main' }, // E5
             
-            // === THEME B === (32 beats) - New melodic variation
-            { note: 587.33, duration: 0.75, harmony: [440.00, 349.23, 220.00], section: 'themeB' }, // D5 + A4 + F4 + A2
-            { note: 659.25, duration: 0.25, harmony: [523.25, 392.00], section: 'themeB' }, // E5 + C5 + G4
-            { note: 739.99, duration: 0.5, harmony: [554.37, 415.30, 246.94], section: 'themeB' }, // F#5 + C#5 + G#4 + B2
-            { note: 659.25, duration: 0.25, harmony: [523.25, 329.63], section: 'themeB' }, // E5 + C5 + E4
-            { note: 587.33, duration: 0.25, harmony: [440.00, 293.66], section: 'themeB' }, // D5 + A4 + D4
-            { note: 523.25, duration: 0.5, harmony: [392.00, 261.63], section: 'themeB' }, // C5 + G4 + C3
-            { note: 493.88, duration: 0.5, harmony: [369.99, 277.18], section: 'themeB' }, // B4 + F#4 + C#3
-            { note: 554.37, duration: 0.75, harmony: [415.30, 311.13, 185.00], section: 'themeB' }, // C#5 + G#4 + D#4 + F#2
-            { note: 523.25, duration: 0.25, harmony: [392.00, 196.00], section: 'themeB' }, // C5 + G4 + G2
+            { note: 523.25, duration: 1.0, harmony: [261.63], section: 'main' }, // C5
+            { note: 440.00, duration: 1.0, harmony: [220.00], section: 'main' }, // A4
+            { note: 440.00, duration: 2.0, harmony: [220.00], section: 'main' }, // A4 - hold
             
-            // === BUILD UP === (16 beats) - Energy increase
-            { note: 880.00, duration: 0.25, harmony: [659.25, 440.00, 220.00], section: 'buildup' }, // A5 + E5 + A4 + A2
-            { note: 932.33, duration: 0.25, harmony: [698.46, 466.16, 233.08], section: 'buildup' }, // A#5 + F5 + A#4 + A#2
-            { note: 987.77, duration: 0.25, harmony: [739.99, 493.88, 246.94], section: 'buildup' }, // B5 + F#5 + B4 + B2
-            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'buildup' }, // C6 + G5 + C5 + C3
-            { note: 1108.73, duration: 0.5, harmony: [830.61, 554.37, 277.18], section: 'buildup' }, // C#6 + G#5 + C#5 + C#3
-            { note: 1174.66, duration: 0.5, harmony: [880.00, 587.33, 293.66], section: 'buildup' }, // D6 + A5 + D5 + D3
-            { note: 1244.51, duration: 1.0, harmony: [932.33, 622.25, 311.13], section: 'buildup' }, // D#6 + A#5 + D#5 + D#3
+            // === PART B: THE ASCENDING SECTION (8 bars) ===
+            // Creates variety and maintains interest
+            { note: 0, duration: 0.5, harmony: [], section: 'bridge' }, // Rest
+            { note: 587.33, duration: 0.5, harmony: [293.66], section: 'bridge' }, // D5
+            { note: 698.46, duration: 1.0, harmony: [349.23], section: 'bridge' }, // F5
+            { note: 880.00, duration: 1.0, harmony: [440.00], section: 'bridge' }, // A5
             
-            // === CLIMAX === (32 beats) - Full orchestration
-            { note: 1318.51, duration: 0.5, harmony: [987.77, 659.25, 329.63, 164.81], section: 'climax' }, // E6 + B5 + E5 + E4 + E2
-            { note: 1174.66, duration: 0.25, harmony: [880.00, 587.33, 293.66], section: 'climax' }, // D6 + A5 + D5 + D3
-            { note: 1046.50, duration: 0.25, harmony: [783.99, 523.25, 261.63], section: 'climax' }, // C6 + G5 + C5 + C3
-            { note: 987.77, duration: 0.5, harmony: [739.99, 493.88, 246.94], section: 'climax' }, // B5 + F#5 + B4 + B2
-            { note: 880.00, duration: 0.25, harmony: [659.25, 440.00, 220.00], section: 'climax' }, // A5 + E5 + A4 + A2
-            { note: 783.99, duration: 0.25, harmony: [587.33, 392.00, 196.00], section: 'climax' }, // G5 + D5 + G4 + G2
-            { note: 698.46, duration: 0.5, harmony: [523.25, 349.23, 174.61], section: 'climax' }, // F5 + C5 + F4 + F2
-            { note: 659.25, duration: 1.0, harmony: [493.88, 329.63, 164.81], section: 'climax' }, // E5 + B4 + E4 + E2
+            { note: 784.00, duration: 0.5, harmony: [392.00], section: 'bridge' }, // G5
+            { note: 698.46, duration: 0.5, harmony: [349.23], section: 'bridge' }, // F5
+            { note: 659.25, duration: 1.5, harmony: [329.63], section: 'bridge' }, // E5
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'bridge' }, // C5
             
-            // === OUTRO === (16 beats) - Fade to ambient
-            { note: 523.25, duration: 1.5, harmony: [392.00, 261.63, 130.81], section: 'outro' }, // C5 + G4 + C3 + C2
-            { note: 440.00, duration: 1.0, harmony: [329.63, 220.00, 110.00], section: 'outro' }, // A4 + E4 + A2 + A1
-            { note: 392.00, duration: 1.5, harmony: [293.66, 196.00, 98.00], section: 'outro' }, // G4 + D4 + G2 + G1
-            { note: 329.63, duration: 2.0, harmony: [246.94, 164.81, 82.41], section: 'outro' }, // E4 + B3 + E2 + E1
+            { note: 659.25, duration: 1.0, harmony: [329.63], section: 'bridge' }, // E5
+            { note: 587.33, duration: 0.5, harmony: [293.66], section: 'bridge' }, // D5
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'bridge' }, // C5
+            { note: 493.88, duration: 2.0, harmony: [246.94], section: 'bridge' }, // B4 - hold
+            
+            { note: 493.88, duration: 0.5, harmony: [246.94], section: 'bridge' }, // B4
+            { note: 523.25, duration: 0.5, harmony: [261.63], section: 'bridge' }, // C5
+            { note: 587.33, duration: 1.0, harmony: [293.66], section: 'bridge' }, // D5
+            { note: 659.25, duration: 1.0, harmony: [329.63], section: 'bridge' }, // E5
+            
+            { note: 523.25, duration: 1.0, harmony: [261.63], section: 'bridge' }, // C5
+            { note: 440.00, duration: 1.0, harmony: [220.00], section: 'bridge' }, // A4
+            { note: 440.00, duration: 2.0, harmony: [220.00], section: 'bridge' }, // A4 - hold
         ];
         
-        // Advanced bass patterns for each section
+        // OPTIMIZED BASS LINE - More subtle and supportive, less fatiguing
+        // Uses walking bass patterns that complement without overwhelming
         const bassPatterns = {
-            intro: [130.81, 164.81, 110.00, 146.83], // C2 E2 A1 D2
-            themeA: [196.00, 196.00, 220.00, 220.00, 196.00, 196.00, 175.00, 175.00, 220.00, 233.08, 246.94, 261.63], // Extended bass
-            breakdown: [82.41, 0, 98.00, 0, 110.00, 0, 123.47, 130.81], // Minimal bass
-            themeB: [185.00, 207.65, 220.00, 246.94, 261.63, 293.66, 311.13, 329.63], // Progressive bass
-            buildup: [220.00, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63], // Rising bass
-            climax: [164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13], // Full bass
-            outro: [130.81, 123.47, 110.00, 98.00] // Descending bass
+            main: [
+                164.81, 0, 164.81, 0,      // E3 with rests - less constant
+                110.00, 0, 110.00, 0,      // A2 with rests
+                146.83, 0, 130.81, 0,      // D3, C3 walking pattern
+                123.47, 0, 110.00, 0       // B2, A2 resolution
+            ],
+            bridge: [
+                146.83, 0, 174.61, 0,      // D3, F3 with space
+                220.00, 0, 196.00, 0,      // A3, G3 higher register
+                164.81, 0, 130.81, 0,      // E3, C3 return
+                123.47, 0, 146.83, 0       // B2, D3 turnaround
+            ]
         };
         
         let noteIndex = 0;
@@ -462,52 +478,59 @@ export class AudioManager {
         const playNextNote = async () => {
             if (!this.settings.musicEnabled) return;
             
-            // Clear previous notes
-            this.currentMusicNotes.forEach(note => {
-                if (note.oscillator) {
+            console.log('Playing note', noteIndex, 'of', composition.length);
+            
+            // Clean up old notes to prevent memory leaks
+            const now = this.audioContext ? this.audioContext.currentTime : 0;
+            this.currentMusicNotes = this.currentMusicNotes.filter(note => {
+                if (note.startTime && (now - note.startTime) > 5) { // Reduced from 10 to 5 seconds
                     try {
-                        note.oscillator.stop();
+                        if (note.oscillator) {
+                            note.oscillator.stop();
+                            note.oscillator.disconnect();
+                        }
+                        if (note.gainNode) note.gainNode.disconnect();
+                        if (note.filterNode) note.filterNode.disconnect();
                     } catch (e) {
-                        // Already stopped
+                        // Already stopped or disconnected
                     }
+                    return false;
                 }
+                return true;
             });
-            this.currentMusicNotes = [];
             
             const currentNote = composition[noteIndex];
             const currentSection = currentNote.section;
             const bassPattern = bassPatterns[currentSection];
             const bassNote = bassPattern[sectionBassIndex % bassPattern.length];
             
-            const now = this.audioContext.currentTime;
-            
-            // Play main melody note
+            // Play main melody note (skip if it's a rest - note frequency 0)
             if (currentNote.note > 0) {
                 const mainSound = this.createMusicNote(currentNote.note, currentNote.duration, 'lead');
                 if (mainSound) {
+                    mainSound.startTime = now;
                     mainSound.oscillator.start(now);
-                    mainSound.oscillator.stop(now + currentNote.duration);
                     this.currentMusicNotes.push(mainSound);
                 }
                 
-                // Play harmony notes with advanced spacing
+                // Play harmony notes with tight, precise chiptune timing
                 currentNote.harmony.forEach((harmonyFreq, index) => {
                     const harmonySound = this.createMusicNote(harmonyFreq, currentNote.duration, 'harmony');
                     if (harmonySound) {
-                        const delay = index * 0.015 + (Math.random() * 0.01); // Slight randomization for organic feel
+                        const delay = index * 0.01; // Very tight timing for authentic chiptune feel
+                        harmonySound.startTime = now + delay;
                         harmonySound.oscillator.start(now + delay);
-                        harmonySound.oscillator.stop(now + currentNote.duration);
                         this.currentMusicNotes.push(harmonySound);
                     }
                 });
             }
             
-            // Play bass line
-            if (bassNote > 0) {
+            // Play bass line (only if melody isn't resting - bass follows melody rhythm)
+            if (currentNote.note > 0 && bassNote > 0) {
                 const bassSound = this.createMusicNote(bassNote, currentNote.duration, 'bass');
                 if (bassSound) {
+                    bassSound.startTime = now;
                     bassSound.oscillator.start(now);
-                    bassSound.oscillator.stop(now + currentNote.duration);
                     this.currentMusicNotes.push(bassSound);
                 }
             }
@@ -522,95 +545,125 @@ export class AudioManager {
             }
         };
         
-        // Start playing with dynamic timing based on note duration
+        // Start playing with authentic Tetris tempo - fast, energetic, and addictive
         const scheduleNextNote = () => {
             if (!this.settings.musicEnabled) return;
             
             playNextNote();
             const currentNote = composition[noteIndex];
-            const nextDelay = (currentNote.duration * 300) + 50; // Convert to ms with slight overlap
-            setTimeout(scheduleNextNote, nextDelay);
+            // ADAPTIVE TEMPO - Starts moderate and can speed up with game level
+            // Base tempo around 120 BPM for comfortable extended listening
+            const tempoMultiplier = this.getMusicSpeedMultiplier ? this.getMusicSpeedMultiplier() : 1.0;
+            const baseDelay = 250; // More relaxed base tempo (120 BPM)
+            const nextDelay = (currentNote.duration * baseDelay) / tempoMultiplier;
+            this.musicTimeout = setTimeout(scheduleNextNote, nextDelay);
         };
         
-        scheduleNextNote();
+        // Set musicLoop to indicate music is playing (use timeout ID)
+        this.musicLoop = setTimeout(scheduleNextNote, 50); // Start quickly
     }
 
     createMusicNote(frequency, duration, instrument = 'lead') {
-        if (!this.audioContext) return null;
+        if (!this.audioContext || frequency === 0) return null; // Support rests
         
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
         const filterNode = this.audioContext.createBiquadFilter();
         
-        // 90s-style instrument configuration
+        // Get current time first for consistent timing
+        const now = this.audioContext.currentTime;
+        
+        // ENHANCED CHIPTUNE SYNTHESIS with better mixing
         switch (instrument) {
             case 'lead':
-                oscillator.type = 'sawtooth'; // Richer sound than square
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(frequency, now);
+                // Subtle vibrato for character without being overwhelming
+                const vibratoDepth = 0.002; // Much subtler vibrato
+                const vibratoRate = 5; // Hz
+                const lfo = this.audioContext.createOscillator();
+                const lfoGain = this.audioContext.createGain();
+                lfo.frequency.value = vibratoRate;
+                lfoGain.gain.value = frequency * vibratoDepth;
+                lfo.connect(lfoGain);
+                lfoGain.connect(oscillator.frequency);
+                lfo.start(now);
+                lfo.stop(now + duration + 0.1);
+                
+                // Add gentle low-pass filter to soften harsh harmonics
                 filterNode.type = 'lowpass';
                 filterNode.frequency.value = 2000;
-                filterNode.Q.value = 1.5;
+                filterNode.Q.value = 0.5;
                 break;
                 
             case 'harmony':
-                oscillator.type = 'triangle'; // Softer harmony
-                filterNode.type = 'bandpass';
-                filterNode.frequency.value = 1000;
-                filterNode.Q.value = 0.7;
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(frequency, now);
+                // Softer filter for harmony to sit behind lead
+                filterNode.type = 'lowpass';
+                filterNode.frequency.value = 1500;
+                filterNode.Q.value = 0.3;
                 break;
                 
             case 'bass':
-                oscillator.type = 'square'; // Classic bass sound
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(frequency, now);
+                // Gentle pitch envelope for character
+                oscillator.frequency.setValueAtTime(frequency * 0.98, now);
+                oscillator.frequency.exponentialRampToValueAtTime(frequency, now + 0.01);
+                
+                // Low-pass filter to keep bass clean
                 filterNode.type = 'lowpass';
-                filterNode.frequency.value = 400;
-                filterNode.Q.value = 2;
+                filterNode.frequency.value = 800;
+                filterNode.Q.value = 1.0;
                 break;
                 
             default:
                 oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(frequency, now);
                 filterNode.type = 'lowpass';
-                filterNode.frequency.value = 1500;
+                filterNode.frequency.value = 2000;
         }
         
-        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-        
-        // 90s-style envelope with more character
-        const now = this.audioContext.currentTime;
+        // BALANCED MIXING - Pleasant for extended listening
         let volume;
         
         switch (instrument) {
             case 'lead':
-                volume = 0.08; // Main melody prominence
+                volume = 0.35; // Reduced but still prominent
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(volume, now + 0.02);
-                gainNode.gain.setValueAtTime(volume * 0.9, now + duration * 0.3);
-                gainNode.gain.setValueAtTime(volume * 0.7, now + duration * 0.7);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.002); // Quick attack
+                gainNode.gain.linearRampToValueAtTime(volume * 0.85, now + 0.01); // Slight decay
+                gainNode.gain.setValueAtTime(volume * 0.85, now + duration * 0.8); // Sustain
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + 0.02); // Release
                 break;
                 
             case 'harmony':
-                volume = 0.04; // Subtle harmony
+                volume = 0.20; // Supportive, not overwhelming
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(volume, now + 0.05);
-                gainNode.gain.setValueAtTime(volume * 0.8, now + duration * 0.5);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.003);
+                gainNode.gain.linearRampToValueAtTime(volume * 0.8, now + 0.015);
+                gainNode.gain.setValueAtTime(volume * 0.8, now + duration * 0.7);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + 0.03);
                 break;
                 
             case 'bass':
-                volume = 0.06; // Solid bass foundation
+                volume = 0.25; // Present but not boomy
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
-                gainNode.gain.setValueAtTime(volume, now + duration * 0.8);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.001); // Tight attack
+                gainNode.gain.linearRampToValueAtTime(volume * 0.9, now + 0.005);
+                gainNode.gain.setValueAtTime(volume * 0.9, now + duration * 0.9);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + 0.01);
                 break;
                 
             default:
-                volume = 0.05;
+                volume = 0.2;
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(volume, now + 0.05);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + 0.1);
         }
         
-        // Connect with filter for 90s character
+        // Connect with filter for better sound quality
         oscillator.connect(filterNode);
         filterNode.connect(gainNode);
         gainNode.connect(this.musicGain);
@@ -678,9 +731,35 @@ export class AudioManager {
         return { ...this.settings };
     }
 
+    // Set game level for adaptive music tempo
+    setGameLevel(level) {
+        this.currentGameLevel = Math.max(1, Math.min(level, 20)); // Cap at level 20
+    }
+    
+    // Get music speed multiplier based on game level
+    getMusicSpeedMultiplier() {
+        // Start at 1.0x speed, increase by 2% per level, max 1.4x at level 20
+        return Math.min(1.4, 1.0 + (this.currentGameLevel - 1) * 0.02);
+    }
+    
     // Cleanup
     destroy() {
         this.stopBackgroundMusic();
+        // Clean up all audio nodes
+        this.currentMusicNotes.forEach(note => {
+            try {
+                if (note.oscillator) {
+                    note.oscillator.stop();
+                    note.oscillator.disconnect();
+                }
+                if (note.gainNode) note.gainNode.disconnect();
+                if (note.filterNode) note.filterNode.disconnect();
+            } catch (e) {
+                // Ignore cleanup errors
+            }
+        });
+        this.currentMusicNotes = [];
+        
         if (this.audioContext) {
             this.audioContext.close();
         }
