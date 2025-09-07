@@ -1,5 +1,6 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v1.3.0';
+const CACHE_NAME = 'tetris-v1.3.5';
+const CACHE_VERSION = 'v1.3.5';
 const API_CACHE = 'tetris-api-v1';
 const AUDIO_CACHE = 'tetris-audio-v1';
 

@@ -439,47 +439,66 @@
             console.log('🎮 Tetris running in SERVER mode (full features)');
         }
         
-        // Show mode indicator
+        // Show ONLY offline indicator - super discrete
         window.addEventListener('DOMContentLoaded', () => {
-            const indicator = document.createElement('div');
-            indicator.id = 'mode-indicator';
-            indicator.className = 'mode-indicator';
-            indicator.style.cssText = `
-                position: fixed;
-                bottom: 10px;
-                right: 10px;
-                padding: 5px 10px;
-                background: rgba(0, 0, 0, 0.7);
-                color: white;
-                border-radius: 5px;
-                font-size: 12px;
-                z-index: 10000;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            `;
+            // First cleanup any old indicators
+            const indicatorsToRemove = [
+                'offline-indicator',
+                'mode-indicator',
+                'connection-status',
+                'sync-indicator'
+            ];
             
-            if (window.TetrisContext.isFileProtocol) {
-                indicator.innerHTML = '📁 Local File Mode';
-            } else if (navigator.onLine) {
-                indicator.innerHTML = '🌐 Online';
-            } else {
-                indicator.innerHTML = '📴 Offline';
-            }
-            
-            document.body.appendChild(indicator);
-            
-            // Update on connection change
-            window.addEventListener('online', () => {
-                if (!window.TetrisContext.isFileProtocol) {
-                    indicator.innerHTML = '🌐 Online';
+            indicatorsToRemove.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.remove();
                 }
             });
             
+            // Also remove by class name
+            document.querySelectorAll('.offline-indicator, .mode-indicator, .offline-notification').forEach(el => {
+                el.remove();
+            });
+            
+            // Create discrete offline-only indicator
+            const indicator = document.createElement('div');
+            indicator.id = 'offline-only-indicator';
+            indicator.style.cssText = `
+                position: fixed;
+                bottom: 5px;
+                right: 5px;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: ${navigator.onLine ? 'transparent' : '#ff0000'};
+                opacity: ${navigator.onLine ? '0' : '0.5'};
+                pointer-events: none;
+                z-index: 50;
+                transition: all 0.3s ease;
+            `;
+            
+            // Add tiny text on hover (using title attribute)
+            indicator.title = navigator.onLine ? '' : 'Offline';
+            
+            document.body.appendChild(indicator);
+            
+            // Update on connection change - ONLY show when offline
+            window.addEventListener('online', () => {
+                indicator.style.background = 'transparent';
+                indicator.style.opacity = '0';
+                indicator.title = '';
+            });
+            
             window.addEventListener('offline', () => {
-                if (!window.TetrisContext.isFileProtocol) {
-                    indicator.innerHTML = '📴 Offline';
-                }
+                indicator.style.background = '#ff0000';
+                indicator.style.opacity = '0.5';
+                indicator.title = 'Offline';
+                // Pulse once to notify
+                indicator.style.animation = 'pulse 1s ease-out';
+                setTimeout(() => {
+                    indicator.style.animation = '';
+                }, 1000);
             });
         });
         
@@ -487,7 +506,12 @@
         if ('serviceWorker' in navigator && !window.TetrisContext.isFileProtocol) {
             window.TetrisContext.hasServiceWorker = true;
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/tetris/sw.js')
+                // Detect the correct path for Service Worker
+                const swPath = window.location.pathname.includes('/tetris/') 
+                    ? '/tetris/sw.js' 
+                    : './sw.js';
+                    
+                navigator.serviceWorker.register(swPath)
                     .then(registration => {
                         console.log('ServiceWorker registered:', registration);
                         
@@ -517,7 +541,9 @@
                         });
                     })
                     .catch(error => {
-                        console.error('ServiceWorker registration failed:', error);
+                        console.warn('ServiceWorker registration failed:', error);
+                        // Continue without Service Worker - game still works offline with localStorage
+                        window.TetrisContext.hasServiceWorker = false;
                     });
                     
                 // Handle messages from Service Worker

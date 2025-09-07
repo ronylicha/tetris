@@ -82,10 +82,22 @@ Relaxing endless gameplay with no game over. Features:
 
 ### Battle Mode ⚔️
 Face off against intelligent AI opponents with:
-- 5 difficulty levels (Easy to Grandmaster)
-- Power-ups system (Freeze, Bomb, Shield, Speed)
-- Garbage line mechanics
-- Best of 3 rounds
+- **5 difficulty levels** with unique AI behaviors:
+  - **Easy**: Makes frequent mistakes, slow thinking (30% error rate)
+  - **Normal**: Balanced challenge, moderate speed (15% error rate)
+  - **Hard**: Skilled opponent with T-spin awareness
+  - **Expert**: Advanced strategies, combo tracking, lookahead
+  - **Grandmaster**: Near-perfect play with optimal pathfinding
+- **Enhanced AI capabilities**:
+  - T-Spin detection and strategic setup
+  - Combo tracking and chain optimization
+  - Tetris well management for 4-line clears
+  - Intelligent garbage line processing
+  - Adaptive strategy based on board state
+- **Power-ups system** (Freeze, Bomb, Shield, Speed)
+- **Garbage line mechanics** with smart counter-attacks
+- **Best of 3 rounds** tournament format
+- **AI difficulty selection** before match start
 
 ## 🎮 How to Play
 
@@ -379,7 +391,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Cache Strategies**: Intelligent resource caching for optimal performance
 - **Update Notifications**: Alert users when new version is available
 - **Install Prompts**: Native app installation on supported devices
-- **Offline Indicators**: Visual feedback for connection status
+- **Offline Indicators**: Minimal 8x8px red dot when offline only
 
 ### 🎵 **Audio System Features**
 - **Dynamic Tempo System**: Music speeds up from 120 to 168 BPM
@@ -405,8 +417,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📊 Technical Stats
 
-- **Lines of Code**: ~4500+ (HTML, CSS, JavaScript, PHP)
-- **File Size**: ~750KB (including all assets)
+- **Lines of Code**: ~5000+ (HTML, CSS, JavaScript, PHP)
+- **File Size**: ~800KB (including all assets)
 - **Load Time**: <1s (from cache), <2s (first load)
 - **Offline Support**: 100% functionality without internet
 - **Mobile Performance**: 60fps on mid-range devices
@@ -419,6 +431,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Cross-browser Support**: 98% compatibility
 - **PWA Score**: 100/100 Lighthouse audit
 - **Audio Latency**: <10ms Web Audio API
+
+---
+
+## 📝 Recent Updates (v2.5.0)
+
+### AI & Battle Mode Enhancements
+- **Drastically improved AI algorithm**:
+  - Added T-spin detection and setup strategies
+  - Implemented combo tracking and optimization
+  - Enhanced evaluation with deep hole penalties
+  - Added column/row transition metrics for smoother play
+  - Optimal pathfinding for move execution
+- **AI Difficulty Selection**: Choose difficulty before starting Battle mode
+- **Fixed Puzzle Mode**: Corrected impossible puzzle configurations
+  - Puzzle 2 "Double Trouble" now uses 2 O pieces instead of 1
+  - Adjusted piece counts for better playability
+- **Enhanced Battle UI**: Better visual indicators and real-time stats
+- **Improved Offline Support**:
+  - Fixed IndexedDB getAll() errors
+  - Resolved Service Worker 404 issues
+  - Dynamic path detection for production
+- **Minimal Offline Indicator**: Reduced to discrete 8x8px red dot (offline only)
 
 ---
 

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Modern Tetris is a fully-featured, responsive web-based Tetris game built with vanilla JavaScript ES6 modules. It features neon graphics, dynamic audio, advanced touch controls, and Progressive Web App (PWA) capabilities with offline support.
 
+**Latest Version: 2.5.0** - Major AI improvements, puzzle fixes, and offline enhancements.
+
 ## Architecture
 
 ### Module Structure
@@ -19,7 +21,7 @@ Modern Tetris is a fully-featured, responsive web-based Tetris game built with v
 - **leaderboard.js**: Score management with offline support
 - **offline-storage.js**: IndexedDB integration for PWA functionality
 - **storage-adapter.js**: Unified storage that works in both file:// and http:// contexts
-- **sw.js**: Service Worker for offline caching (v1.3.0 with audio support)
+- **sw.js**: Service Worker for offline caching (v1.3.5 with dynamic path detection)
 - **modeSelector.js**: Game mode management and selection system
 - **build-standalone.js**: Node.js script to create single-file version
 - **test-offline.html**: Diagnostic tool for testing offline compatibility
@@ -31,9 +33,9 @@ Modern Tetris is a fully-featured, responsive web-based Tetris game built with v
 - **modes/marathonMode.js**: 150-line survival with checkpoints
 - **modes/zenMode.js**: Relaxing endless mode with statistics
 - **modes/puzzleMode.js**: Challenge mode with 150 puzzles
-- **modes/battleMode.js**: VS AI battle mode
-- **puzzles/puzzleData.js**: 150 puzzle configurations
-- **ai/tetrisAI.js**: Intelligent AI for battle mode (5 difficulty levels)
+- **modes/battleMode.js**: VS AI battle mode with power-ups and rounds
+- **puzzles/puzzleData.js**: 150 puzzle configurations (fixed impossible puzzles)
+- **ai/tetrisAI.js**: Advanced AI with T-spin detection, combo tracking, optimal pathfinding (5 difficulty levels)
 
 ### Backend Components
 - **api/scores.php**: PHP API for score management
@@ -190,6 +192,20 @@ No automated testing framework is currently implemented. Manual testing should f
 - Use compression for large data sets
 - Avoid frequent DOM updates during gameplay
 - Canvas operations optimized for 60fps
+
+### AI Development Notes
+- **Evaluation Metrics**: Height, holes, bumpiness, wells, deep holes, transitions
+- **Advanced Strategies**: T-spin setup detection, combo tracking, Tetris well management
+- **Difficulty Levels**: Each level has unique error rates, thinking delays, and evaluation weights
+- **Pathfinding**: Higher difficulties use optimal move sequencing
+- **Garbage Handling**: Smart placement and counter-attack strategies
+
+### Recent Critical Fixes
+1. **IndexedDB Error**: Fixed invalid `getAll(false)` by filtering results manually
+2. **Service Worker 404**: Added dynamic path detection for production environments
+3. **Overlay Issues**: Removed duplicate indicator systems, now only minimal offline dot
+4. **Puzzle 2 Fix**: Changed from 1 to 2 O pieces for feasibility
+5. **AI Improvements**: Complete overhaul of evaluation algorithm and strategies
 
 ### Testing Checklist
 - [ ] Test in server mode (http://)

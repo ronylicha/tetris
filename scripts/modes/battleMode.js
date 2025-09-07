@@ -47,7 +47,13 @@ export class BattleMode extends GameMode {
     }
 
     initialize() {
-        // Initialize AI opponent
+        // Get selected difficulty from localStorage
+        const savedDifficulty = localStorage.getItem('battle_ai_difficulty');
+        if (savedDifficulty) {
+            this.aiDifficulty = parseInt(savedDifficulty);
+        }
+        
+        // Initialize AI opponent with selected difficulty
         this.ai = new TetrisAI(this.aiDifficulty);
         this.aiGrid = new Grid();
         
@@ -84,6 +90,9 @@ export class BattleMode extends GameMode {
         this.aiGrid.reset();
         this.ai.reset();
         
+        // Reset tracking
+        this.lastAILines = 0;
+        
         // Clear garbage
         this.playerGarbageQueue = [];
         this.aiGarbageQueue = [];
@@ -104,13 +113,21 @@ export class BattleMode extends GameMode {
     }
 
     update(deltaTime) {
-        // Update AI
-        this.ai.update(deltaTime);
-        
-        // Process AI moves
-        const aiMove = this.ai.executeNextMove();
-        if (aiMove) {
-            this.processAIMove(aiMove);
+        // Update AI with current game state
+        if (this.ai) {
+            // Give AI the current piece if needed
+            if (this.game.currentPiece && !this.ai.currentPiece) {
+                // Mirror player's piece sequence for fairness
+                this.ai.setPiece(this.game.currentPiece);
+            }
+            
+            this.ai.update(deltaTime);
+            
+            // Process AI moves
+            const aiMove = this.ai.executeNextMove();
+            if (aiMove) {
+                this.processAIMove(aiMove);
+            }
         }
         
         // Update power-ups
@@ -238,8 +255,13 @@ export class BattleMode extends GameMode {
             this.addGarbageLinesToGrid(this.game.grid, lines);
         }
         
-        // AI processes its own garbage
-        // Handled in AI update
+        // Process AI garbage
+        if (this.aiGarbageQueue.length > 0 && this.ai) {
+            const lines = this.aiGarbageQueue.shift();
+            // Let AI handle garbage intelligently
+            this.ai.addGarbageLines(lines);
+            this.ai.processGarbage();
+        }
     }
 
     addGarbageLinesToGrid(grid, count) {
@@ -279,18 +301,43 @@ export class BattleMode extends GameMode {
     }
 
     checkAILineClears() {
-        // Simplified AI line clear detection
-        return Math.random() < 0.1 ? Math.floor(Math.random() * 4) + 1 : 0;
+        // Check actual AI line clears from AI state
+        if (!this.ai) return 0;
+        
+        // The AI should track its own line clears
+        const aiLines = this.ai.lines;
+        const clearedThisTurn = aiLines - (this.lastAILines || 0);
+        this.lastAILines = aiLines;
+        
+        return clearedThisTurn;
     }
 
     calculateGarbageFromLines(lines) {
+        let garbage = 0;
+        
         switch (lines) {
-            case 1: return 0;
-            case 2: return 1;
-            case 3: return 2;
-            case 4: return 4;
-            default: return 0;
+            case 1: 
+                garbage = 0;
+                break;
+            case 2: 
+                garbage = 1;
+                break;
+            case 3: 
+                garbage = 2;
+                break;
+            case 4: 
+                garbage = 4; // Tetris sends more
+                break;
+            default: 
+                garbage = 0;
         }
+        
+        // Add combo multiplier if AI has combos
+        if (this.ai && this.ai.combo > 1) {
+            garbage += Math.floor(this.ai.combo / 2);
+        }
+        
+        return garbage;
     }
 
     usePowerUp(type) {

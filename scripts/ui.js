@@ -585,6 +585,146 @@ export class UIManager {
         this.showMessage(message, 'error', 3000);
     }
     
+    // Show AI difficulty selection for Battle mode
+    showAIDifficultySelection(callback) {
+        const overlay = document.createElement('div');
+        overlay.className = 'ai-difficulty-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+            border: 3px solid #ff0000;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.5);
+        `;
+        
+        const difficulties = [
+            { level: 1, name: 'Easy', emoji: '🟢', color: '#4CAF50', desc: 'AI makes frequent mistakes' },
+            { level: 2, name: 'Normal', emoji: '🟡', color: '#FFC107', desc: 'Balanced challenge' },
+            { level: 3, name: 'Hard', emoji: '🟠', color: '#FF9800', desc: 'Skilled opponent', default: true },
+            { level: 4, name: 'Expert', emoji: '🔴', color: '#F44336', desc: 'Very challenging' },
+            { level: 5, name: 'Grandmaster', emoji: '🟣', color: '#9C27B0', desc: 'Nearly unbeatable' }
+        ];
+        
+        let selectedLevel = parseInt(localStorage.getItem('battle_ai_difficulty')) || 3;
+        
+        content.innerHTML = `
+            <h2 style="color: #ff0000; text-align: center; margin-bottom: 30px; font-size: 2rem;">
+                ⚔️ Choose AI Difficulty
+            </h2>
+            <div id="difficulty-options" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
+                ${difficulties.map(diff => `
+                    <button class="difficulty-option" data-level="${diff.level}" style="
+                        background: ${diff.level === selectedLevel ? diff.color : 'rgba(255, 255, 255, 0.1)'};
+                        color: ${diff.level === selectedLevel ? '#000' : '#fff'};
+                        border: 2px solid ${diff.color};
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        text-align: left;
+                        font-size: 1.1rem;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <span style="font-size: 1.5rem; margin-right: 10px;">${diff.emoji}</span>
+                                <strong>${diff.name}</strong>
+                                ${diff.default ? '<span style="opacity: 0.7; font-size: 0.9rem;">(Default)</span>' : ''}
+                            </div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">${diff.desc}</div>
+                        </div>
+                    </button>
+                `).join('')}
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="start-battle-btn" style="
+                    background: #ff0000;
+                    color: white;
+                    border: none;
+                    padding: 15px 40px;
+                    font-size: 1.2rem;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                ">Start Battle →</button>
+                <button id="cancel-battle-btn" style="
+                    background: #666;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                ">Cancel</button>
+            </div>
+        `;
+        
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+        
+        // Add event listeners
+        setTimeout(() => {
+            const options = overlay.querySelectorAll('.difficulty-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    selectedLevel = parseInt(option.dataset.level);
+                    // Update visual selection
+                    options.forEach(opt => {
+                        const level = parseInt(opt.dataset.level);
+                        const diff = difficulties.find(d => d.level === level);
+                        if (level === selectedLevel) {
+                            opt.style.background = diff.color;
+                            opt.style.color = '#000';
+                        } else {
+                            opt.style.background = 'rgba(255, 255, 255, 0.1)';
+                            opt.style.color = '#fff';
+                        }
+                    });
+                });
+                
+                // Hover effect
+                option.addEventListener('mouseenter', () => {
+                    if (parseInt(option.dataset.level) !== selectedLevel) {
+                        option.style.background = 'rgba(255, 255, 255, 0.2)';
+                    }
+                });
+                option.addEventListener('mouseleave', () => {
+                    if (parseInt(option.dataset.level) !== selectedLevel) {
+                        option.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }
+                });
+            });
+            
+            document.getElementById('start-battle-btn').addEventListener('click', () => {
+                localStorage.setItem('battle_ai_difficulty', selectedLevel);
+                overlay.remove();
+                if (callback) callback(selectedLevel);
+            });
+            
+            document.getElementById('cancel-battle-btn').addEventListener('click', () => {
+                overlay.remove();
+            });
+        }, 0);
+    }
+    
     // Show puzzle selection menu
     async showPuzzleSelection() {
         // Use storage adapter for better compatibility

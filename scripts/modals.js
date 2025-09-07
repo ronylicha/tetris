@@ -272,6 +272,15 @@ export class ModalManager {
                 setTimeout(() => {
                     this.game.ui.showPuzzleSelection();
                 }, 100);
+            } 
+            // Show AI difficulty selection for battle mode
+            else if (modeName === 'battle' && this.game.ui) {
+                setTimeout(() => {
+                    this.game.ui.showAIDifficultySelection((difficulty) => {
+                        // Restart game with selected difficulty
+                        this.game.restart();
+                    });
+                }, 100);
             } else {
                 // Restart game with new mode
                 this.game.restart();

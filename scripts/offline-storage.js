@@ -14,42 +14,76 @@ export class OfflineStorage {
     
     // Initialize IndexedDB
     async initializeDB() {
+        // Check if IndexedDB is available and not in private mode
+        if (!window.indexedDB) {
+            console.warn('IndexedDB not available');
+            return null;
+        }
+        
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.dbVersion);
-            
-            request.onerror = () => {
-                console.error('Failed to open IndexedDB:', request.error);
-                reject(request.error);
-            };
-            
-            request.onsuccess = () => {
-                this.db = request.result;
-                console.log('IndexedDB initialized successfully');
-                resolve(this.db);
-            };
-            
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
+            try {
+                const request = indexedDB.open(this.dbName, this.dbVersion);
                 
-                // Create object stores if they don't exist
-                if (!db.objectStoreNames.contains('scores')) {
-                    const scoresStore = db.createObjectStore('scores', { 
-                        keyPath: 'id', 
-                        autoIncrement: true 
-                    });
-                    scoresStore.createIndex('synced', 'synced', { unique: false });
-                    scoresStore.createIndex('timestamp', 'timestamp', { unique: false });
-                }
+                request.onerror = () => {
+                    console.warn('Failed to open IndexedDB:', request.error);
+                    // Don't reject, just resolve with null to fallback to localStorage
+                    resolve(null);
+                };
                 
-                if (!db.objectStoreNames.contains('leaderboard_cache')) {
-                    const cacheStore = db.createObjectStore('leaderboard_cache', { 
-                        keyPath: 'type' 
-                    });
-                    cacheStore.createIndex('timestamp', 'timestamp', { unique: false });
-                }
+                request.onsuccess = () => {
+                    this.db = request.result;
+                    
+                    // Handle database closing errors
+                    this.db.onerror = (event) => {
+                        console.error('Database error:', event.target.error);
+                    };
+                    
+                    this.db.onabort = (event) => {
+                        console.error('Database transaction aborted:', event.target.error);
+                    };
+                    
+                    console.log('IndexedDB initialized successfully');
+                    resolve(this.db);
+                };
                 
-                console.log('IndexedDB schema created/updated');
-            };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    // Create object stores if they don't exist
+                    if (!db.objectStoreNames.contains('scores')) {
+                        const scoresStore = db.createObjectStore('scores', { 
+                            keyPath: 'id', 
+                            autoIncrement: true 
+                        });
+                        // Only create index if it doesn't exist
+                        if (!scoresStore.indexNames.contains('synced')) {
+                            scoresStore.createIndex('synced', 'synced', { unique: false });
+                        }
+                        if (!scoresStore.indexNames.contains('timestamp')) {
+                            scoresStore.createIndex('timestamp', 'timestamp', { unique: false });
+                        }
+                    }
+                    
+                    if (!db.objectStoreNames.contains('leaderboard_cache')) {
+                        const cacheStore = db.createObjectStore('leaderboard_cache', { 
+                            keyPath: 'type' 
+                        });
+                        if (!cacheStore.indexNames.contains('timestamp')) {
+                            cacheStore.createIndex('timestamp', 'timestamp', { unique: false });
+                        }
+                    }
+                    
+                    console.log('IndexedDB schema created/updated');
+                };
+                
+                request.onblocked = () => {
+                    console.warn('IndexedDB blocked - close other tabs using this site');
+                    resolve(null);
+                };
+            } catch (error) {
+                console.warn('IndexedDB initialization error:', error);
+                resolve(null);
+            }
         });
     }
     
@@ -116,21 +150,35 @@ export class OfflineStorage {
             await this.initializeDB();
         }
         
-        const transaction = this.db.transaction(['scores'], 'readonly');
-        const store = transaction.objectStore('scores');
-        const index = store.index('synced');
+        // If still no DB (IndexedDB not available), return empty array
+        if (!this.db) {
+            console.warn('IndexedDB not available, cannot get unsynced scores');
+            return [];
+        }
         
-        return new Promise((resolve, reject) => {
-            const request = index.getAll(false);
+        try {
+            const transaction = this.db.transaction(['scores'], 'readonly');
+            const store = transaction.objectStore('scores');
             
-            request.onsuccess = () => {
-                resolve(request.result || []);
-            };
-            
-            request.onerror = () => {
-                reject(request.error);
-            };
-        });
+            return new Promise((resolve, reject) => {
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    // Filter for unsynced scores manually
+                    const allScores = request.result || [];
+                    const unsyncedScores = allScores.filter(score => score.synced === false);
+                    resolve(unsyncedScores);
+                };
+                
+                request.onerror = () => {
+                    console.warn('Error getting unsynced scores:', request.error);
+                    resolve([]); // Return empty array instead of rejecting
+                };
+            });
+        } catch (error) {
+            console.warn('Transaction error:', error);
+            return [];
+        }
     }
     
     // Mark score as synced
@@ -309,18 +357,29 @@ export class OfflineStorage {
     
     // Check for pending scores on startup
     async checkPendingScores() {
-        const unsyncedScores = await this.getUnsyncedScores();
-        this.pendingSyncCount = unsyncedScores.length;
-        this.updateSyncIndicator();
-        
-        // Auto-sync if online
-        if (this.isOnline && this.pendingSyncCount > 0) {
-            setTimeout(() => this.syncPendingScores(), 2000);
+        try {
+            const unsyncedScores = await this.getUnsyncedScores();
+            this.pendingSyncCount = unsyncedScores.length;
+            this.updateSyncIndicator();
+            
+            // Auto-sync if online
+            if (this.isOnline && this.pendingSyncCount > 0) {
+                setTimeout(() => this.syncPendingScores(), 2000);
+            }
+        } catch (error) {
+            console.warn('Could not check pending scores:', error);
+            this.pendingSyncCount = 0;
+            this.updateSyncIndicator();
         }
     }
     
     // Update UI sync indicator
     updateSyncIndicator() {
+        // Disabled - using mode-indicator in index.html instead
+        // to avoid duplicate indicators
+        return;
+        
+        /* Original code commented out to prevent conflicts
         const indicator = document.getElementById('offline-indicator');
         if (!indicator) {
             // Create indicator if it doesn't exist
@@ -351,6 +410,7 @@ export class OfflineStorage {
             indicatorEl.classList.remove('visible', 'offline', 'syncing');
             indicatorEl.classList.add('online');
         }
+        */
     }
     
     // Show notification

@@ -62,11 +62,11 @@ export const PUZZLES = [
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0],
-            [1,1,1,0,0,1,1,1,1,1],
-            [1,1,1,0,0,1,1,1,1,1]
+            [1,1,1,1,0,0,1,1,1,1],
+            [1,1,1,1,0,0,1,1,1,1]
         ],
-        pieces: ['O'],
-        maxPieces: 3,
+        pieces: ['O', 'O'],  // Changed to 2 O pieces for feasibility
+        maxPieces: 5,  // Increased to allow more attempts
         timeLimit: 0
     },
     {
