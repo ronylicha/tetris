@@ -246,13 +246,16 @@ body::before {
 .game-screen {
     width: 100%;
     height: 100vh;
+    height: 100dvh; /* Dynamic viewport height */
     max-height: 100vh;
+    max-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     padding: 10px;
     padding-top: 50px; /* Reduced space for header buttons */
+    padding-bottom: env(safe-area-inset-bottom); /* Safe area for iOS */
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -1635,5 +1638,234 @@ body::before {
     }
     50% {
         border-color: var(--neon-blue);
+    }
+}
+
+/* Hint System Styles */
+.hint-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange));
+    border: 2px solid rgba(255, 255, 0, 0.5);
+    border-radius: 10px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 50;
+    font-weight: bold;
+}
+
+.hint-button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+}
+
+.hint-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hint-icon {
+    font-size: 1.5rem;
+}
+
+.hint-count {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.hint-column-highlight {
+    pointer-events: none;
+    animation: pulse 1s infinite;
+}
+
+.hint-rotation-indicator {
+    animation: rotateHint 2s ease-out;
+}
+
+.hint-movement-arrow {
+    animation: slideHint 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes rotateHint {
+    from { transform: translate(-50%, -50%) rotate(0deg) scale(0); }
+    to { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+}
+
+@keyframes slideHint {
+    0%, 100% { transform: translateX(-50%) translateX(0); }
+    50% { transform: translateX(-50%) translateX(10px); }
+}
+
+/* Power-Up Mode Styles */
+.powerup-slots {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 50;
+}
+
+.powerup-slot {
+    width: 100px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.powerup-slot.filled {
+    animation: pulse 2s infinite;
+}
+
+.powerup-slot:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.powerup-key {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: var(--neon-blue);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.powerup-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.powerup-name {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.powerup-empty {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+/* Active Power-Ups Display */
+.active-powerups {
+    position: absolute;
+    top: 100px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 50;
+}
+
+.active-powerup {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid;
+    border-radius: 50%;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.active-powerup-icon {
+    font-size: 1.5rem;
+}
+
+.active-powerup-timer {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.timer-fill {
+    height: 100%;
+    transition: width 0.1s linear;
+    border-radius: 2px;
+}
+
+/* Power-Up Notification */
+.powerup-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid;
+    border-radius: 15px;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 10000;
+    animation: slideIn 0.5s ease;
+}
+
+.powerup-notification.fade-out {
+    animation: fadeOut 0.5s ease;
+}
+
+.notification-icon {
+    font-size: 2rem;
+}
+
+.notification-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
     }
 }

@@ -470,6 +470,11 @@ export class UIManager {
     
     // Update mode-specific UI continuously
     updateModeUI(modeConfig) {
+        // Handle Power-Up mode UI
+        if (this.game.gameMode && this.game.gameMode.name === 'Power-Up') {
+            this.updatePowerUpUI();
+        }
+        
         if (!modeConfig || !modeConfig.customDisplay) return;
         
         // Update timer for Sprint mode
@@ -1434,5 +1439,32 @@ class ParticleSystem {
             cancelAnimationFrame(this.animationId);
         }
         this.particles = [];
+    }
+    
+    updatePowerUpUI() {
+        // Update power-up slots display
+        if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+            const manager = this.game.gameMode.powerUpManager;
+            
+            // Update slot displays
+            for (let i = 0; i < manager.slots.length; i++) {
+                manager.updateSlotDisplay(i);
+            }
+            
+            // Update active power-ups
+            manager.updateActivePowerUpsDisplay();
+        }
+    }
+    
+    initializePowerUpControls() {
+        // Add click handlers for power-up slots
+        document.querySelectorAll('.powerup-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                const slotIndex = parseInt(slot.dataset.slot);
+                if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+                    this.game.gameMode.powerUpManager.activatePowerUp(slotIndex);
+                }
+            });
+        });
     }
 }

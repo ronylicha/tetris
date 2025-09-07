@@ -5,6 +5,8 @@ import { MarathonMode } from './modes/marathonMode.js';
 import { ZenMode } from './modes/zenMode.js';
 import { PuzzleMode } from './modes/puzzleMode.js';
 import { BattleMode } from './modes/battleMode.js';
+import { PowerUpMode } from './modes/powerUpMode.js';
+import { Battle2PMode } from './modes/battle2PMode.js';
 
 export class ModeSelector {
     constructor() {
@@ -15,6 +17,14 @@ export class ModeSelector {
                 icon: '🎮',
                 color: '#00ffff',
                 description: 'The original endless Tetris experience',
+                unlocked: true
+            },
+            powerup: {
+                name: 'Power-Up',
+                class: PowerUpMode,
+                icon: '⚡',
+                color: '#ff00ff',
+                description: 'Classic with exciting power-ups!',
                 unlocked: true
             },
             sprint: {
@@ -56,6 +66,15 @@ export class ModeSelector {
                 color: '#ff0000',
                 description: 'Face off against intelligent AI opponents',
                 unlocked: true
+            },
+            battle2p: {
+                name: 'Battle 2P',
+                class: Battle2PMode,
+                icon: '👥',
+                color: '#ff00ff',
+                description: 'Local 2-player split-screen battle',
+                unlocked: true,
+                desktopOnly: true // Flag for desktop-only mode
             }
         };
         
@@ -65,10 +84,21 @@ export class ModeSelector {
 
     // Get all available modes
     getModes() {
-        return Object.entries(this.availableModes).map(([key, mode]) => ({
-            id: key,
-            ...mode
-        }));
+        // Check if we're on mobile/tablet
+        const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+        
+        return Object.entries(this.availableModes)
+            .filter(([key, mode]) => {
+                // Filter out desktop-only modes on mobile
+                if (isMobile && mode.desktopOnly) {
+                    return false;
+                }
+                return true;
+            })
+            .map(([key, mode]) => ({
+                id: key,
+                ...mode
+            }));
     }
 
     // Get unlocked modes only

@@ -1,8 +1,8 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v2.0.5';
-const CACHE_VERSION = 'v2.0.5';
-const API_CACHE = 'tetris-api-v2.0.5';
-const AUDIO_CACHE = 'tetris-audio-v2.0.5';
+const CACHE_NAME = 'tetris-v3.1.0';
+const CACHE_VERSION = 'v3.1.0';
+const API_CACHE = 'tetris-api-v3.1.0';
+const AUDIO_CACHE = 'tetris-audio-v3.1.0';
 
 // Determine base path based on the service worker's location
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');
@@ -41,9 +41,21 @@ const STATIC_CACHE_URLS = [
     ROOT_PATH + 'scripts/modes/zenMode.js',
     ROOT_PATH + 'scripts/modes/puzzleMode.js',
     ROOT_PATH + 'scripts/modes/battleMode.js',
+    ROOT_PATH + 'scripts/modes/powerUpMode.js',
     ROOT_PATH + 'scripts/puzzles/puzzleData.js',
     ROOT_PATH + 'scripts/puzzles/puzzleValidator.js',
-    ROOT_PATH + 'scripts/ai/tetrisAI.js'
+    ROOT_PATH + 'scripts/puzzles/puzzleObjectives.js',
+    ROOT_PATH + 'scripts/puzzles/hintSystem.js',
+    ROOT_PATH + 'scripts/puzzles/puzzleAutoSolver.js',
+    ROOT_PATH + 'scripts/puzzles/puzzleDifficultyAnalyzer.js',
+    ROOT_PATH + 'scripts/puzzles/puzzleVerificationSuite.js',
+    ROOT_PATH + 'scripts/ai/tetrisAI.js',
+    ROOT_PATH + 'scripts/powerups/powerUpTypes.js',
+    ROOT_PATH + 'scripts/powerups/powerUpManager.js',
+    ROOT_PATH + 'scripts/challenges/dailyChallenge.js',
+    ROOT_PATH + 'scripts/progression/playerProgression.js',
+    ROOT_PATH + 'scripts/achievements/achievementSystem.js',
+    ROOT_PATH + 'scripts/modes/battle2PMode.js'
 ];
 
 // Audio files to cache when available

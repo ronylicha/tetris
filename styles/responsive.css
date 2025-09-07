@@ -6,12 +6,16 @@
 @media (max-width: 480px) {
     .app {
         padding: 5px;
+        padding-bottom: env(safe-area-inset-bottom);
     }
     
     .game-screen {
         padding-top: 42px;
         padding: 5px;
         padding-top: 42px;
+        padding-bottom: env(safe-area-inset-bottom);
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
     }
     
     
@@ -78,8 +82,11 @@
         gap: 0.3em;
         max-width: 100%;
         padding: 0 0.3em;
-        height: calc(100vh - 48px);
-        max-height: calc(100vh - 48px);
+        padding-bottom: calc(0.3em + env(safe-area-inset-bottom));
+        height: calc(100vh - 48px - env(safe-area-inset-bottom));
+        height: calc(100dvh - 48px - env(safe-area-inset-bottom));
+        max-height: calc(100vh - 48px - env(safe-area-inset-bottom));
+        max-height: calc(100dvh - 48px - env(safe-area-inset-bottom));
     }
     
     /* Info panel (hold + stats combined) */
@@ -196,15 +203,18 @@
         justify-content: center;
         align-items: flex-start;
         height: 100%;
-        max-height: calc(100vh - 85px);
-        padding-bottom: 2px;
+        max-height: calc(100vh - 85px - env(safe-area-inset-bottom));
+        max-height: calc(100dvh - 85px - env(safe-area-inset-bottom));
+        padding-bottom: calc(2px + env(safe-area-inset-bottom));
     }
     
     #game-canvas {
         width: 100%;
         max-width: min(280px, calc(100vw - 16px));
-        height: calc(100vh - 85px);
-        max-height: min(560px, calc(100vh - 85px));
+        height: calc(100vh - 85px - env(safe-area-inset-bottom));
+        height: calc(100dvh - 85px - env(safe-area-inset-bottom));
+        max-height: min(560px, calc(100vh - 85px - env(safe-area-inset-bottom)));
+        max-height: min(560px, calc(100dvh - 85px - env(safe-area-inset-bottom)));
     }
     
     #overlay-title {

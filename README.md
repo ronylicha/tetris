@@ -1,8 +1,8 @@
-# Modern Tetris 🎮 v2.0
+# Modern Tetris 🎮 v3.1
 
-A modern, fully responsive Tetris game with neon graphics, 90s-style music, and advanced touch controls optimized for all devices.
+A modern, fully responsive Tetris game with neon graphics, 90s-style music, advanced touch controls, and a comprehensive progression system.
 
-**Version 2.0** brings a complete UI overhaul with a new home screen, improved navigation, responsive leaderboard, and enhanced game modes support.
+**Version 3.1** adds puzzle verification suite ensuring all 150 puzzles are solvable, with AI auto-solver, difficulty analysis, and automated testing tools!
 
 ![Tetris Game Preview](https://img.shields.io/badge/Game-Tetris-brightgreen) ![License](https://img.shields.io/badge/License-MIT-blue.svg) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![Responsive](https://img.shields.io/badge/Responsive-Mobile_First-green) ![Touch](https://img.shields.io/badge/Touch-Optimized-blue)
 
@@ -37,19 +37,32 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 - **Clean game interface** with minimal floating controls
 
 ### 🏆 **Game Features**
-- **6 Unique Game Modes** - Classic, Sprint, Marathon, Zen, Puzzle, and Battle
+- **8 Unique Game Modes** - Classic, Power-Up, Sprint, Marathon, Zen, Puzzle, Battle, and 2P Battle
 - **Modern Tetris mechanics** (SRS rotation, hold piece, ghost piece)
 - **T-Spin detection** and bonus scoring system  
 - **Combo system** with multiplier bonuses
 - **Perfect clear** detection and massive bonus points
 - **Progressive difficulty** with adaptive level progression
-- **Enhanced Leaderboard (v2.0)** - Fully responsive with mode-specific filtering
+- **Enhanced Leaderboard** - Fully responsive with mode-specific filtering
   - Mobile-optimized card layout
   - Top 3 highlighted with gold/silver/bronze
   - Smooth scrolling with styled scrollbar
   - Per-mode leaderboards with database support
-- **150 Puzzle Challenges** with varied objectives and difficulty levels
+- **150 Puzzle Challenges** with enhanced objectives and 3-level hint system
 - **AI Battle System** with 5 difficulty levels from Easy to Grandmaster
+
+### 🎖️ **Progression System (NEW v3.0)**
+- **100 Player Levels** with XP earned from gameplay
+- **10 Ranks** from Novice to Eternal
+- **30+ Achievements** across multiple categories
+- **10+ Trophies** in Bronze, Silver, Gold, and Platinum tiers
+- **Unlockable Content**:
+  - 7 visual themes
+  - 6 music tracks
+  - 5 piece styles
+  - 6 visual effects
+- **Daily Challenges** with streak rewards
+- **Global Statistics** tracking
 
 ### ⚙️ **Customization & Settings**
 - **Audio controls** - separate volume controls for music and SFX
@@ -72,6 +85,19 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 ### Classic Mode 🎮
 The original endless Tetris experience with progressive difficulty.
 
+### Power-Up Mode ⚡ (NEW)
+Classic gameplay enhanced with 8 unique power-ups:
+- **🕐 Slow Time** - Reduces falling speed by 50% for 10 seconds
+- **💣 Line Bomb** - Instantly clears the bottom line
+- **👻 Ghost Mode** - Pieces pass through blocks for 5 seconds
+- **⚡ Lightning** - Clears all isolated single blocks
+- **🎯 Precision** - Shows 5 next pieces instead of 3
+- **💎 2x Score** - Doubles points for 10 seconds
+- **🔄 Shuffle** - Reorganizes existing blocks
+- **🧲 Magnet** - Auto-attracts pieces to gaps
+
+Power-ups are earned through accomplishments like Tetris, T-Spins, and combos. Use Q/E keys or tap to activate.
+
 ### Sprint Mode ⏱️
 Race against the clock to clear 40 lines as fast as possible. Track your best times and compete for speed records.
 
@@ -86,12 +112,26 @@ Relaxing endless gameplay with no game over. Features:
 - Save and resume anytime
 
 ### Puzzle Mode 🧩
-150 unique challenges with varied objectives:
-- Line clearing puzzles
-- T-Spin challenges
-- Perfect clear objectives
-- Combo requirements
-- Survival challenges
+150 unique challenges with enhanced features:
+- **Star Rating System** - Earn 1-3 stars based on efficiency and time
+- **3-Level Hint System**:
+  - Level 1: Column position highlighting
+  - Level 2: Rotation suggestions
+  - Level 3: Full solution preview with AI guidance
+- **13 Objective Types**:
+  - Classic: Line clearing, T-Spins, Tetrises, Perfect clears
+  - Cascade: Clear lines with gravity effects
+  - Speed: Complete within time limits
+  - No-Rotation: Master placement without rotating
+  - Chain: Consecutive line clears
+  - Pattern: Create specific shapes (checkerboard, pyramid, stairs)
+  - Combo: Build massive combo chains
+  - Survival: Last for specified duration
+- **Quality Assurance** (v3.1):
+  - All 150 puzzles verified as solvable
+  - AI auto-solver validates solutions
+  - Difficulty ratings from Easy to Master
+  - Skill requirements identified for each puzzle
 
 ### Battle Mode ⚔️
 Face off against intelligent AI opponents with:
@@ -111,6 +151,14 @@ Face off against intelligent AI opponents with:
 - **Garbage line mechanics** with smart counter-attacks
 - **Best of 3 rounds** tournament format
 - **AI difficulty selection** before match start
+
+### Battle 2P Mode 👥 (NEW)
+Local 2-player competitive mode:
+- **Split-screen** side-by-side gameplay
+- **Separate controls**: P1 uses arrows, P2 uses WASD
+- **Garbage system**: Send lines based on clears
+- **Attack mechanics**: Combos, T-spins, and Tetrises
+- **Best of 3 rounds** match format
 
 ## 🎮 How to Play
 

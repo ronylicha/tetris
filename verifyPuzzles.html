@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Puzzle Verification Suite</title>
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --neon-blue: #00d4ff;
+            --neon-red: #ff0040;
+            --neon-yellow: #ffff00;
+            --dark-bg: #0a0a0a;
+            --panel-bg: rgba(255, 255, 255, 0.05);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: white;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px var(--neon-green);
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .controls {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-green);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            flex: 1;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: bold;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .result-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .result-card.solvable {
+            border-color: var(--neon-green);
+        }
+        
+        .result-card.impossible {
+            border-color: var(--neon-red);
+            background: rgba(255, 0, 64, 0.1);
+        }
+        
+        .result-card h3 {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .puzzle-id {
+            color: var(--neon-blue);
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-badge.pass {
+            background: var(--neon-green);
+            color: black;
+        }
+        
+        .status-badge.fail {
+            background: var(--neon-red);
+            color: white;
+        }
+        
+        .difficulty {
+            margin: 10px 0;
+            display: flex;
+            gap: 4px;
+        }
+        
+        .difficulty-star {
+            color: var(--neon-yellow);
+            font-size: 1.2rem;
+        }
+        
+        .issues {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .issue {
+            color: var(--neon-red);
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+        
+        .warning {
+            color: var(--neon-yellow);
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+        
+        .fix-available {
+            color: var(--neon-green);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        .summary-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-stat {
+            text-align: center;
+        }
+        
+        .summary-stat .value {
+            font-size: 2rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+        
+        .summary-stat .label {
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-tab.active {
+            background: var(--neon-blue);
+            color: black;
+            border-color: var(--neon-blue);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .fix-button {
+            background: linear-gradient(135deg, var(--neon-yellow), var(--neon-green));
+            margin-top: 10px;
+        }
+        
+        .log-output {
+            background: black;
+            border: 1px solid var(--neon-green);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+        }
+        
+        .log-entry.success {
+            color: var(--neon-green);
+        }
+        
+        .log-entry.error {
+            color: var(--neon-red);
+        }
+        
+        .log-entry.warning {
+            color: var(--neon-yellow);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Tetris Puzzle Verification Suite</h1>
+        
+        <div class="controls">
+            <button id="verifyAllBtn" onclick="verifyAll()">Verify All Puzzles</button>
+            <button id="applyFixesBtn" onclick="applyFixes()" disabled>Apply Fixes</button>
+            <button id="exportBtn" onclick="exportReport()" disabled>Export Report</button>
+            <div class="status" id="status">Ready to verify 150 puzzles</div>
+        </div>
+        
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+        
+        <div class="summary-panel" id="summaryPanel" style="display: none;">
+            <h2>Verification Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-stat">
+                    <div class="value" id="totalStat">0</div>
+                    <div class="label">Total Puzzles</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value" id="passStat">0</div>
+                    <div class="label">Solvable</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value" id="failStat">0</div>
+                    <div class="label">Impossible</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value" id="successRate">0%</div>
+                    <div class="label">Success Rate</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-tabs" id="filterTabs" style="display: none;">
+            <div class="filter-tab active" onclick="filterResults('all')">All</div>
+            <div class="filter-tab" onclick="filterResults('solvable')">Solvable</div>
+            <div class="filter-tab" onclick="filterResults('impossible')">Impossible</div>
+            <div class="filter-tab" onclick="filterResults('warnings')">Warnings</div>
+        </div>
+        
+        <div class="results-grid" id="resultsGrid"></div>
+        
+        <div class="log-output" id="logOutput" style="display: none;"></div>
+        
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Verifying puzzles...</p>
+            <p id="loadingProgress">0 / 150</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { puzzleVerifier } from './scripts/puzzles/puzzleVerificationSuite.js';
+        
+        let verificationResults = null;
+        let currentFilter = 'all';
+        
+        window.verifyAll = async function() {
+            const btn = document.getElementById('verifyAllBtn');
+            const status = document.getElementById('status');
+            const loading = document.getElementById('loading');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            btn.disabled = true;
+            loading.style.display = 'block';
+            progressBar.style.display = 'block';
+            resultsGrid.innerHTML = '';
+            
+            status.textContent = 'Verifying puzzles...';
+            
+            try {
+                // Mock progress updates
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 95) progress = 95;
+                    progressFill.style.width = `${progress}%`;
+                    progressFill.textContent = `${Math.floor(progress)}%`;
+                    document.getElementById('loadingProgress').textContent = 
+                        `${Math.floor(progress * 1.5)} / 150`;
+                }, 500);
+                
+                // Run verification
+                verificationResults = await puzzleVerifier.verifyAllPuzzles();
+                
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressFill.textContent = '100%';
+                
+                // Display results
+                displaySummary(verificationResults);
+                displayResults(verificationResults);
+                
+                status.textContent = 'Verification complete!';
+                
+                // Enable buttons
+                document.getElementById('applyFixesBtn').disabled = 
+                    Object.keys(verificationResults.fixes).length === 0;
+                document.getElementById('exportBtn').disabled = false;
+                
+            } catch (error) {
+                console.error('Verification failed:', error);
+                status.textContent = 'Verification failed: ' + error.message;
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+            }
+        };
+        
+        window.applyFixes = async function() {
+            if (!verificationResults || !verificationResults.fixes) return;
+            
+            const btn = document.getElementById('applyFixesBtn');
+            const logOutput = document.getElementById('logOutput');
+            
+            btn.disabled = true;
+            logOutput.style.display = 'block';
+            logOutput.innerHTML = '';
+            
+            try {
+                const fixedPuzzles = await puzzleVerifier.applyFixes();
+                
+                for (const puzzleId of fixedPuzzles) {
+                    const fix = verificationResults.fixes[puzzleId];
+                    addLogEntry(`✅ Fixed puzzle ${puzzleId}: ${fix.changes.join(', ')}`, 'success');
+                }
+                
+                addLogEntry(`Applied ${fixedPuzzles.length} fixes successfully!`, 'success');
+                
+                // Re-verify to confirm fixes
+                addLogEntry('Re-verifying fixed puzzles...', 'warning');
+                await verifyAll();
+                
+            } catch (error) {
+                addLogEntry(`Error applying fixes: ${error.message}`, 'error');
+            }
+        };
+        
+        window.exportReport = function() {
+            if (!verificationResults) return;
+            
+            const report = {
+                ...verificationResults,
+                exportDate: new Date().toISOString(),
+                puzzleDetails: puzzleVerifier.results
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], 
+                { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `puzzle-verification-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+        
+        window.filterResults = function(filter) {
+            currentFilter = filter;
+            
+            // Update tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter cards
+            const cards = document.querySelectorAll('.result-card');
+            cards.forEach(card => {
+                const shouldShow = 
+                    filter === 'all' ||
+                    (filter === 'solvable' && card.classList.contains('solvable')) ||
+                    (filter === 'impossible' && card.classList.contains('impossible')) ||
+                    (filter === 'warnings' && card.querySelector('.warning'));
+                
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+        };
+        
+        function displaySummary(report) {
+            const panel = document.getElementById('summaryPanel');
+            panel.style.display = 'block';
+            
+            document.getElementById('totalStat').textContent = report.summary.total;
+            document.getElementById('passStat').textContent = report.summary.solvable;
+            document.getElementById('failStat').textContent = report.summary.impossible;
+            document.getElementById('successRate').textContent = report.summary.successRate;
+            
+            // Color code based on success rate
+            const rate = parseFloat(report.summary.successRate);
+            const rateElement = document.getElementById('successRate');
+            if (rate >= 90) {
+                rateElement.style.color = 'var(--neon-green)';
+            } else if (rate >= 70) {
+                rateElement.style.color = 'var(--neon-yellow)';
+            } else {
+                rateElement.style.color = 'var(--neon-red)';
+            }
+        }
+        
+        function displayResults(report) {
+            const grid = document.getElementById('resultsGrid');
+            const filterTabs = document.getElementById('filterTabs');
+            
+            grid.innerHTML = '';
+            filterTabs.style.display = 'flex';
+            
+            puzzleVerifier.results.forEach(result => {
+                const card = createResultCard(result, report.fixes[result.id]);
+                grid.appendChild(card);
+            });
+        }
+        
+        function createResultCard(result, fix) {
+            const card = document.createElement('div');
+            card.className = `result-card ${result.solvable ? 'solvable' : 'impossible'}`;
+            
+            const statusBadge = result.solvable ? 
+                '<span class="status-badge pass">PASS</span>' :
+                '<span class="status-badge fail">FAIL</span>';
+            
+            let difficultyStars = '';
+            if (result.difficulty) {
+                for (let i = 0; i < 5; i++) {
+                    difficultyStars += i < result.difficulty.difficulty ? 
+                        '<span class="difficulty-star">★</span>' : 
+                        '<span class="difficulty-star" style="opacity: 0.3">☆</span>';
+                }
+            }
+            
+            let issuesHtml = '';
+            if (result.issues.length > 0) {
+                issuesHtml = '<div class="issues">';
+                result.issues.forEach(issue => {
+                    issuesHtml += `<div class="issue">❌ ${issue}</div>`;
+                });
+                issuesHtml += '</div>';
+            }
+            
+            let warningsHtml = '';
+            if (result.warnings && result.warnings.length > 0) {
+                result.warnings.forEach(warning => {
+                    warningsHtml += `<div class="warning">⚠️ ${warning}</div>`;
+                });
+            }
+            
+            let fixHtml = '';
+            if (fix) {
+                fixHtml = `<div class="fix-available">✨ Fix available: ${fix.changes.join(', ')}</div>`;
+            }
+            
+            card.innerHTML = `
+                <h3>
+                    <span class="puzzle-id">Puzzle #${result.id}</span>
+                    ${statusBadge}
+                </h3>
+                <div class="puzzle-name">${result.name}</div>
+                ${difficultyStars ? `<div class="difficulty">${difficultyStars}</div>` : ''}
+                ${warningsHtml}
+                ${issuesHtml}
+                ${fixHtml}
+            `;
+            
+            return card;
+        }
+        
+        function addLogEntry(message, type = 'info') {
+            const logOutput = document.getElementById('logOutput');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            logOutput.appendChild(entry);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        // Auto-verify on load for testing
+        window.addEventListener('load', () => {
+            console.log('Puzzle Verification Suite loaded');
+            // Uncomment to auto-verify:
+            // verifyAll();
+        });
+    </script>
+</body>
+</html>

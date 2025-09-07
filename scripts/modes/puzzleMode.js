@@ -3,6 +3,7 @@ import { GameMode } from './gameMode.js';
 import { PUZZLES, getPuzzleById, getUnlockedPuzzles, getNextPuzzle, PUZZLE_OBJECTIVES } from '../puzzles/puzzleData.js';
 import { puzzleValidator } from '../puzzles/puzzleValidator.js';
 import { storage } from '../storage-adapter.js';
+import { HintSystem } from '../puzzles/hintSystem.js';
 
 export class PuzzleMode extends GameMode {
     constructor(game) {
@@ -25,6 +26,8 @@ export class PuzzleMode extends GameMode {
         this.timeElapsed = 0;
         this.timerInterval = null;
         this.pendingCompletion = false;
+        this.hintsUsed = 0;
+        this.hintSystem = new HintSystem(game);
     }
 
     async initialize() {
@@ -93,6 +96,10 @@ export class PuzzleMode extends GameMode {
         this.timeElapsed = 0;
         this.pendingCompletion = false;
         this.isComplete = false;
+        this.hintsUsed = 0;
+        
+        // Initialize hint system for this puzzle
+        this.hintSystem.initialize(this.currentPuzzle);
         
         // Start timer if puzzle has time limit
         if (this.currentPuzzle.timeLimit > 0) {
@@ -396,27 +403,63 @@ export class PuzzleMode extends GameMode {
     }
 
     calculateStars() {
-        let stars = 1; // Base star for completion
+        // Start with base star for completion
+        let stars = 1;
+        let bonusEarned = [];
         
-        // Efficiency bonus
+        // Calculate efficiency score (pieces used vs max allowed)
         if (this.currentPuzzle.maxPieces > 0) {
             const efficiency = this.usedPieces / this.currentPuzzle.maxPieces;
-            if (efficiency <= 0.5) stars++;
+            
+            if (efficiency <= 0.6) {
+                stars = 3; // Perfect efficiency - 60% or less pieces used
+                bonusEarned.push('Perfect Efficiency');
+            } else if (efficiency <= 0.8) {
+                stars = 2; // Good efficiency - 80% or less pieces used
+                bonusEarned.push('Good Efficiency');
+            }
         }
         
-        // Time bonus
-        if (this.currentPuzzle.timeLimit > 0) {
-            const timeRatio = this.timeElapsed / this.currentPuzzle.timeLimit;
-            if (timeRatio <= 0.5) stars++;
+        // Time bonus (if applicable)
+        if (this.currentPuzzle.timeLimit > 0 && stars < 3) {
+            const timeRatio = this.timeElapsed / (this.currentPuzzle.timeLimit * 1000);
+            if (timeRatio <= 0.5) {
+                stars = Math.min(3, stars + 1);
+                bonusEarned.push('Speed Bonus');
+            }
         }
         
-        // Perfect clear bonus
+        // Perfect clear automatic 3 stars
         if (this.currentPuzzle.objective === 'perfectclear' && 
             this.game.grid && this.game.grid.isEmpty()) {
             stars = 3;
+            bonusEarned.push('Perfect Clear');
         }
         
-        return Math.min(3, stars);
+        // Get hints used from hint system
+        this.hintsUsed = this.hintSystem.getHintsUsed();
+        
+        // Deduct stars for hints used
+        if (this.hintsUsed > 0) {
+            stars = Math.max(1, stars - this.hintsUsed);
+            bonusEarned.push(`Hints Used: -${this.hintsUsed}⭐`);
+        }
+        
+        // Store bonus info for display
+        this.starsInfo = {
+            stars: stars,
+            maxStars: 3,
+            bonuses: bonusEarned,
+            hintsUsed: this.hintsUsed || 0,
+            efficiency: this.currentPuzzle.maxPieces > 0 
+                ? Math.round((this.usedPieces / this.currentPuzzle.maxPieces) * 100) 
+                : 100,
+            timePercent: this.currentPuzzle.timeLimit > 0
+                ? Math.round((this.timeElapsed / (this.currentPuzzle.timeLimit * 1000)) * 100)
+                : 0
+        };
+        
+        return Math.min(3, Math.max(1, stars));
     }
 
     getNextPiece() {
@@ -621,6 +664,10 @@ export class PuzzleMode extends GameMode {
 
     cleanup() {
         this.stopTimer();
+        // Cleanup hint system
+        if (this.hintSystem) {
+            this.hintSystem.cleanup();
+        }
     }
     
     validateAndFixPuzzle(puzzle) {

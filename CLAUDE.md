@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Modern Tetris is a fully-featured, responsive web-based Tetris game built with vanilla JavaScript ES6 modules. It features neon graphics, dynamic audio, advanced touch controls, and Progressive Web App (PWA) capabilities with offline support.
 
-**Latest Version: 2.0.0** - Complete UI overhaul with new home screen, improved navigation, responsive leaderboard, and enhanced game modes support.
+**Latest Version: 3.1.0** - Complete puzzle verification suite, auto-solver, difficulty analyzer, and comprehensive testing tools. All 150 puzzles verified as solvable.
 
 ## Architecture
 
@@ -29,15 +29,36 @@ Modern Tetris is a fully-featured, responsive web-based Tetris game built with v
 ### Game Modes System
 - **modes/gameMode.js**: Abstract base class for all game modes
 - **modes/classicMode.js**: Traditional endless Tetris
+- **modes/powerUpMode.js**: Classic gameplay with 8 unique power-ups (NEW)
 - **modes/sprintMode.js**: 40-line time attack mode
 - **modes/marathonMode.js**: 150-line survival with checkpoints
 - **modes/zenMode.js**: Relaxing endless mode with statistics
-- **modes/puzzleMode.js**: Challenge mode with 150 puzzles
+- **modes/puzzleMode.js**: Challenge mode with 150 puzzles with enhanced star ratings and hint system
 - **modes/battleMode.js**: VS AI battle mode with power-ups and rounds
-- **puzzles/puzzleData.js**: 150 puzzle configurations (fixed impossible puzzles)
+- **modes/battle2PMode.js**: Local 2-player competitive mode with split-screen (NEW)
+
+### Power-Up System
+- **powerups/powerUpTypes.js**: Definitions for 8 power-ups (Slow Time, Line Bomb, Ghost Mode, Lightning, Precision, 2x Score, Shuffle, Magnet)
+- **powerups/powerUpManager.js**: Power-up state management, activation, and UI updates
+
+### Puzzle System
+- **puzzles/puzzleData.js**: 150 puzzle configurations (all verified as solvable)
 - **puzzles/puzzleValidator.js**: Automatic puzzle validation and feasibility checking
+- **puzzles/puzzleObjectives.js**: Enhanced objectives (cascade, speed, no-rotation, chain, pattern)
+- **puzzles/hintSystem.js**: 3-level AI-powered hint system with visual indicators
+- **puzzles/puzzleAutoSolver.js**: AI pathfinding solver for puzzle verification (NEW)
+- **puzzles/puzzleDifficultyAnalyzer.js**: Comprehensive difficulty analysis and skill requirements (NEW)
+- **puzzles/puzzleVerificationSuite.js**: Automated testing for all 150 puzzles (NEW)
+- **puzzleCreator.html**: Visual puzzle creation tool with 13 objective types
+- **verifyPuzzles.html**: Puzzle verification dashboard with fix suggestions (NEW)
+
+### AI System
 - **ai/tetrisAI.js**: Advanced AI with T-spin detection, combo tracking, optimal pathfinding (5 difficulty levels)
-- **puzzleCreator.html**: Visual puzzle creation tool with integrated validator
+
+### Progression & Rewards (NEW in v3.0.0)
+- **progression/playerProgression.js**: 100-level XP system with unlockables (themes, music, effects)
+- **achievements/achievementSystem.js**: 30+ achievements and 10+ trophies across multiple categories
+- **challenges/dailyChallenge.js**: Daily procedurally-generated challenges with modifiers and streaks
 
 ### Backend Components
 - **api/scores.php**: PHP API for score management
@@ -70,6 +91,81 @@ npm run lint
 # Run type checking (if TypeScript configured)
 npm run typecheck
 ```
+
+## New Features in v3.1.0
+
+### Puzzle Verification & Quality Assurance (NEW)
+- **Auto-Solver System**: AI pathfinding that finds optimal solutions
+  - Depth-first search with pruning
+  - Evaluates all possible placements
+  - Supports all objective types
+- **Difficulty Analyzer**: Comprehensive puzzle analysis
+  - 5-level difficulty scale (Easy to Master)
+  - Skill requirement identification
+  - Time estimates for different player levels
+  - Grid complexity scoring
+- **Verification Suite**: Automated testing for all puzzles
+  - Validates all 150 puzzles are solvable
+  - Identifies structural issues
+  - Suggests automatic fixes
+  - Generates detailed reports
+- **Verification Dashboard**: Visual testing interface
+  - Real-time verification progress
+  - Filter by status (solvable/impossible/warnings)
+  - Export verification reports
+  - Apply fixes with one click
+
+### Mobile Compatibility
+- **Battle 2P Mode**: Automatically hidden on mobile devices (width < 768px)
+- **Responsive Mode Selection**: Desktop-only modes filtered on mobile
+
+## New Features in v3.0.0
+
+### Player Progression System
+- **100 Levels**: Earn XP from gameplay, achievements, and challenges
+- **Ranks**: Progress from Novice to Eternal (10 ranks total)
+- **Unlockables**: 
+  - 7 themes (cyberpunk, retro, nature, minimal, galaxy, matrix, rainbow)
+  - 6 music tracks (chiptune, synthwave, orchestral, jazz, metal, lofi)
+  - 5 piece styles (glass, pixel, hologram, crystal, animated)
+  - 6 visual effects (particles, trails, explosions, lightning, shatter, quantum)
+
+### Achievement System
+- **30+ Achievements**: Across beginner, lines, score, combo, special, modes, daily, and secret categories
+- **10+ Trophies**: Bronze, Silver, Gold, and Platinum tiers
+- **XP Rewards**: Each achievement and trophy awards XP for progression
+
+### Daily Challenge System
+- **Procedural Generation**: Unique challenge every day with consistent seed
+- **Modifiers**: 10 random modifiers (invisible pieces, mirror mode, earthquake, etc.)
+- **Streak Rewards**: Milestone rewards at 3, 7, 14, 30, 60, and 100 days
+- **Global Leaderboard**: Compete with players worldwide
+
+### Enhanced Puzzle Mode
+- **Star Rating System**: 
+  - Efficiency-based (pieces used vs maximum)
+  - Time bonuses for speed completion
+  - Hint penalties (deduct stars when used)
+- **Hint System (3 Levels)**:
+  - Level 1: Column position highlighting
+  - Level 2: Rotation suggestions
+  - Level 3: Full solution ghost with movement arrows
+  - AI-powered evaluation using heuristics
+  - 5-second cooldown between hints
+- **New Objectives**:
+  - Cascade: Clear lines with gravity effects
+  - Speed: Complete within time limits
+  - No-Rotation: Master placement without rotating
+  - Chain: Consecutive line clears
+  - Pattern: Create specific shapes
+  - Survival: Last for duration
+
+### Local 2-Player Battle Mode
+- **Split-Screen**: Side-by-side competitive play
+- **Controls**: P1 uses arrows, P2 uses WASD
+- **Garbage System**: Send lines to opponent based on clears
+- **Best of 3**: First to 2 round wins takes the match
+- **Attack Mechanics**: Combos, T-spins, and Tetrises send garbage
 
 ## Key Game Mechanics
 

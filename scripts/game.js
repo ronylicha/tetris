@@ -8,6 +8,9 @@ import { AudioManager } from './audio.js';
 import { ModalManager } from './modals.js';
 import { ModeSelector } from './modeSelector.js';
 import { ClassicMode } from './modes/classicMode.js';
+import { playerProgression } from './progression/playerProgression.js';
+import { achievementSystem } from './achievements/achievementSystem.js';
+import { dailyChallenge } from './challenges/dailyChallenge.js';
 
 export class TetrisGame {
     constructor() {
@@ -674,6 +677,32 @@ export class TetrisGame {
             tetris: this.specialAchievements.tetris,
             perfectClears: this.specialAchievements.perfectClears
         };
+        
+        // Update player progression and achievements
+        const gameResults = {
+            mode: this.gameMode ? this.gameMode.name.toLowerCase() : 'classic',
+            score: finalStats.score,
+            lines: finalStats.lines,
+            level: finalStats.level,
+            time: Date.now() - this.gameStartTime,
+            combo: this.combo,
+            tspins: dbAchievements.tspins,
+            tetris: dbAchievements.tetris,
+            perfectClears: dbAchievements.perfectClears,
+            isVictory: isVictory
+        };
+        
+        // Calculate and award XP
+        const xpEarned = playerProgression.calculateGameXP(gameResults);
+        playerProgression.addXP(xpEarned, 'gameplay');
+        playerProgression.updateStats(gameResults);
+        
+        // Check achievements
+        achievementSystem.updateProgress('totalLines', this.lines, true);
+        achievementSystem.updateProgress('highScore', this.score);
+        achievementSystem.updateProgress('maxCombo', this.combo);
+        achievementSystem.updateProgress('tspins', dbAchievements.tspins, true);
+        achievementSystem.updateProgress('perfectClears', dbAchievements.perfectClears, true);
         
         // Set game start time for score saver
         this.uiManager.scoreSaver.setGameStartTime(this.gameStartTime);
