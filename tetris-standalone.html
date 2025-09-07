@@ -8015,6 +8015,7 @@ window.ZenMode = class ZenMode extends GameMode {
 
 
 
+
 window.PuzzleMode = class PuzzleMode extends GameMode {
     constructor(game) {
         super(game);
@@ -8055,11 +8056,15 @@ window.PuzzleMode = class PuzzleMode extends GameMode {
     }
 
     loadPuzzle(puzzleId) {
-        this.currentPuzzle = getPuzzleById(puzzleId);
-        if (!this.currentPuzzle) {
+        let puzzle = getPuzzleById(puzzleId);
+        if (!puzzle) {
             console.error(`Puzzle ${puzzleId} not found`);
             return;
         }
+        
+        // Validate and auto-fix puzzle before loading
+        puzzle = this.validateAndFixPuzzle(puzzle);
+        this.currentPuzzle = puzzle;
         
         // Reset game state
         this.game.lines = 0;
@@ -8106,10 +8111,11 @@ window.PuzzleMode = class PuzzleMode extends GameMode {
             this.startTimer();
         }
         
-        // Show puzzle info
+        // Show puzzle info with validation status
         if (this.game.uiManager) {
+            const validationMsg = this.currentPuzzle._wasFixed ? ' (Auto-adjusted)' : '';
             this.game.uiManager.showMessage(
-                `Puzzle ${puzzleId}: ${this.currentPuzzle.name}`,
+                `Puzzle ${puzzleId}: ${this.currentPuzzle.name}${validationMsg}`,
                 'info',
                 3000
             );
@@ -8589,6 +8595,170 @@ window.PuzzleMode = class PuzzleMode extends GameMode {
 
     cleanup() {
         this.stopTimer();
+    }
+    
+    validateAndFixPuzzle(puzzle) {
+        // Convert puzzle to validator format
+        const puzzleConfig = {
+            name: puzzle.name,
+            grid: puzzle.initialGrid || Array(20).fill(null).map(() => Array(10).fill(0)),
+            pieces: puzzle.pieces === 'random' ? ['I', 'O', 'T', 'S', 'Z', 'J', 'L'] : puzzle.pieces,
+            maxPieces: puzzle.maxPieces || 999,
+            objective: this.convertObjective(puzzle),
+            hint: puzzle.hint
+        };
+        
+        // Validate the puzzle
+        const validation = puzzleValidator.validatePuzzle(puzzleConfig);
+        
+        if (!validation.valid) {
+            console.warn(`Puzzle ${puzzle.id} "${puzzle.name}" has issues:`, validation.issues);
+            
+            // Auto-fix the puzzle
+            const fixed = this.autoFixPuzzle(puzzle, validation);
+            fixed._wasFixed = true;
+            fixed._validationIssues = validation.issues;
+            
+            console.log(`Auto-fixed puzzle ${puzzle.id}:`, validation.suggestions);
+            return fixed;
+        }
+        
+        return puzzle;
+    }
+    
+    convertObjective(puzzle) {
+        const objective = { type: puzzle.objective };
+        
+        switch (puzzle.objective) {
+            case 'lines':
+            case 'clearLines':
+                objective.type = 'lines';
+                objective.count = puzzle.targetLines || 1;
+                break;
+            case 'score':
+            case 'minScore':
+                objective.type = 'score';
+                objective.target = puzzle.minScore || 1000;
+                break;
+            case 'clearAll':
+            case 'clearBoard':
+                objective.type = 'clear';
+                break;
+            case 'tspin':
+                objective.type = 'lines';
+                objective.count = puzzle.targetTSpins || 1;
+                break;
+            case 'tetris':
+                objective.type = 'lines';
+                objective.count = (puzzle.targetTetris || 1) * 4;
+                break;
+            case 'combo':
+                objective.type = 'lines';
+                objective.count = puzzle.targetCombo || 3;
+                break;
+            default:
+                objective.type = 'lines';
+                objective.count = 1;
+        }
+        
+        return objective;
+    }
+    
+    autoFixPuzzle(puzzle, validation) {
+        const fixed = { ...puzzle };
+        
+        // Fix piece count if needed
+        if (validation.minPiecesRequired > 0) {
+            if (!fixed.pieces || fixed.pieces === 'random') {
+                fixed.pieces = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
+            }
+            
+            // Ensure we have enough pieces
+            while (fixed.pieces.length < validation.minPiecesRequired) {
+                const allPieces = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
+                const randomPiece = allPieces[Math.floor(Math.random() * allPieces.length)];
+                fixed.pieces.push(randomPiece);
+            }
+            
+            // Adjust maxPieces if too restrictive
+            if (fixed.maxPieces < validation.minPiecesRequired + 2) {
+                fixed.maxPieces = validation.minPiecesRequired + 5;
+            }
+        }
+        
+        // Fix objectives that are impossible
+        if (validation.issues.some(issue => issue.includes('Objective requires'))) {
+            switch (puzzle.objective) {
+                case 'lines':
+                case 'clearLines':
+                    // Reduce line requirement
+                    fixed.targetLines = Math.max(1, Math.floor((fixed.targetLines || 1) * 0.75));
+                    break;
+                case 'score':
+                case 'minScore':
+                    // Reduce score requirement
+                    fixed.minScore = Math.max(100, Math.floor((fixed.minScore || 1000) * 0.5));
+                    break;
+                case 'tetris':
+                    // Reduce tetris requirement or add I pieces
+                    if (!fixed.pieces.includes('I')) {
+                        fixed.pieces.push('I', 'I', 'I', 'I');
+                    }
+                    fixed.targetTetris = Math.max(1, Math.floor((fixed.targetTetris || 1) * 0.75));
+                    break;
+                case 'tspin':
+                    // Add T pieces for T-spins
+                    if (!fixed.pieces.includes('T')) {
+                        fixed.pieces.push('T', 'T', 'T');
+                    }
+                    fixed.targetTSpins = Math.max(1, Math.floor((fixed.targetTSpins || 1) * 0.75));
+                    break;
+            }
+        }
+        
+        // Fix grid issues (holes, impossible clears)
+        if (validation.issues.some(issue => issue.includes('grid'))) {
+            // Simplify the grid if it's too complex
+            if (fixed.initialGrid) {
+                fixed.initialGrid = this.simplifyGrid(fixed.initialGrid);
+            }
+        }
+        
+        return fixed;
+    }
+    
+    simplifyGrid(grid) {
+        const simplified = grid.map(row => [...row]);
+        
+        // Remove isolated blocks that create impossible situations
+        for (let row = 0; row < 20; row++) {
+            for (let col = 0; col < 10; col++) {
+                if (simplified[row][col] !== 0) {
+                    // Check if this block is isolated (no neighbors)
+                    let hasNeighbor = false;
+                    
+                    // Check adjacent cells
+                    const neighbors = [
+                        [row - 1, col], [row + 1, col],
+                        [row, col - 1], [row, col + 1]
+                    ];
+                    
+                    for (const [r, c] of neighbors) {
+                        if (r >= 0 && r < 20 && c >= 0 && c < 10 && simplified[r][c] !== 0) {
+                            hasNeighbor = true;
+                            break;
+                        }
+                    }
+                    
+                    // Remove isolated blocks in upper rows (they're problematic)
+                    if (!hasNeighbor && row < 10) {
+                        simplified[row][col] = 0;
+                    }
+                }
+            }
+        }
+        
+        return simplified;
     }
 
     getLeaderboardCategory() {

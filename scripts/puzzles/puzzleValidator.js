@@ -1,5 +1,5 @@
 // Puzzle Validator - Automatic validation system for puzzle feasibility
-import { PIECES } from '../pieces.js';
+import { PIECE_SHAPES } from '../pieces.js';
 import { GRID_WIDTH, GRID_HEIGHT } from '../grid.js';
 
 export class PuzzleValidator {
@@ -9,8 +9,9 @@ export class PuzzleValidator {
     
     initializePieceShapes() {
         const shapes = {};
-        for (const [type, shape] of Object.entries(PIECES)) {
-            shapes[type] = this.getAllRotations(shape);
+        for (const [type, rotations] of Object.entries(PIECE_SHAPES)) {
+            // PIECE_SHAPES already contains all rotations
+            shapes[type] = rotations;
         }
         return shapes;
     }
