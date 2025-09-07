@@ -122,6 +122,11 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
     
+    // Skip non-HTTP(S) requests (like chrome-extension://)
+    if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) {
+        return;
+    }
+    
     // Handle API requests differently
     if (url.pathname.includes('/api/')) {
         event.respondWith(handleApiRequest(request));
@@ -149,7 +154,12 @@ self.addEventListener('fetch', (event) => {
                     // Cache audio files on first request
                     return fetch(request).then(networkResponse => {
                         if (networkResponse && networkResponse.status === 200) {
-                            cache.put(request, networkResponse.clone());
+                            // Only cache http/https requests
+                            if (request.url.startsWith('http://') || request.url.startsWith('https://')) {
+                                cache.put(request, networkResponse.clone()).catch(err => {
+                                    console.warn('[ServiceWorker] Audio cache put failed:', err);
+                                });
+                            }
                         }
                         return networkResponse;
                     }).catch(() => {
@@ -192,10 +202,16 @@ self.addEventListener('fetch', (event) => {
                                 // Clone the response before caching
                                 const responseToCache = response.clone();
                                 
-                                caches.open(CACHE_NAME)
-                                    .then(cache => {
-                                        cache.put(request, responseToCache);
-                                    });
+                                // Only cache http/https requests
+                                if (request.url.startsWith('http://') || request.url.startsWith('https://')) {
+                                    caches.open(CACHE_NAME)
+                                        .then(cache => {
+                                            cache.put(request, responseToCache);
+                                        })
+                                        .catch(err => {
+                                            console.warn('[ServiceWorker] Cache put failed:', err);
+                                        });
+                                }
                                 
                                 return response;
                             })
@@ -236,10 +252,12 @@ async function handleApiRequest(request) {
         // Try network first
         const networkResponse = await fetch(request);
         
-        // Cache successful responses
-        if (networkResponse && networkResponse.status === 200) {
+        // Cache successful GET responses only (POST/PUT/DELETE should not be cached)
+        if (networkResponse && networkResponse.status === 200 && request.method === 'GET') {
             const cache = await caches.open(API_CACHE);
-            cache.put(request, networkResponse.clone());
+            cache.put(request, networkResponse.clone()).catch(err => {
+                console.warn('[ServiceWorker] API cache put failed:', err);
+            });
         }
         
         return networkResponse;
@@ -316,8 +334,13 @@ async function updateCache() {
             try {
                 const response = await fetch(url, { cache: 'no-cache' });
                 if (response && response.status === 200) {
-                    await cache.put(url, response);
-                    console.log(`[ServiceWorker] Updated ${url}`);
+                    // Only cache http/https URLs
+                    if (url.startsWith('http://') || url.startsWith('https://')) {
+                        await cache.put(url, response).catch(err => {
+                            console.warn(`[ServiceWorker] Failed to cache ${url}:`, err);
+                        });
+                        console.log(`[ServiceWorker] Updated ${url}`);
+                    }
                 }
             } catch (error) {
                 console.warn(`[ServiceWorker] Failed to update ${url}:`, error);
@@ -349,8 +372,10 @@ self.addEventListener('message', (event) => {
                     STATIC_CACHE_URLS.map(url => {
                         return fetch(url)
                             .then(response => {
-                                if (response.ok) {
-                                    return cache.put(url, response);
+                                if (response.ok && (url.startsWith('http://') || url.startsWith('https://'))) {
+                                    return cache.put(url, response).catch(err => {
+                                        console.warn(`[ServiceWorker] Failed to cache audio ${url}:`, err);
+                                    });
                                 }
                             })
                             .catch(error => {
