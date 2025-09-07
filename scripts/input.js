@@ -77,16 +77,23 @@ export class InputManager {
             }
         });
         
-        // Touch events for mobile
-        document.addEventListener('touchstart', (e) => this.handleTouchStart(e));
-        document.addEventListener('touchmove', (e) => this.handleTouchMove(e));
-        document.addEventListener('touchend', (e) => this.handleTouchEnd(e));
-        
-        // Mouse events for canvas interactions
+        // Touch and mouse events for canvas interactions
         const canvas = document.getElementById('game-canvas');
         if (canvas) {
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+            canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+            canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+            
+            // Mouse events
             canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
         }
+        
+        // Add touch support for UI elements
+        this.initializeTouchUI();
+        
+        // Show mobile controls hint on touch devices
+        this.showMobileControlsHint();
         
         // Focus management
         window.addEventListener('blur', () => this.handleWindowBlur());
@@ -197,10 +204,14 @@ export class InputManager {
     }
 
     handleTouchStart(e) {
+        // Only prevent default for game canvas touches
         e.preventDefault();
         const touch = e.touches[0];
-        this.touchControls.startX = touch.clientX;
-        this.touchControls.startY = touch.clientY;
+        
+        // Get touch coordinates relative to canvas
+        const rect = e.target.getBoundingClientRect();
+        this.touchControls.startX = touch.clientX - rect.left;
+        this.touchControls.startY = touch.clientY - rect.top;
         this.touchControls.startTime = Date.now();
         this.touchControls.isActive = true;
         this.touchControls.longPressTriggered = false;
@@ -236,8 +247,11 @@ export class InputManager {
         }
         
         const touch = e.changedTouches[0];
-        const deltaX = touch.clientX - this.touchControls.startX;
-        const deltaY = touch.clientY - this.touchControls.startY;
+        const rect = e.target.getBoundingClientRect();
+        const endX = touch.clientX - rect.left;
+        const endY = touch.clientY - rect.top;
+        const deltaX = endX - this.touchControls.startX;
+        const deltaY = endY - this.touchControls.startY;
         const threshold = this.touchControls.threshold;
         const touchDuration = Date.now() - this.touchControls.startTime;
         
@@ -485,13 +499,100 @@ export class InputManager {
         }
     }
 
+    // Show mobile controls hint on touch devices
+    showMobileControlsHint() {
+        // Check if device supports touch
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const mobileControlsHint = document.getElementById('mobile-controls-hint');
+        
+        if (isTouchDevice && mobileControlsHint) {
+            mobileControlsHint.style.display = 'flex';
+            
+            // Auto-hide after 5 seconds during gameplay
+            const autoHide = () => {
+                if (this.game && this.game.state === 'playing') {
+                    mobileControlsHint.style.opacity = '0.7';
+                    setTimeout(() => {
+                        if (this.game && this.game.state === 'playing') {
+                            mobileControlsHint.style.display = 'none';
+                        }
+                    }, 5000);
+                }
+            };
+            
+            // Hide hint after 10 seconds or when game starts
+            setTimeout(autoHide, 10000);
+            
+            // Also hide when game starts
+            if (this.game) {
+                const originalStart = this.game.start?.bind(this.game);
+                if (originalStart) {
+                    this.game.start = (...args) => {
+                        originalStart(...args);
+                        setTimeout(autoHide, 3000);
+                    };
+                }
+            }
+        }
+    }
+    
+    // Initialize touch support for UI elements
+    initializeTouchUI() {
+        // Add better touch support for all buttons
+        const buttons = document.querySelectorAll('button, .btn-primary, .btn-secondary, .btn-icon, .btn-close');
+        buttons.forEach(button => {
+            // Ensure buttons are clickable on mobile
+            button.style.touchAction = 'manipulation';
+            
+            // Add active state for better touch feedback
+            button.addEventListener('touchstart', (e) => {
+                button.classList.add('touch-active');
+                e.stopPropagation(); // Prevent game touch handling
+            }, { passive: false });
+            
+            button.addEventListener('touchend', (e) => {
+                button.classList.remove('touch-active');
+                e.stopPropagation();
+            }, { passive: false });
+            
+            button.addEventListener('touchcancel', (e) => {
+                button.classList.remove('touch-active');
+            });
+        });
+        
+        // Add touch support for modal overlays (to prevent closing on touch)
+        const modals = document.querySelectorAll('.name-input-content, .leaderboard-content, .settings-content, .help-content');
+        modals.forEach(modal => {
+            modal.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            });
+            modal.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+            });
+        });
+        
+        // Ensure input fields work properly on touch devices
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.style.touchAction = 'manipulation';
+            input.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            });
+        });
+    }
+    
     // Cleanup event listeners
     destroy() {
         document.removeEventListener('keydown', this.handleKeyDown);
         document.removeEventListener('keyup', this.handleKeyUp);
-        document.removeEventListener('touchstart', this.handleTouchStart);
-        document.removeEventListener('touchmove', this.handleTouchMove);
-        document.removeEventListener('touchend', this.handleTouchEnd);
+        
+        const canvas = document.getElementById('game-canvas');
+        if (canvas) {
+            canvas.removeEventListener('touchstart', this.handleTouchStart);
+            canvas.removeEventListener('touchmove', this.handleTouchMove);
+            canvas.removeEventListener('touchend', this.handleTouchEnd);
+        }
+        
         window.removeEventListener('blur', this.handleWindowBlur);
         window.removeEventListener('focus', this.handleWindowFocus);
     }

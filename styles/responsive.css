@@ -21,15 +21,33 @@
         margin-bottom: 10px;
     }
     
+    /* Better mobile controls hint */
     .controls-hint {
         flex-direction: column;
         gap: 8px;
         font-size: 0.8rem;
+        padding: 15px;
+        background: rgba(0, 255, 255, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 255, 255, 0.3);
     }
     
     .controls-hint span {
-        padding: 6px 12px;
+        padding: 8px 12px;
         font-size: 0.75rem;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 6px;
+        text-align: center;
+    }
+    
+    /* Header controls with better spacing */
+    .header-controls {
+        gap: 15px;
+    }
+    
+    .btn-icon {
+        padding: 12px;
+        font-size: 1.2rem;
     }
     
     .game-container {
@@ -87,9 +105,11 @@
     }
     
     .btn-primary, .btn-secondary {
-        padding: 12px 24px;
-        font-size: 0.9rem;
-        margin: 5px;
+        padding: 15px 24px;
+        font-size: 1rem;
+        margin: 8px;
+        min-height: 50px;
+        border-radius: 8px;
     }
 }
 
@@ -326,6 +346,26 @@
 
 /* Touch Device Optimizations */
 @media (hover: none) and (pointer: coarse) {
+    /* Improve button touch targets and feedback */
+    .btn-primary, .btn-secondary, .btn-icon, .btn-close {
+        min-height: 44px; /* Apple's recommended minimum touch target */
+        min-width: 44px;
+        touch-action: manipulation; /* Prevents double-tap zoom */
+        user-select: none; /* Prevents text selection on long press */
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* Remove tap highlight */
+    }
+    
+    /* Active state for better touch feedback */
+    .btn-primary.touch-active,
+    .btn-secondary.touch-active,
+    .btn-icon.touch-active,
+    .btn-close.touch-active {
+        transform: scale(0.95);
+        opacity: 0.8;
+        transition: all 0.1s ease;
+    }
+    
+    /* Remove hover effects that don't work on touch */
     .controls-hint span:hover {
         background: var(--glass-bg);
         box-shadow: none;
@@ -340,6 +380,35 @@
     .next-area:hover::before,
     .stats:hover::before {
         opacity: 0;
+    }
+    
+    /* Better touch targets for modal interactions */
+    .name-input-content, .leaderboard-content, .settings-content, .help-content {
+        touch-action: manipulation;
+    }
+    
+    /* Improve input field touch experience */
+    input, select, textarea {
+        touch-action: manipulation;
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Game canvas touch optimization */
+    #game-canvas {
+        touch-action: none; /* Allow custom touch handling */
+        user-select: none;
+    }
+    
+    /* Tab buttons in modals */
+    .tab-button, .settings-tab-button {
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    /* Leaderboard entries should be easier to see on touch */
+    .leaderboard-entry {
+        min-height: 50px;
     }
 }
 
@@ -367,7 +436,8 @@
     
     .btn-primary, .btn-secondary {
         width: 100%;
-        margin: 0;
+        margin: 5px 0;
+        min-height: 50px;
     }
     
     .leaderboard-entry {
