@@ -175,10 +175,13 @@ export class PowerUpManager {
         
         const powerUp = this.slots[slotIndex];
         
+        const keyLabel = slotIndex === 0 ? 'V' : 'B';
+        
         if (powerUp) {
             slotElement.innerHTML = `
                 <div class="powerup-icon">${powerUp.icon}</div>
                 <div class="powerup-name">${powerUp.name}</div>
+                <div class="slot-key">${keyLabel}</div>
             `;
             slotElement.style.background = `linear-gradient(135deg, ${powerUp.color}33, ${powerUp.color}11)`;
             slotElement.style.border = `2px solid ${powerUp.color}`;
@@ -186,6 +189,7 @@ export class PowerUpManager {
         } else {
             slotElement.innerHTML = `
                 <div class="powerup-empty">Empty</div>
+                <div class="slot-key">${keyLabel}</div>
             `;
             slotElement.style.background = 'rgba(255, 255, 255, 0.05)';
             slotElement.style.border = '2px solid rgba(255, 255, 255, 0.2)';
@@ -278,6 +282,21 @@ export class PowerUpManager {
                 particle.vy += 0.5; // Gravity
             }
         }
+    }
+    
+    clearAll() {
+        // Clear all slots
+        this.slots = [null, null];
+        this.updateSlotDisplay(0);
+        this.updateSlotDisplay(1);
+        
+        // Deactivate all active power-ups
+        while (this.activePowerUps.length > 0) {
+            this.deactivatePowerUp(0);
+        }
+        
+        // Clear particle effects
+        this.particleEffects = [];
     }
     
     // Check for specific accomplishments during gameplay

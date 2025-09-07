@@ -276,6 +276,11 @@ export class ModalManager {
     
     backToHome() {
         if (this.game) {
+            // Clean up current game mode if it exists
+            if (this.game.gameMode && this.game.gameMode.cleanup) {
+                this.game.gameMode.cleanup();
+            }
+            
             // Stop game and music
             this.game.state = 'menu';
             this.game.audioManager.stopBackgroundMusic();

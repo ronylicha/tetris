@@ -2156,6 +2156,13 @@ body::before {
 
 /* Mobile First Approach */
 
+/* Hide desktop-only elements on mobile */
+@media (max-width: 767px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
 /* Small Mobile Devices (320px - 480px) */
 @media (max-width: 480px) {
     .app {
@@ -2957,6 +2964,28 @@ body::before {
     }
 }
 
+/* Battle 2P specific responsive adjustments */
+.battle2p-active .game-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 0;
+}
+
+.battle2p-active #game-canvas {
+    display: none !important;
+}
+
+.battle2p-active .game-sidebar {
+    display: none !important;
+}
+
+.battle2p-active .info-panel,
+.battle2p-active .next-panel {
+    display: none !important;
+}
+
 /* Print Styles */
 @media print {
     .app {
@@ -2989,6 +3018,156 @@ body::before {
 
 /* styles/modes.css */
 /* Game Modes Styles */
+
+/* Battle 2P Mode */
+#battle2p-container {
+    display: flex;
+    gap: 15px;
+    width: calc(100% - 40px);
+    height: calc(100% - 100px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 50px auto;
+}
+
+.battle2p-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.battle2p-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.battle2p-player canvas {
+    width: 250px;
+    height: 500px;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.battle2p-hold, .battle2p-next {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.battle2p-hold h4, .battle2p-next h4 {
+    color: #00ffff;
+    margin: 0;
+    font-size: 0.9rem;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
+}
+
+.battle2p-hold canvas {
+    border: 1px solid #00ffff;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.battle2p-next canvas {
+    border: 1px solid #00ffff;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.player-label {
+    color: #00ffff;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    margin: 0;
+}
+
+.player-stats {
+    display: flex;
+    gap: 15px;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.player-stats span {
+    background: rgba(0, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.battle2p-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 15px;
+}
+
+.versus {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff00ff;
+    text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+    animation: pulse 2s infinite;
+}
+
+.round-info {
+    text-align: center;
+    color: #fff;
+}
+
+.wins-display {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.wins-display span:first-child {
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+}
+
+.wins-display span:last-child {
+    color: #ff8800;
+    text-shadow: 0 0 5px rgba(255, 136, 0, 0.8);
+}
+
+.controls-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+}
+
+.p1-controls, .p2-controls {
+    text-align: center;
+}
+
+.p1-controls h5, .p2-controls h5 {
+    color: #00ffff;
+    margin: 0 0 5px 0;
+    font-size: 0.9rem;
+}
+
+.p1-controls small, .p2-controls small {
+    color: #aaa;
+    font-size: 0.75rem;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
 
 /* Mode Selector Modal */
 .mode-selector-modal {
@@ -3538,6 +3717,108 @@ body::before {
     }
 }
 
+/* Power-Up Mode UI */
+#powerup-ui {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+#powerup-ui h3 {
+    color: #00ffff;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.powerup-slots {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.powerup-slot {
+    flex: 1;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    min-height: 80px;
+    transition: all 0.3s ease;
+}
+
+.powerup-slot.filled {
+    animation: pulse 2s infinite;
+}
+
+.powerup-slot:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.powerup-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.powerup-name {
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.powerup-empty {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+.slot-key {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.active-powerups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.active-powerup {
+    padding: 5px 10px;
+    background: rgba(0, 255, 0, 0.2);
+    border: 1px solid rgba(0, 255, 0, 0.5);
+    border-radius: 5px;
+    font-size: 0.8rem;
+    color: #0f0;
+    animation: blink 1s infinite;
+}
+
+/* Hide normal UI when Battle 2P is active */
+body.battle2p-active .game-sidebar.left,
+body.battle2p-active .game-sidebar.right,
+body.battle2p-active .info-panel,
+body.battle2p-active .next-panel {
+    display: none !important;
+}
+
+body.battle2p-active #game-canvas {
+    display: none !important;
+}
+
+body.battle2p-active #battle2p-container {
+    display: flex !important;
+}
+
 @media (max-width: 480px) {
     .mode-selector-content h2 {
         font-size: 1.5rem;
@@ -3610,6 +3891,11 @@ body::before {
                             <h3>Battle</h3>
                             <p>Face off against intelligent AI opponents</p>
                         </div>
+                        <div class="mode-card home-mode-card desktop-only" data-mode="battle2p">
+                            <div class="mode-icon">👥</div>
+                            <h3>Battle 2P</h3>
+                            <p>Local 2-player split-screen battle</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -3653,11 +3939,87 @@ body::before {
                         <span class="stat-value" id="level">1</span>
                     </div>
                 </div>
+                
+                <!-- Power-Up Mode UI -->
+                <div id="powerup-ui" style="display: none;">
+                    <h3>Power-Ups</h3>
+                    <div class="powerup-slots">
+                        <div id="powerup-slot-0" class="powerup-slot"></div>
+                        <div id="powerup-slot-1" class="powerup-slot"></div>
+                    </div>
+                    <div id="active-powerups" class="active-powerups"></div>
+                </div>
             </div>
 
             <!-- Game board -->
             <div class="game-board">
                 <canvas id="game-canvas"></canvas>
+                <!-- Battle 2P Mode - Two canvases -->
+                <div id="battle2p-container" style="display: none;">
+                    <!-- Player 1 Section -->
+                    <div class="battle2p-section">
+                        <div class="battle2p-hold">
+                            <h4>Hold</h4>
+                            <canvas id="p1-hold-canvas" width="80" height="80"></canvas>
+                        </div>
+                        <div class="battle2p-player">
+                            <h3 class="player-label">Player 1</h3>
+                            <canvas id="p1-canvas"></canvas>
+                            <div class="player-stats">
+                                <span>Score: <span id="p1-score">0</span></span>
+                                <span>Lines: <span id="p1-lines">0</span></span>
+                                <span>Level: <span id="p1-level">1</span></span>
+                            </div>
+                        </div>
+                        <div class="battle2p-next">
+                            <h4>Next</h4>
+                            <canvas id="p1-next-canvas" width="80" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Center Divider -->
+                    <div class="battle2p-divider">
+                        <div class="versus">VS</div>
+                        <div class="round-info">
+                            <span>Round <span id="round-number">1</span></span>
+                            <div class="wins-display">
+                                <span>P1: <span id="p1-wins">0</span></span>
+                                <span>P2: <span id="p2-wins">0</span></span>
+                            </div>
+                        </div>
+                        <div class="controls-info">
+                            <div class="p1-controls">
+                                <h5>P1 Controls</h5>
+                                <small>↑↓←→ Space Shift</small>
+                            </div>
+                            <div class="p2-controls">
+                                <h5>P2 Controls</h5>
+                                <small>WASD E R</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Player 2 Section -->
+                    <div class="battle2p-section">
+                        <div class="battle2p-hold">
+                            <h4>Hold</h4>
+                            <canvas id="p2-hold-canvas" width="80" height="80"></canvas>
+                        </div>
+                        <div class="battle2p-player">
+                            <h3 class="player-label">Player 2</h3>
+                            <canvas id="p2-canvas"></canvas>
+                            <div class="player-stats">
+                                <span>Score: <span id="p2-score">0</span></span>
+                                <span>Lines: <span id="p2-lines">0</span></span>
+                                <span>Level: <span id="p2-level">1</span></span>
+                            </div>
+                        </div>
+                        <div class="battle2p-next">
+                            <h4>Next</h4>
+                            <canvas id="p2-next-canvas" width="80" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
                 <div class="game-overlay" id="game-overlay" style="display: none;">
                     <div class="overlay-content">
                         <h2 id="overlay-title">Game Paused</h2>
@@ -6541,6 +6903,15 @@ window.InputManager = class InputManager {
             return;
         }
         
+        // First, check if the game mode wants to handle this key
+        if (this.game && this.game.gameMode && this.game.gameMode.handleKeyPress) {
+            const key = e.key;
+            if (this.game.gameMode.handleKeyPress(key)) {
+                e.preventDefault();
+                return; // Mode handled the key
+            }
+        }
+        
         const action = this.keyBindings[e.code];
         if (!action) return;
         
@@ -6743,15 +7114,10 @@ window.InputManager = class InputManager {
         this.stopContinuousDrop();
         this.resetTouchControls();
         
-        // Auto-pause if game is active and mute audio
+        // Auto-pause if game is active
         if (this.game && this.game.state === 'playing') {
             this.game.pause();
             this.wasAutoPaused = true; // Flag to remember this was auto-paused
-        }
-        
-        // Mute audio when window loses focus
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.setMasterMute(true);
         }
     }
 
@@ -6764,11 +7130,6 @@ window.InputManager = class InputManager {
         this.firstPress.right = false;
         this.firstPress.down = false;
         
-        // Restore audio when window regains focus
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.setMasterMute(false);
-        }
-        
         // Note: We don't auto-resume the game to let the user decide when to continue
         // The game will remain paused and can be resumed with P key or touch
         this.wasAutoPaused = false;
@@ -6777,10 +7138,37 @@ window.InputManager = class InputManager {
     handleVisibilityChange() {
         if (document.hidden) {
             // Page is now hidden (mobile browser switching, etc.)
-            this.handleWindowBlur();
+            // Clear all keys when page becomes hidden
+            this.keys = {};
+            this.das.leftTime = 0;
+            this.das.rightTime = 0;
+            this.das.downTime = 0;
+            this.firstPress.left = false;
+            this.firstPress.right = false;
+            this.firstPress.down = false;
+            
+            // Stop any continuous touch actions
+            this.stopContinuousDrop();
+            this.resetTouchControls();
+            
+            // Auto-pause if game is active
+            if (this.game && this.game.state === 'playing') {
+                this.game.pause();
+                this.wasAutoPaused = true;
+            }
         } else {
             // Page is now visible
-            this.handleWindowFocus();
+            // Clear keys to prevent stuck keys
+            this.keys = {};
+            this.das.leftTime = 0;
+            this.das.rightTime = 0;
+            this.das.downTime = 0;
+            this.firstPress.left = false;
+            this.firstPress.right = false;
+            this.firstPress.down = false;
+            
+            // Note: Don't auto-resume - let user manually resume
+            this.wasAutoPaused = false;
         }
     }
 
@@ -10866,10 +11254,13 @@ window.PowerUpManager = class PowerUpManager {
         
         const powerUp = this.slots[slotIndex];
         
+        const keyLabel = slotIndex === 0 ? 'V' : 'B';
+        
         if (powerUp) {
             slotElement.innerHTML = `
                 <div class="powerup-icon">${powerUp.icon}</div>
                 <div class="powerup-name">${powerUp.name}</div>
+                <div class="slot-key">${keyLabel}</div>
             `;
             slotElement.style.background = `linear-gradient(135deg, ${powerUp.color}33, ${powerUp.color}11)`;
             slotElement.style.border = `2px solid ${powerUp.color}`;
@@ -10877,6 +11268,7 @@ window.PowerUpManager = class PowerUpManager {
         } else {
             slotElement.innerHTML = `
                 <div class="powerup-empty">Empty</div>
+                <div class="slot-key">${keyLabel}</div>
             `;
             slotElement.style.background = 'rgba(255, 255, 255, 0.05)';
             slotElement.style.border = '2px solid rgba(255, 255, 255, 0.2)';
@@ -10969,6 +11361,21 @@ window.PowerUpManager = class PowerUpManager {
                 particle.vy += 0.5; // Gravity
             }
         }
+    }
+    
+    clearAll() {
+        // Clear all slots
+        this.slots = [null, null];
+        this.updateSlotDisplay(0);
+        this.updateSlotDisplay(1);
+        
+        // Deactivate all active power-ups
+        while (this.activePowerUps.length > 0) {
+            this.deactivatePowerUp(0);
+        }
+        
+        // Clear particle effects
+        this.particleEffects = [];
     }
     
     // Check for specific accomplishments during gameplay
@@ -15596,13 +16003,24 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
     }
     
     async initialize() {
-        // Create grids for both players
-        this.players.p1.grid = new Grid(10, 20);
-        this.players.p2.grid = new Grid(10, 20);
+        // Setup dual canvas display
+        this.setupDualCanvas();
         
-        // Initialize pieces for both players
+        // Create grids for both players
+        this.players.p1.grid = new Grid();
+        this.players.p2.grid = new Grid();
+        
+        // Reset wins for new battle
+        this.players.p1.wins = 0;
+        this.players.p2.wins = 0;
+        
+        // Initialize both players
         this.initializePlayer('p1');
         this.initializePlayer('p2');
+        
+        // Make sure the battle is not over
+        this.battleOver = false;
+        this.roundNumber = 1;
         
         // Start round
         this.startRound();
@@ -15614,6 +16032,51 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
                 'info',
                 3000
             );
+        }
+    }
+    
+    setupDualCanvas() {
+        // Add class to body to activate Battle 2P styles
+        document.body.classList.add('battle2p-active');
+        
+        // Show dual canvas container
+        const battle2pContainer = document.getElementById('battle2p-container');
+        if (battle2pContainer) {
+            battle2pContainer.style.display = 'flex';
+        }
+        
+        // Setup player 1 canvases
+        this.players.p1.canvas = document.getElementById('p1-canvas');
+        this.players.p1.holdCanvas = document.getElementById('p1-hold-canvas');
+        this.players.p1.nextCanvas = document.getElementById('p1-next-canvas');
+        
+        if (this.players.p1.canvas) {
+            this.players.p1.ctx = this.players.p1.canvas.getContext('2d');
+            this.players.p1.canvas.width = 250;
+            this.players.p1.canvas.height = 500;
+        }
+        if (this.players.p1.holdCanvas) {
+            this.players.p1.holdCtx = this.players.p1.holdCanvas.getContext('2d');
+        }
+        if (this.players.p1.nextCanvas) {
+            this.players.p1.nextCtx = this.players.p1.nextCanvas.getContext('2d');
+        }
+        
+        // Setup player 2 canvases
+        this.players.p2.canvas = document.getElementById('p2-canvas');
+        this.players.p2.holdCanvas = document.getElementById('p2-hold-canvas');
+        this.players.p2.nextCanvas = document.getElementById('p2-next-canvas');
+        
+        if (this.players.p2.canvas) {
+            this.players.p2.ctx = this.players.p2.canvas.getContext('2d');
+            this.players.p2.canvas.width = 250;
+            this.players.p2.canvas.height = 500;
+        }
+        if (this.players.p2.holdCanvas) {
+            this.players.p2.holdCtx = this.players.p2.holdCanvas.getContext('2d');
+        }
+        if (this.players.p2.nextCanvas) {
+            this.players.p2.nextCtx = this.players.p2.nextCanvas.getContext('2d');
         }
     }
     
@@ -15629,15 +16092,24 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         player.attacks = [];
         player.defenses = [];
         player.ko = false;
+        player.dropTimer = 0;
+        player.holdPiece = null;
+        player.canHold = true;
+        
+        // Clear the grid properly
+        if (player.grid) {
+            player.grid.reset();
+        }
         
         // Generate piece bag
         player.nextPieces = this.generatePieceBag();
         player.currentPiece = this.getNextPiece(playerId);
         
-        // Position piece
+        // Position piece (start in hidden area)
         if (player.currentPiece) {
-            player.currentPiece.x = Math.floor((10 - player.currentPiece.shape[0].length) / 2);
-            player.currentPiece.y = 0;
+            const shape = player.currentPiece.getCurrentShape();
+            player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+            player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
         }
     }
     
@@ -15645,16 +16117,28 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         this.roundStartTime = Date.now();
         
         // Clear grids
-        this.players.p1.grid.clear();
-        this.players.p2.grid.clear();
+        this.players.p1.grid.reset();
+        this.players.p2.grid.reset();
         
-        // Reset round-specific stats
+        // Reset round-specific stats and pieces
         ['p1', 'p2'].forEach(playerId => {
             const player = this.players[playerId];
             player.stats.piecesPlaced = 0;
             player.stats.linesCleared = 0;
             player.stats.attacks = 0;
             player.stats.defenses = 0;
+            player.ko = false;
+            
+            // Generate new pieces for the round
+            player.nextPieces = this.generatePieceBag();
+            player.currentPiece = this.getNextPiece(playerId);
+            
+            // Position piece (start in hidden area)
+            if (player.currentPiece) {
+                const shape = player.currentPiece.getCurrentShape();
+                player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+                player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
+            }
         });
         
         // Announce round
@@ -15677,6 +16161,13 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         // Process garbage queue
         this.processGarbage('p1');
         this.processGarbage('p2');
+        
+        // Render both players
+        this.renderPlayer('p1');
+        this.renderPlayer('p2');
+        
+        // Update UI
+        this.updateBattle2PUI();
         
         // Check round timer
         if (this.roundTimer > 0) {
@@ -15708,26 +16199,26 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
             this.movePlayerPiece(playerId, 0, 1);
         }
         
-        // Check for topped out
-        if (this.isPlayerToppedOut(playerId)) {
-            player.ko = true;
-        }
+        // Check for topped out only when piece is locked
+        // Not during regular updates to avoid false positives
     }
     
-    handleInput(event) {
+    handleKeyPress(key) {
         // Handle P1 controls
-        if (this.handlePlayerInput('p1', event.key)) {
-            event.preventDefault();
+        if (this.handlePlayerInput('p1', key)) {
             return true;
         }
         
         // Handle P2 controls
-        if (this.handlePlayerInput('p2', event.key)) {
-            event.preventDefault();
+        if (this.handlePlayerInput('p2', key)) {
             return true;
         }
         
         return false;
+    }
+    
+    handleInput(event) {
+        return this.handleKeyPress(event.key);
     }
     
     handlePlayerInput(playerId, key) {
@@ -15777,8 +16268,9 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         // Check if move is valid
         const newX = player.currentPiece.x + dx;
         const newY = player.currentPiece.y + dy;
+        const shape = player.currentPiece.getCurrentShape();
         
-        if (this.isValidPosition(playerId, player.currentPiece.shape, newX, newY)) {
+        if (this.isValidPosition(playerId, shape, newX, newY)) {
             player.currentPiece.x = newX;
             player.currentPiece.y = newY;
             return true;
@@ -15795,7 +16287,8 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         if (!player.currentPiece) return false;
         
         // Rotate shape
-        const rotated = this.rotateMatrix(player.currentPiece.shape, direction);
+        const currentShape = player.currentPiece.getCurrentShape();
+        const rotated = this.rotateMatrix(currentShape, direction);
         
         // Try wall kicks
         const kicks = this.getWallKicks(player.currentPiece.type, direction);
@@ -15805,7 +16298,8 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
             const newY = player.currentPiece.y + dy;
             
             if (this.isValidPosition(playerId, rotated, newX, newY)) {
-                player.currentPiece.shape = rotated;
+                // Update rotation state instead of shape directly
+                player.currentPiece.rotation = (player.currentPiece.rotation + direction + 4) % 4;
                 player.currentPiece.x = newX;
                 player.currentPiece.y = newY;
                 return true;
@@ -15844,10 +16338,11 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
             player.currentPiece = this.getNextPiece(playerId);
         }
         
-        // Reset position
+        // Reset position (start in hidden area)
         if (player.currentPiece) {
-            player.currentPiece.x = Math.floor((10 - player.currentPiece.shape[0].length) / 2);
-            player.currentPiece.y = 0;
+            const shape = player.currentPiece.getCurrentShape();
+            player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+            player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
         }
         
         player.canHold = false;
@@ -15859,9 +16354,10 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         if (!player.currentPiece) return;
         
         // Place piece on grid
+        const shape = player.currentPiece.getCurrentShape();
         this.placePieceOnGrid(
             player.grid,
-            player.currentPiece.shape,
+            shape,
             player.currentPiece.x,
             player.currentPiece.y,
             player.currentPiece.type
@@ -15879,6 +16375,22 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         
         // Reset drop timer
         player.dropTimer = 0;
+        
+        // Check if the new piece can be placed (game over check)
+        if (player.currentPiece) {
+            const shape = player.currentPiece.getCurrentShape();
+            const startX = Math.floor((10 - shape[0].length) / 2);
+            const startY = 2; // Check in hidden area where pieces spawn
+            
+            if (!this.isValidPosition(playerId, shape, startX, startY)) {
+                // Player is topped out
+                player.ko = true;
+            } else {
+                // Position the new piece
+                player.currentPiece.x = startX;
+                player.currentPiece.y = startY;
+            }
+        }
     }
     
     checkLineClears(playerId) {
@@ -15889,7 +16401,7 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         for (let y = player.grid.height - 1; y >= 0; y--) {
             let complete = true;
             for (let x = 0; x < player.grid.width; x++) {
-                if (player.grid.cells[y][x] === 0) {
+                if (player.grid.cells[y][x] === null || player.grid.cells[y][x] === 0) {
                     complete = false;
                     break;
                 }
@@ -15904,7 +16416,7 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
             // Clear the lines
             clearedLines.forEach(y => {
                 player.grid.cells.splice(y, 1);
-                player.grid.cells.unshift(new Array(player.grid.width).fill(0));
+                player.grid.cells.unshift(new Array(player.grid.width).fill(null));
             });
             
             // Update stats
@@ -16005,7 +16517,7 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
             
             // Add one random hole
             const holePosition = Math.floor(Math.random() * player.grid.width);
-            garbageLine[holePosition] = 0;
+            garbageLine[holePosition] = null;
             
             player.grid.cells.push(garbageLine);
         }
@@ -16030,7 +16542,7 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
                     }
                     
                     // Check collision
-                    if (player.grid.cells[gridY][gridX] !== 0) {
+                    if (player.grid.cells[gridY][gridX] !== null && player.grid.cells[gridY][gridX] !== 0) {
                         return false;
                     }
                 }
@@ -16039,24 +16551,11 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         return true;
     }
     
-    isPlayerToppedOut(playerId) {
-        const player = this.players[playerId];
-        
-        // Check if any blocks in top 2 rows
-        for (let y = 0; y < 2; y++) {
-            for (let x = 0; x < player.grid.width; x++) {
-                if (player.grid.cells[y][x] !== 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     
     isGridEmpty(grid) {
         for (let y = 0; y < grid.height; y++) {
             for (let x = 0; x < grid.width; x++) {
-                if (grid.cells[y][x] !== 0) {
+                if (grid.cells[y][x] !== null && grid.cells[y][x] !== 0) {
                     return false;
                 }
             }
@@ -16115,6 +16614,8 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         
         const winnerName = winnerId === 'p1' ? 'Player 1' : 'Player 2';
         const loserName = winnerId === 'p1' ? 'Player 2' : 'Player 1';
+        const winnerScore = winnerId === 'p1' ? this.players.p1.score : this.players.p2.score;
+        const loserScore = winnerId === 'p1' ? this.players.p2.score : this.players.p1.score;
         
         // Calculate final stats
         const results = {
@@ -16129,21 +16630,22 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
         
         // Show victory screen
         if (this.game.uiManager) {
-            this.game.uiManager.showBattleVictory(results);
+            const message = `${winnerName} WINS!\n\nFinal Score:\n${winnerName}: ${winnerScore}\n${loserName}: ${loserScore}\n\nRounds played: ${this.roundNumber}`;
+            this.game.uiManager.showOverlay('Battle Complete!', message, true);
         }
         
-        // Trigger game over
+        // Set game state to game over
         if (this.game) {
+            this.game.state = 'gameover';
             this.game.battleResults = results;
-            this.game.gameOver();
         }
     }
     
     showPlayerMessage(playerId, message) {
         // Show message above player's grid
         if (this.game.uiManager) {
-            const side = playerId === 'p1' ? 'left' : 'right';
-            this.game.uiManager.showSideMessage(message, side, 1000);
+            const playerName = playerId === 'p1' ? 'Player 1' : 'Player 2';
+            this.game.uiManager.showMessage(`${playerName}: ${message}`, 'info', 1000);
         }
     }
     
@@ -16213,37 +16715,240 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
                     
                     if (gridY >= 0 && gridY < grid.height &&
                         gridX >= 0 && gridX < grid.width) {
-                        grid.cells[gridY][gridX] = shape[row][col];
+                        // Use the piece type instead of the shape value
+                        grid.cells[gridY][gridX] = type;
                     }
                 }
             }
         }
     }
     
-    render(ctx) {
-        // This would need custom rendering for split-screen
-        // The main game.js render would need to be modified to support this
+    renderPlayer(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.ctx;
+        const canvas = player.canvas;
         
-        // For now, return render instructions
-        return {
-            mode: 'split-screen',
-            players: {
-                p1: {
-                    grid: this.players.p1.grid,
-                    currentPiece: this.players.p1.currentPiece,
-                    score: this.players.p1.score,
-                    lines: this.players.p1.lines,
-                    wins: this.players.p1.wins
-                },
-                p2: {
-                    grid: this.players.p2.grid,
-                    currentPiece: this.players.p2.currentPiece,
-                    score: this.players.p2.score,
-                    lines: this.players.p2.lines,
-                    wins: this.players.p2.wins
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const cellSize = canvas.width / 10;
+        
+        // Render grid (only visible rows, not hidden rows)
+        const visibleHeight = 20; // Only render the visible 20 rows, not the 4 hidden rows
+        for (let y = 4; y < player.grid.height; y++) { // Start from row 4 to skip hidden rows
+            for (let x = 0; x < player.grid.width; x++) {
+                if (player.grid.cells[y][x] !== null && player.grid.cells[y][x] !== 0) {
+                    this.renderCell(ctx, x, y - 4, player.grid.cells[y][x], cellSize);
                 }
             }
+        }
+        
+        // Render ghost piece
+        if (player.currentPiece && !player.ko) {
+            const ghostY = this.getGhostPieceY(playerId);
+            const piece = player.currentPiece;
+            const shape = piece.getCurrentShape();
+            
+            ctx.globalAlpha = 0.3;
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        // Adjust for hidden rows
+                        const renderY = ghostY + y - 4;
+                        if (renderY >= 0) {
+                            this.renderCell(ctx, piece.x + x, renderY, piece.type, cellSize);
+                        }
+                    }
+                }
+            }
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // Render current piece
+        if (player.currentPiece && !player.ko) {
+            const piece = player.currentPiece;
+            const shape = piece.getCurrentShape();
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        const pieceType = PIECE_TYPES[piece.type] ? piece.type : 1;
+                        // Adjust for hidden rows
+                        const renderY = piece.y + y - 4;
+                        if (renderY >= 0) {
+                            this.renderCell(ctx, piece.x + x, renderY, pieceType, cellSize);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Render grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 10; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * cellSize, 0);
+            ctx.lineTo(i * cellSize, canvas.height);
+            ctx.stroke();
+        }
+        for (let i = 0; i <= 20; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * cellSize);
+            ctx.lineTo(canvas.width, i * cellSize);
+            ctx.stroke();
+        }
+        
+        // Show KO overlay if player is defeated
+        if (player.ko) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('K.O.', canvas.width / 2, canvas.height / 2);
+        }
+        
+        // Render hold piece
+        this.renderHoldPiece(playerId);
+        
+        // Render next pieces
+        this.renderNextPieces(playerId);
+    }
+    
+    renderCell(ctx, x, y, type, cellSize) {
+        const colors = {
+            'I': '#00ffff', // I - Cyan
+            'J': '#0000ff', // J - Blue
+            'L': '#ff8800', // L - Orange
+            'O': '#ffff00', // O - Yellow
+            'S': '#00ff00', // S - Green
+            'T': '#ff00ff', // T - Purple
+            'Z': '#ff0000', // Z - Red
+            // Legacy number support for grid cells
+            1: '#00ffff',
+            2: '#0000ff',
+            3: '#ff8800',
+            4: '#ffff00',
+            5: '#00ff00',
+            6: '#ff00ff',
+            7: '#ff0000'
         };
+        
+        ctx.fillStyle = colors[type] || '#888';
+        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+        
+        // Add glow effect
+        ctx.shadowColor = colors[type] || '#888';
+        ctx.shadowBlur = 10;
+        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+        ctx.shadowBlur = 0;
+    }
+    
+    getGhostPieceY(playerId) {
+        const player = this.players[playerId];
+        if (!player.currentPiece) return 0;
+        
+        let testY = player.currentPiece.y;
+        const shape = player.currentPiece.getCurrentShape();
+        
+        while (this.isValidPosition(playerId, shape, player.currentPiece.x, testY + 1)) {
+            testY++;
+        }
+        
+        return testY;
+    }
+    
+    renderHoldPiece(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.holdCtx;
+        const canvas = player.holdCanvas;
+        
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if (player.holdPiece) {
+            const piece = player.holdPiece;
+            const shape = piece.getCurrentShape();
+            const cellSize = 16;
+            const offsetX = (canvas.width - shape[0].length * cellSize) / 2;
+            const offsetY = (canvas.height - shape.length * cellSize) / 2;
+            
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        this.renderCell(ctx, offsetX / cellSize + x, offsetY / cellSize + y, piece.type, cellSize);
+                    }
+                }
+            }
+        }
+    }
+    
+    renderNextPieces(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.nextCtx;
+        const canvas = player.nextCanvas;
+        
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Show next 3 pieces
+        for (let i = 0; i < 3 && i < player.nextPieces.length; i++) {
+            const pieceType = player.nextPieces[i];
+            const piece = new Piece(pieceType);
+            const shape = piece.getCurrentShape();
+            const cellSize = 14;
+            const offsetX = (canvas.width - shape[0].length * cellSize) / 2;
+            const offsetY = 10 + i * 65;
+            
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        this.renderCell(ctx, offsetX / cellSize + x, offsetY / cellSize + y, piece.type, cellSize);
+                    }
+                }
+            }
+        }
+    }
+    
+    updateBattle2PUI() {
+        // Update player 1 stats
+        const p1Score = document.getElementById('p1-score');
+        const p1Lines = document.getElementById('p1-lines');
+        const p1Level = document.getElementById('p1-level');
+        const p1Wins = document.getElementById('p1-wins');
+        if (p1Score) p1Score.textContent = this.players.p1.score;
+        if (p1Lines) p1Lines.textContent = this.players.p1.lines;
+        if (p1Level) p1Level.textContent = this.players.p1.level;
+        if (p1Wins) p1Wins.textContent = this.players.p1.wins;
+        
+        // Update player 2 stats
+        const p2Score = document.getElementById('p2-score');
+        const p2Lines = document.getElementById('p2-lines');
+        const p2Level = document.getElementById('p2-level');
+        const p2Wins = document.getElementById('p2-wins');
+        if (p2Score) p2Score.textContent = this.players.p2.score;
+        if (p2Lines) p2Lines.textContent = this.players.p2.lines;
+        if (p2Level) p2Level.textContent = this.players.p2.level;
+        if (p2Wins) p2Wins.textContent = this.players.p2.wins;
+        
+        // Update round number
+        const roundNumber = document.getElementById('round-number');
+        if (roundNumber) roundNumber.textContent = this.roundNumber;
+    }
+    
+    render(ctx) {
+        // Main canvas is hidden in Battle 2P mode
+        // Rendering is done in renderPlayer for each canvas
+        return null;
     }
     
     getObjective() {
@@ -16277,7 +16982,20 @@ window.Battle2PMode = class Battle2PMode extends GameMode {
     }
     
     cleanup() {
-        // Clean up any mode-specific resources
+        // Remove Battle 2P class from body
+        document.body.classList.remove('battle2p-active');
+        
+        // Restore single canvas display
+        const singleCanvas = document.getElementById('game-canvas');
+        if (singleCanvas) {
+            singleCanvas.style.display = 'block';
+        }
+        
+        // Hide dual canvas container
+        const battle2pContainer = document.getElementById('battle2p-container');
+        if (battle2pContainer) {
+            battle2pContainer.style.display = 'none';
+        }
     }
     
     getLeaderboardCategory() {
@@ -16330,10 +17048,20 @@ window.PowerUpMode = class PowerUpMode extends GameMode {
         // Set initial drop speed
         this.updateDropSpeed();
         
+        // Show power-up UI
+        const powerupUI = document.getElementById('powerup-ui');
+        if (powerupUI) {
+            powerupUI.style.display = 'block';
+        }
+        
+        // Initialize power-up slots display
+        this.powerUpManager.updateSlotDisplay(0);
+        this.powerUpManager.updateSlotDisplay(1);
+        
         // Show instructions
         if (this.game.uiManager) {
             this.game.uiManager.showMessage(
-                'Power-Up Mode! Press Q/E to use power-ups',
+                'Power-Up Mode! Press V/B to use power-ups',
                 'powerup',
                 3000
             );
@@ -16445,28 +17173,23 @@ window.PowerUpMode = class PowerUpMode extends GameMode {
     }
     
     getModeUI() {
-        return `
-            <div class="powerup-slots" id="powerup-slots">
-                <div class="powerup-slot" id="powerup-slot-0" data-slot="0">
-                    <div class="powerup-key">Q</div>
-                    <div class="powerup-empty">Empty</div>
-                </div>
-                <div class="powerup-slot" id="powerup-slot-1" data-slot="1">
-                    <div class="powerup-key">E</div>
-                    <div class="powerup-empty">Empty</div>
-                </div>
-            </div>
-            <div class="active-powerups" id="active-powerups"></div>
-        `;
+        return {
+            showScore: true,
+            showLines: true,
+            showLevel: true,
+            customDisplay: {
+                powerups: true  // Flag to indicate power-up UI should be created
+            }
+        };
     }
     
     handleKeyPress(key) {
         // Handle power-up activation
-        switch(key.toUpperCase()) {
-            case 'Q':
+        switch(key.toLowerCase()) {
+            case 'v':
                 this.powerUpManager.activatePowerUp(0);
                 return true;
-            case 'E':
+            case 'b':
                 this.powerUpManager.activatePowerUp(1);
                 return true;
         }
@@ -16506,6 +17229,17 @@ window.PowerUpMode = class PowerUpMode extends GameMode {
             stats: stats,
             showLeaderboard: true
         };
+    }
+    
+    cleanup() {
+        // Hide power-up UI
+        const powerupUI = document.getElementById('powerup-ui');
+        if (powerupUI) {
+            powerupUI.style.display = 'none';
+        }
+        
+        // Clear any active power-ups
+        this.powerUpManager.clearAll();
     }
     
     // Save/Load state for offline support
@@ -18581,6 +19315,7 @@ window.UIManager = class UIManager {
         if (!this.elements.overlay) return;
         
         this.elements.overlay.classList.remove('hidden');
+        this.elements.overlay.style.display = 'flex';
         
         if (this.elements.overlayTitle) {
             this.elements.overlayTitle.textContent = title;
@@ -18609,6 +19344,7 @@ window.UIManager = class UIManager {
     hideOverlay() {
         if (this.elements.overlay) {
             this.elements.overlay.classList.add('hidden');
+            this.elements.overlay.style.display = 'none';
         }
     }
     
@@ -18697,8 +19433,60 @@ window.UIManager = class UIManager {
             modeUIContainer.appendChild(puzzleNumElement);
         }
         
+        // Power-up UI is now handled in index.html and powerUpMode.js
+        // No need to create it dynamically here
+        
+        // Add Battle 2P mode display
+        if (customDisplay.mode === 'battle-2p') {
+            const battle2pInfoElement = document.createElement('div');
+            battle2pInfoElement.className = 'battle2p-info';
+            battle2pInfoElement.innerHTML = `
+                <div class="battle-round">Round ${customDisplay.round || 1}</div>
+                <div class="battle2p-wins">
+                    <div class="p1-wins">P1 Wins: ${customDisplay.p1Wins || 0}</div>
+                    <div class="vs-separator">VS</div>
+                    <div class="p2-wins">P2 Wins: ${customDisplay.p2Wins || 0}</div>
+                </div>
+            `;
+            modeUIContainer.appendChild(battle2pInfoElement);
+            
+            // Add CSS for battle 2p display
+            if (!document.getElementById('battle2p-mode-styles')) {
+                const style = document.createElement('style');
+                style.id = 'battle2p-mode-styles';
+                style.textContent = `
+                    .battle2p-info {
+                        background: rgba(255, 0, 255, 0.1);
+                        border: 2px solid #ff00ff;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+                    }
+                    .battle2p-wins {
+                        display: grid;
+                        grid-template-columns: 1fr auto 1fr;
+                        gap: 15px;
+                        align-items: center;
+                        text-align: center;
+                    }
+                    .p1-wins, .p2-wins {
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+                    }
+                    .p1-wins {
+                        color: #00ff00;
+                    }
+                    .p2-wins {
+                        color: #ff8800;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
         // Add Battle mode display (AI score, round info, etc.)
-        if (customDisplay.aiScore !== undefined || customDisplay.round) {
+        else if (customDisplay.aiScore !== undefined || (customDisplay.round && customDisplay.mode !== 'battle-2p')) {
             const battleInfoElement = document.createElement('div');
             battleInfoElement.className = 'battle-info';
             battleInfoElement.innerHTML = `
@@ -19581,6 +20369,33 @@ window.UIManager = class UIManager {
         this.particleSystem.destroy();
         this.animations.clear();
     }
+    
+    updatePowerUpUI() {
+        // Update power-up slots display
+        if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+            const manager = this.game.gameMode.powerUpManager;
+            
+            // Update slot displays
+            for (let i = 0; i < manager.slots.length; i++) {
+                manager.updateSlotDisplay(i);
+            }
+            
+            // Update active power-ups
+            manager.updateActivePowerUpsDisplay();
+        }
+    }
+    
+    initializePowerUpControls() {
+        // Add click handlers for power-up slots
+        document.querySelectorAll('.powerup-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                const slotIndex = parseInt(slot.dataset.slot);
+                if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+                    this.game.gameMode.powerUpManager.activatePowerUp(slotIndex);
+                }
+            });
+        });
+    }
 }
 
 // Particle System for Visual Effects
@@ -19770,33 +20585,6 @@ class ParticleSystem {
             cancelAnimationFrame(this.animationId);
         }
         this.particles = [];
-    }
-    
-    updatePowerUpUI() {
-        // Update power-up slots display
-        if (this.game.gameMode && this.game.gameMode.powerUpManager) {
-            const manager = this.game.gameMode.powerUpManager;
-            
-            // Update slot displays
-            for (let i = 0; i < manager.slots.length; i++) {
-                manager.updateSlotDisplay(i);
-            }
-            
-            // Update active power-ups
-            manager.updateActivePowerUpsDisplay();
-        }
-    }
-    
-    initializePowerUpControls() {
-        // Add click handlers for power-up slots
-        document.querySelectorAll('.powerup-slot').forEach(slot => {
-            slot.addEventListener('click', () => {
-                const slotIndex = parseInt(slot.dataset.slot);
-                if (this.game.gameMode && this.game.gameMode.powerUpManager) {
-                    this.game.gameMode.powerUpManager.activatePowerUp(slotIndex);
-                }
-            });
-        });
     }
 }
 })();
@@ -20080,6 +20868,11 @@ window.ModalManager = class ModalManager {
     
     backToHome() {
         if (this.game) {
+            // Clean up current game mode if it exists
+            if (this.game.gameMode && this.game.gameMode.cleanup) {
+                this.game.gameMode.cleanup();
+            }
+            
             // Stop game and music
             this.game.state = 'menu';
             this.game.audioManager.stopBackgroundMusic();
@@ -20354,6 +21147,7 @@ window.TetrisGame = class TetrisGame {
         this.lastTime = 0;
         this.dropTimer = 0;
         this.dropInterval = 1000; // 1 second initially
+        this.animationFrameId = null; // Track animation frame for proper cleanup
         
         // Scoring
         this.score = 0;
@@ -20447,9 +21241,16 @@ window.TetrisGame = class TetrisGame {
         let lastRenderTime = 0;
         const targetFPS = 60;
         const frameTime = 1000 / targetFPS;
+        const maxDeltaTime = 100; // Cap deltaTime to prevent huge jumps
         
         const gameLoop = (currentTime) => {
-            const deltaTime = currentTime - this.lastTime;
+            let deltaTime = currentTime - this.lastTime;
+            
+            // Cap deltaTime to prevent issues when returning to tab
+            if (deltaTime > maxDeltaTime) {
+                deltaTime = maxDeltaTime;
+            }
+            
             this.lastTime = currentTime;
             
             // Always update game logic
@@ -20461,10 +21262,12 @@ window.TetrisGame = class TetrisGame {
                 lastRenderTime = currentTime;
             }
             
-            requestAnimationFrame(gameLoop);
+            this.animationFrameId = requestAnimationFrame(gameLoop);
         };
         
-        requestAnimationFrame(gameLoop);
+        // Start the game loop
+        this.lastTime = performance.now();
+        this.animationFrameId = requestAnimationFrame(gameLoop);
     }
 
     update(deltaTime) {
@@ -20870,6 +21673,11 @@ window.TetrisGame = class TetrisGame {
 
     // Select and initialize game mode
     selectMode(modeName) {
+        // Clean up previous mode if it exists
+        if (this.gameMode && this.gameMode.cleanup) {
+            this.gameMode.cleanup();
+        }
+        
         this.currentModeName = modeName || 'classic';
         this.gameMode = this.modeSelector.createModeInstance(this.currentModeName, this);
         
@@ -20919,6 +21727,7 @@ window.TetrisGame = class TetrisGame {
     resume() {
         if (this.state === 'paused') {
             this.state = 'playing';
+            this.lastTime = performance.now(); // Reset timing to prevent huge deltaTime
             this.uiManager.hideOverlay();
         }
     }

@@ -33,6 +33,7 @@ export class TetrisGame {
         this.lastTime = 0;
         this.dropTimer = 0;
         this.dropInterval = 1000; // 1 second initially
+        this.animationFrameId = null; // Track animation frame for proper cleanup
         
         // Scoring
         this.score = 0;
@@ -126,9 +127,16 @@ export class TetrisGame {
         let lastRenderTime = 0;
         const targetFPS = 60;
         const frameTime = 1000 / targetFPS;
+        const maxDeltaTime = 100; // Cap deltaTime to prevent huge jumps
         
         const gameLoop = (currentTime) => {
-            const deltaTime = currentTime - this.lastTime;
+            let deltaTime = currentTime - this.lastTime;
+            
+            // Cap deltaTime to prevent issues when returning to tab
+            if (deltaTime > maxDeltaTime) {
+                deltaTime = maxDeltaTime;
+            }
+            
             this.lastTime = currentTime;
             
             // Always update game logic
@@ -140,10 +148,12 @@ export class TetrisGame {
                 lastRenderTime = currentTime;
             }
             
-            requestAnimationFrame(gameLoop);
+            this.animationFrameId = requestAnimationFrame(gameLoop);
         };
         
-        requestAnimationFrame(gameLoop);
+        // Start the game loop
+        this.lastTime = performance.now();
+        this.animationFrameId = requestAnimationFrame(gameLoop);
     }
 
     update(deltaTime) {
@@ -549,6 +559,11 @@ export class TetrisGame {
 
     // Select and initialize game mode
     selectMode(modeName) {
+        // Clean up previous mode if it exists
+        if (this.gameMode && this.gameMode.cleanup) {
+            this.gameMode.cleanup();
+        }
+        
         this.currentModeName = modeName || 'classic';
         this.gameMode = this.modeSelector.createModeInstance(this.currentModeName, this);
         
@@ -598,6 +613,7 @@ export class TetrisGame {
     resume() {
         if (this.state === 'paused') {
             this.state = 'playing';
+            this.lastTime = performance.now(); // Reset timing to prevent huge deltaTime
             this.uiManager.hideOverlay();
         }
     }

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Modern Tetris is a fully-featured, responsive web-based Tetris game built with vanilla JavaScript ES6 modules. It features neon graphics, dynamic audio, advanced touch controls, and Progressive Web App (PWA) capabilities with offline support.
 
-**Latest Version: 3.1.0** - Complete puzzle verification suite, auto-solver, difficulty analyzer, and comprehensive testing tools. All 150 puzzles verified as solvable.
+**Latest Version: 3.1.1** - Fixed Battle 2P mode issues: grid rendering with hidden rows, proper null/0 value handling, dedicated UI without AI references, and improved piece spawning.
 
 ## Architecture
 
@@ -305,7 +305,32 @@ No automated testing framework is currently implemented. Manual testing should f
 - Difficulty analysis based on solution complexity
 - Import/Export puzzle configurations as JSON
 
-## Version 2.0.0 Changes (Latest)
+## Version 3.1.1 Changes (Latest)
+
+### Battle 2P Mode Fixes
+1. **Grid Rendering Issues**:
+   - Fixed rendering of hidden rows (top 4 rows are now properly hidden)
+   - Pieces now spawn in hidden area (y=2) instead of visible area
+   - Adjusted render offsets for pieces and ghost pieces
+
+2. **Data Type Compatibility**:
+   - Fixed null vs 0 comparison issues between Grid class and Battle2P mode
+   - Grid uses `null` for empty cells, Battle2P now handles both `null` and `0`
+   - Proper initialization of grids using `new Grid()` without parameters
+
+3. **UI Improvements**:
+   - Removed "AI Normal" display from Battle 2P mode
+   - Added dedicated Battle 2P UI showing P1 and P2 wins
+   - Proper round tracking and display
+   - Fixed premature game ending issues
+
+4. **Gameplay Fixes**:
+   - Fixed piece initialization using `getCurrentShape()` instead of direct shape access
+   - Corrected rotation state management
+   - Fixed game over detection logic
+   - Improved piece placement and collision detection
+
+## Version 2.0.0 Changes
 
 ### Major UI/UX Improvements
 1. **New Home Screen**: 

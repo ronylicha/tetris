@@ -37,10 +37,20 @@ export class PowerUpMode extends GameMode {
         // Set initial drop speed
         this.updateDropSpeed();
         
+        // Show power-up UI
+        const powerupUI = document.getElementById('powerup-ui');
+        if (powerupUI) {
+            powerupUI.style.display = 'block';
+        }
+        
+        // Initialize power-up slots display
+        this.powerUpManager.updateSlotDisplay(0);
+        this.powerUpManager.updateSlotDisplay(1);
+        
         // Show instructions
         if (this.game.uiManager) {
             this.game.uiManager.showMessage(
-                'Power-Up Mode! Press Q/E to use power-ups',
+                'Power-Up Mode! Press V/B to use power-ups',
                 'powerup',
                 3000
             );
@@ -152,28 +162,23 @@ export class PowerUpMode extends GameMode {
     }
     
     getModeUI() {
-        return `
-            <div class="powerup-slots" id="powerup-slots">
-                <div class="powerup-slot" id="powerup-slot-0" data-slot="0">
-                    <div class="powerup-key">Q</div>
-                    <div class="powerup-empty">Empty</div>
-                </div>
-                <div class="powerup-slot" id="powerup-slot-1" data-slot="1">
-                    <div class="powerup-key">E</div>
-                    <div class="powerup-empty">Empty</div>
-                </div>
-            </div>
-            <div class="active-powerups" id="active-powerups"></div>
-        `;
+        return {
+            showScore: true,
+            showLines: true,
+            showLevel: true,
+            customDisplay: {
+                powerups: true  // Flag to indicate power-up UI should be created
+            }
+        };
     }
     
     handleKeyPress(key) {
         // Handle power-up activation
-        switch(key.toUpperCase()) {
-            case 'Q':
+        switch(key.toLowerCase()) {
+            case 'v':
                 this.powerUpManager.activatePowerUp(0);
                 return true;
-            case 'E':
+            case 'b':
                 this.powerUpManager.activatePowerUp(1);
                 return true;
         }
@@ -213,6 +218,17 @@ export class PowerUpMode extends GameMode {
             stats: stats,
             showLeaderboard: true
         };
+    }
+    
+    cleanup() {
+        // Hide power-up UI
+        const powerupUI = document.getElementById('powerup-ui');
+        if (powerupUI) {
+            powerupUI.style.display = 'none';
+        }
+        
+        // Clear any active power-ups
+        this.powerUpManager.clearAll();
     }
     
     // Save/Load state for offline support

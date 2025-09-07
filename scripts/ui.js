@@ -250,6 +250,7 @@ export class UIManager {
         if (!this.elements.overlay) return;
         
         this.elements.overlay.classList.remove('hidden');
+        this.elements.overlay.style.display = 'flex';
         
         if (this.elements.overlayTitle) {
             this.elements.overlayTitle.textContent = title;
@@ -278,6 +279,7 @@ export class UIManager {
     hideOverlay() {
         if (this.elements.overlay) {
             this.elements.overlay.classList.add('hidden');
+            this.elements.overlay.style.display = 'none';
         }
     }
     
@@ -366,8 +368,60 @@ export class UIManager {
             modeUIContainer.appendChild(puzzleNumElement);
         }
         
+        // Power-up UI is now handled in index.html and powerUpMode.js
+        // No need to create it dynamically here
+        
+        // Add Battle 2P mode display
+        if (customDisplay.mode === 'battle-2p') {
+            const battle2pInfoElement = document.createElement('div');
+            battle2pInfoElement.className = 'battle2p-info';
+            battle2pInfoElement.innerHTML = `
+                <div class="battle-round">Round ${customDisplay.round || 1}</div>
+                <div class="battle2p-wins">
+                    <div class="p1-wins">P1 Wins: ${customDisplay.p1Wins || 0}</div>
+                    <div class="vs-separator">VS</div>
+                    <div class="p2-wins">P2 Wins: ${customDisplay.p2Wins || 0}</div>
+                </div>
+            `;
+            modeUIContainer.appendChild(battle2pInfoElement);
+            
+            // Add CSS for battle 2p display
+            if (!document.getElementById('battle2p-mode-styles')) {
+                const style = document.createElement('style');
+                style.id = 'battle2p-mode-styles';
+                style.textContent = `
+                    .battle2p-info {
+                        background: rgba(255, 0, 255, 0.1);
+                        border: 2px solid #ff00ff;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+                    }
+                    .battle2p-wins {
+                        display: grid;
+                        grid-template-columns: 1fr auto 1fr;
+                        gap: 15px;
+                        align-items: center;
+                        text-align: center;
+                    }
+                    .p1-wins, .p2-wins {
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+                    }
+                    .p1-wins {
+                        color: #00ff00;
+                    }
+                    .p2-wins {
+                        color: #ff8800;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
         // Add Battle mode display (AI score, round info, etc.)
-        if (customDisplay.aiScore !== undefined || customDisplay.round) {
+        else if (customDisplay.aiScore !== undefined || (customDisplay.round && customDisplay.mode !== 'battle-2p')) {
             const battleInfoElement = document.createElement('div');
             battleInfoElement.className = 'battle-info';
             battleInfoElement.innerHTML = `
@@ -1250,6 +1304,33 @@ export class UIManager {
         this.particleSystem.destroy();
         this.animations.clear();
     }
+    
+    updatePowerUpUI() {
+        // Update power-up slots display
+        if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+            const manager = this.game.gameMode.powerUpManager;
+            
+            // Update slot displays
+            for (let i = 0; i < manager.slots.length; i++) {
+                manager.updateSlotDisplay(i);
+            }
+            
+            // Update active power-ups
+            manager.updateActivePowerUpsDisplay();
+        }
+    }
+    
+    initializePowerUpControls() {
+        // Add click handlers for power-up slots
+        document.querySelectorAll('.powerup-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                const slotIndex = parseInt(slot.dataset.slot);
+                if (this.game.gameMode && this.game.gameMode.powerUpManager) {
+                    this.game.gameMode.powerUpManager.activatePowerUp(slotIndex);
+                }
+            });
+        });
+    }
 }
 
 // Particle System for Visual Effects
@@ -1439,32 +1520,5 @@ class ParticleSystem {
             cancelAnimationFrame(this.animationId);
         }
         this.particles = [];
-    }
-    
-    updatePowerUpUI() {
-        // Update power-up slots display
-        if (this.game.gameMode && this.game.gameMode.powerUpManager) {
-            const manager = this.game.gameMode.powerUpManager;
-            
-            // Update slot displays
-            for (let i = 0; i < manager.slots.length; i++) {
-                manager.updateSlotDisplay(i);
-            }
-            
-            // Update active power-ups
-            manager.updateActivePowerUpsDisplay();
-        }
-    }
-    
-    initializePowerUpControls() {
-        // Add click handlers for power-up slots
-        document.querySelectorAll('.powerup-slot').forEach(slot => {
-            slot.addEventListener('click', () => {
-                const slotIndex = parseInt(slot.dataset.slot);
-                if (this.game.gameMode && this.game.gameMode.powerUpManager) {
-                    this.game.gameMode.powerUpManager.activatePowerUp(slotIndex);
-                }
-            });
-        });
     }
 }

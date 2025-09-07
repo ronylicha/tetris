@@ -158,6 +158,15 @@ export class InputManager {
             return;
         }
         
+        // First, check if the game mode wants to handle this key
+        if (this.game && this.game.gameMode && this.game.gameMode.handleKeyPress) {
+            const key = e.key;
+            if (this.game.gameMode.handleKeyPress(key)) {
+                e.preventDefault();
+                return; // Mode handled the key
+            }
+        }
+        
         const action = this.keyBindings[e.code];
         if (!action) return;
         
@@ -360,15 +369,10 @@ export class InputManager {
         this.stopContinuousDrop();
         this.resetTouchControls();
         
-        // Auto-pause if game is active and mute audio
+        // Auto-pause if game is active
         if (this.game && this.game.state === 'playing') {
             this.game.pause();
             this.wasAutoPaused = true; // Flag to remember this was auto-paused
-        }
-        
-        // Mute audio when window loses focus
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.setMasterMute(true);
         }
     }
 
@@ -381,11 +385,6 @@ export class InputManager {
         this.firstPress.right = false;
         this.firstPress.down = false;
         
-        // Restore audio when window regains focus
-        if (this.game && this.game.audioManager) {
-            this.game.audioManager.setMasterMute(false);
-        }
-        
         // Note: We don't auto-resume the game to let the user decide when to continue
         // The game will remain paused and can be resumed with P key or touch
         this.wasAutoPaused = false;
@@ -394,10 +393,37 @@ export class InputManager {
     handleVisibilityChange() {
         if (document.hidden) {
             // Page is now hidden (mobile browser switching, etc.)
-            this.handleWindowBlur();
+            // Clear all keys when page becomes hidden
+            this.keys = {};
+            this.das.leftTime = 0;
+            this.das.rightTime = 0;
+            this.das.downTime = 0;
+            this.firstPress.left = false;
+            this.firstPress.right = false;
+            this.firstPress.down = false;
+            
+            // Stop any continuous touch actions
+            this.stopContinuousDrop();
+            this.resetTouchControls();
+            
+            // Auto-pause if game is active
+            if (this.game && this.game.state === 'playing') {
+                this.game.pause();
+                this.wasAutoPaused = true;
+            }
         } else {
             // Page is now visible
-            this.handleWindowFocus();
+            // Clear keys to prevent stuck keys
+            this.keys = {};
+            this.das.leftTime = 0;
+            this.das.rightTime = 0;
+            this.das.downTime = 0;
+            this.firstPress.left = false;
+            this.firstPress.right = false;
+            this.firstPress.down = false;
+            
+            // Note: Don't auto-resume - let user manually resume
+            this.wasAutoPaused = false;
         }
     }
 

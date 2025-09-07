@@ -2,6 +2,13 @@
 
 /* Mobile First Approach */
 
+/* Hide desktop-only elements on mobile */
+@media (max-width: 767px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
 /* Small Mobile Devices (320px - 480px) */
 @media (max-width: 480px) {
     .app {
@@ -801,6 +808,28 @@
     .mode-selector {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* Battle 2P specific responsive adjustments */
+.battle2p-active .game-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 0;
+}
+
+.battle2p-active #game-canvas {
+    display: none !important;
+}
+
+.battle2p-active .game-sidebar {
+    display: none !important;
+}
+
+.battle2p-active .info-panel,
+.battle2p-active .next-panel {
+    display: none !important;
 }
 
 /* Print Styles */

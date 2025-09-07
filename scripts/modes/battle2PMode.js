@@ -1,7 +1,7 @@
 // Local 2-Player Battle Mode
 import { GameMode } from './gameMode.js';
 import { Grid } from '../grid.js';
-import { Piece } from '../pieces.js';
+import { Piece, PIECE_TYPES } from '../pieces.js';
 
 export class Battle2PMode extends GameMode {
     constructor(game) {
@@ -106,13 +106,24 @@ export class Battle2PMode extends GameMode {
     }
     
     async initialize() {
-        // Create grids for both players
-        this.players.p1.grid = new Grid(10, 20);
-        this.players.p2.grid = new Grid(10, 20);
+        // Setup dual canvas display
+        this.setupDualCanvas();
         
-        // Initialize pieces for both players
+        // Create grids for both players
+        this.players.p1.grid = new Grid();
+        this.players.p2.grid = new Grid();
+        
+        // Reset wins for new battle
+        this.players.p1.wins = 0;
+        this.players.p2.wins = 0;
+        
+        // Initialize both players
         this.initializePlayer('p1');
         this.initializePlayer('p2');
+        
+        // Make sure the battle is not over
+        this.battleOver = false;
+        this.roundNumber = 1;
         
         // Start round
         this.startRound();
@@ -124,6 +135,51 @@ export class Battle2PMode extends GameMode {
                 'info',
                 3000
             );
+        }
+    }
+    
+    setupDualCanvas() {
+        // Add class to body to activate Battle 2P styles
+        document.body.classList.add('battle2p-active');
+        
+        // Show dual canvas container
+        const battle2pContainer = document.getElementById('battle2p-container');
+        if (battle2pContainer) {
+            battle2pContainer.style.display = 'flex';
+        }
+        
+        // Setup player 1 canvases
+        this.players.p1.canvas = document.getElementById('p1-canvas');
+        this.players.p1.holdCanvas = document.getElementById('p1-hold-canvas');
+        this.players.p1.nextCanvas = document.getElementById('p1-next-canvas');
+        
+        if (this.players.p1.canvas) {
+            this.players.p1.ctx = this.players.p1.canvas.getContext('2d');
+            this.players.p1.canvas.width = 250;
+            this.players.p1.canvas.height = 500;
+        }
+        if (this.players.p1.holdCanvas) {
+            this.players.p1.holdCtx = this.players.p1.holdCanvas.getContext('2d');
+        }
+        if (this.players.p1.nextCanvas) {
+            this.players.p1.nextCtx = this.players.p1.nextCanvas.getContext('2d');
+        }
+        
+        // Setup player 2 canvases
+        this.players.p2.canvas = document.getElementById('p2-canvas');
+        this.players.p2.holdCanvas = document.getElementById('p2-hold-canvas');
+        this.players.p2.nextCanvas = document.getElementById('p2-next-canvas');
+        
+        if (this.players.p2.canvas) {
+            this.players.p2.ctx = this.players.p2.canvas.getContext('2d');
+            this.players.p2.canvas.width = 250;
+            this.players.p2.canvas.height = 500;
+        }
+        if (this.players.p2.holdCanvas) {
+            this.players.p2.holdCtx = this.players.p2.holdCanvas.getContext('2d');
+        }
+        if (this.players.p2.nextCanvas) {
+            this.players.p2.nextCtx = this.players.p2.nextCanvas.getContext('2d');
         }
     }
     
@@ -139,15 +195,24 @@ export class Battle2PMode extends GameMode {
         player.attacks = [];
         player.defenses = [];
         player.ko = false;
+        player.dropTimer = 0;
+        player.holdPiece = null;
+        player.canHold = true;
+        
+        // Clear the grid properly
+        if (player.grid) {
+            player.grid.reset();
+        }
         
         // Generate piece bag
         player.nextPieces = this.generatePieceBag();
         player.currentPiece = this.getNextPiece(playerId);
         
-        // Position piece
+        // Position piece (start in hidden area)
         if (player.currentPiece) {
-            player.currentPiece.x = Math.floor((10 - player.currentPiece.shape[0].length) / 2);
-            player.currentPiece.y = 0;
+            const shape = player.currentPiece.getCurrentShape();
+            player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+            player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
         }
     }
     
@@ -155,16 +220,28 @@ export class Battle2PMode extends GameMode {
         this.roundStartTime = Date.now();
         
         // Clear grids
-        this.players.p1.grid.clear();
-        this.players.p2.grid.clear();
+        this.players.p1.grid.reset();
+        this.players.p2.grid.reset();
         
-        // Reset round-specific stats
+        // Reset round-specific stats and pieces
         ['p1', 'p2'].forEach(playerId => {
             const player = this.players[playerId];
             player.stats.piecesPlaced = 0;
             player.stats.linesCleared = 0;
             player.stats.attacks = 0;
             player.stats.defenses = 0;
+            player.ko = false;
+            
+            // Generate new pieces for the round
+            player.nextPieces = this.generatePieceBag();
+            player.currentPiece = this.getNextPiece(playerId);
+            
+            // Position piece (start in hidden area)
+            if (player.currentPiece) {
+                const shape = player.currentPiece.getCurrentShape();
+                player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+                player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
+            }
         });
         
         // Announce round
@@ -187,6 +264,13 @@ export class Battle2PMode extends GameMode {
         // Process garbage queue
         this.processGarbage('p1');
         this.processGarbage('p2');
+        
+        // Render both players
+        this.renderPlayer('p1');
+        this.renderPlayer('p2');
+        
+        // Update UI
+        this.updateBattle2PUI();
         
         // Check round timer
         if (this.roundTimer > 0) {
@@ -218,26 +302,26 @@ export class Battle2PMode extends GameMode {
             this.movePlayerPiece(playerId, 0, 1);
         }
         
-        // Check for topped out
-        if (this.isPlayerToppedOut(playerId)) {
-            player.ko = true;
-        }
+        // Check for topped out only when piece is locked
+        // Not during regular updates to avoid false positives
     }
     
-    handleInput(event) {
+    handleKeyPress(key) {
         // Handle P1 controls
-        if (this.handlePlayerInput('p1', event.key)) {
-            event.preventDefault();
+        if (this.handlePlayerInput('p1', key)) {
             return true;
         }
         
         // Handle P2 controls
-        if (this.handlePlayerInput('p2', event.key)) {
-            event.preventDefault();
+        if (this.handlePlayerInput('p2', key)) {
             return true;
         }
         
         return false;
+    }
+    
+    handleInput(event) {
+        return this.handleKeyPress(event.key);
     }
     
     handlePlayerInput(playerId, key) {
@@ -287,8 +371,9 @@ export class Battle2PMode extends GameMode {
         // Check if move is valid
         const newX = player.currentPiece.x + dx;
         const newY = player.currentPiece.y + dy;
+        const shape = player.currentPiece.getCurrentShape();
         
-        if (this.isValidPosition(playerId, player.currentPiece.shape, newX, newY)) {
+        if (this.isValidPosition(playerId, shape, newX, newY)) {
             player.currentPiece.x = newX;
             player.currentPiece.y = newY;
             return true;
@@ -305,7 +390,8 @@ export class Battle2PMode extends GameMode {
         if (!player.currentPiece) return false;
         
         // Rotate shape
-        const rotated = this.rotateMatrix(player.currentPiece.shape, direction);
+        const currentShape = player.currentPiece.getCurrentShape();
+        const rotated = this.rotateMatrix(currentShape, direction);
         
         // Try wall kicks
         const kicks = this.getWallKicks(player.currentPiece.type, direction);
@@ -315,7 +401,8 @@ export class Battle2PMode extends GameMode {
             const newY = player.currentPiece.y + dy;
             
             if (this.isValidPosition(playerId, rotated, newX, newY)) {
-                player.currentPiece.shape = rotated;
+                // Update rotation state instead of shape directly
+                player.currentPiece.rotation = (player.currentPiece.rotation + direction + 4) % 4;
                 player.currentPiece.x = newX;
                 player.currentPiece.y = newY;
                 return true;
@@ -354,10 +441,11 @@ export class Battle2PMode extends GameMode {
             player.currentPiece = this.getNextPiece(playerId);
         }
         
-        // Reset position
+        // Reset position (start in hidden area)
         if (player.currentPiece) {
-            player.currentPiece.x = Math.floor((10 - player.currentPiece.shape[0].length) / 2);
-            player.currentPiece.y = 0;
+            const shape = player.currentPiece.getCurrentShape();
+            player.currentPiece.x = Math.floor((10 - shape[0].length) / 2);
+            player.currentPiece.y = 2; // Start in hidden rows (y=2 gives some buffer)
         }
         
         player.canHold = false;
@@ -369,9 +457,10 @@ export class Battle2PMode extends GameMode {
         if (!player.currentPiece) return;
         
         // Place piece on grid
+        const shape = player.currentPiece.getCurrentShape();
         this.placePieceOnGrid(
             player.grid,
-            player.currentPiece.shape,
+            shape,
             player.currentPiece.x,
             player.currentPiece.y,
             player.currentPiece.type
@@ -389,6 +478,22 @@ export class Battle2PMode extends GameMode {
         
         // Reset drop timer
         player.dropTimer = 0;
+        
+        // Check if the new piece can be placed (game over check)
+        if (player.currentPiece) {
+            const shape = player.currentPiece.getCurrentShape();
+            const startX = Math.floor((10 - shape[0].length) / 2);
+            const startY = 2; // Check in hidden area where pieces spawn
+            
+            if (!this.isValidPosition(playerId, shape, startX, startY)) {
+                // Player is topped out
+                player.ko = true;
+            } else {
+                // Position the new piece
+                player.currentPiece.x = startX;
+                player.currentPiece.y = startY;
+            }
+        }
     }
     
     checkLineClears(playerId) {
@@ -399,7 +504,7 @@ export class Battle2PMode extends GameMode {
         for (let y = player.grid.height - 1; y >= 0; y--) {
             let complete = true;
             for (let x = 0; x < player.grid.width; x++) {
-                if (player.grid.cells[y][x] === 0) {
+                if (player.grid.cells[y][x] === null || player.grid.cells[y][x] === 0) {
                     complete = false;
                     break;
                 }
@@ -414,7 +519,7 @@ export class Battle2PMode extends GameMode {
             // Clear the lines
             clearedLines.forEach(y => {
                 player.grid.cells.splice(y, 1);
-                player.grid.cells.unshift(new Array(player.grid.width).fill(0));
+                player.grid.cells.unshift(new Array(player.grid.width).fill(null));
             });
             
             // Update stats
@@ -515,7 +620,7 @@ export class Battle2PMode extends GameMode {
             
             // Add one random hole
             const holePosition = Math.floor(Math.random() * player.grid.width);
-            garbageLine[holePosition] = 0;
+            garbageLine[holePosition] = null;
             
             player.grid.cells.push(garbageLine);
         }
@@ -540,7 +645,7 @@ export class Battle2PMode extends GameMode {
                     }
                     
                     // Check collision
-                    if (player.grid.cells[gridY][gridX] !== 0) {
+                    if (player.grid.cells[gridY][gridX] !== null && player.grid.cells[gridY][gridX] !== 0) {
                         return false;
                     }
                 }
@@ -549,24 +654,11 @@ export class Battle2PMode extends GameMode {
         return true;
     }
     
-    isPlayerToppedOut(playerId) {
-        const player = this.players[playerId];
-        
-        // Check if any blocks in top 2 rows
-        for (let y = 0; y < 2; y++) {
-            for (let x = 0; x < player.grid.width; x++) {
-                if (player.grid.cells[y][x] !== 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     
     isGridEmpty(grid) {
         for (let y = 0; y < grid.height; y++) {
             for (let x = 0; x < grid.width; x++) {
-                if (grid.cells[y][x] !== 0) {
+                if (grid.cells[y][x] !== null && grid.cells[y][x] !== 0) {
                     return false;
                 }
             }
@@ -625,6 +717,8 @@ export class Battle2PMode extends GameMode {
         
         const winnerName = winnerId === 'p1' ? 'Player 1' : 'Player 2';
         const loserName = winnerId === 'p1' ? 'Player 2' : 'Player 1';
+        const winnerScore = winnerId === 'p1' ? this.players.p1.score : this.players.p2.score;
+        const loserScore = winnerId === 'p1' ? this.players.p2.score : this.players.p1.score;
         
         // Calculate final stats
         const results = {
@@ -639,21 +733,22 @@ export class Battle2PMode extends GameMode {
         
         // Show victory screen
         if (this.game.uiManager) {
-            this.game.uiManager.showBattleVictory(results);
+            const message = `${winnerName} WINS!\n\nFinal Score:\n${winnerName}: ${winnerScore}\n${loserName}: ${loserScore}\n\nRounds played: ${this.roundNumber}`;
+            this.game.uiManager.showOverlay('Battle Complete!', message, true);
         }
         
-        // Trigger game over
+        // Set game state to game over
         if (this.game) {
+            this.game.state = 'gameover';
             this.game.battleResults = results;
-            this.game.gameOver();
         }
     }
     
     showPlayerMessage(playerId, message) {
         // Show message above player's grid
         if (this.game.uiManager) {
-            const side = playerId === 'p1' ? 'left' : 'right';
-            this.game.uiManager.showSideMessage(message, side, 1000);
+            const playerName = playerId === 'p1' ? 'Player 1' : 'Player 2';
+            this.game.uiManager.showMessage(`${playerName}: ${message}`, 'info', 1000);
         }
     }
     
@@ -723,37 +818,240 @@ export class Battle2PMode extends GameMode {
                     
                     if (gridY >= 0 && gridY < grid.height &&
                         gridX >= 0 && gridX < grid.width) {
-                        grid.cells[gridY][gridX] = shape[row][col];
+                        // Use the piece type instead of the shape value
+                        grid.cells[gridY][gridX] = type;
                     }
                 }
             }
         }
     }
     
-    render(ctx) {
-        // This would need custom rendering for split-screen
-        // The main game.js render would need to be modified to support this
+    renderPlayer(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.ctx;
+        const canvas = player.canvas;
         
-        // For now, return render instructions
-        return {
-            mode: 'split-screen',
-            players: {
-                p1: {
-                    grid: this.players.p1.grid,
-                    currentPiece: this.players.p1.currentPiece,
-                    score: this.players.p1.score,
-                    lines: this.players.p1.lines,
-                    wins: this.players.p1.wins
-                },
-                p2: {
-                    grid: this.players.p2.grid,
-                    currentPiece: this.players.p2.currentPiece,
-                    score: this.players.p2.score,
-                    lines: this.players.p2.lines,
-                    wins: this.players.p2.wins
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const cellSize = canvas.width / 10;
+        
+        // Render grid (only visible rows, not hidden rows)
+        const visibleHeight = 20; // Only render the visible 20 rows, not the 4 hidden rows
+        for (let y = 4; y < player.grid.height; y++) { // Start from row 4 to skip hidden rows
+            for (let x = 0; x < player.grid.width; x++) {
+                if (player.grid.cells[y][x] !== null && player.grid.cells[y][x] !== 0) {
+                    this.renderCell(ctx, x, y - 4, player.grid.cells[y][x], cellSize);
                 }
             }
+        }
+        
+        // Render ghost piece
+        if (player.currentPiece && !player.ko) {
+            const ghostY = this.getGhostPieceY(playerId);
+            const piece = player.currentPiece;
+            const shape = piece.getCurrentShape();
+            
+            ctx.globalAlpha = 0.3;
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        // Adjust for hidden rows
+                        const renderY = ghostY + y - 4;
+                        if (renderY >= 0) {
+                            this.renderCell(ctx, piece.x + x, renderY, piece.type, cellSize);
+                        }
+                    }
+                }
+            }
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // Render current piece
+        if (player.currentPiece && !player.ko) {
+            const piece = player.currentPiece;
+            const shape = piece.getCurrentShape();
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        const pieceType = PIECE_TYPES[piece.type] ? piece.type : 1;
+                        // Adjust for hidden rows
+                        const renderY = piece.y + y - 4;
+                        if (renderY >= 0) {
+                            this.renderCell(ctx, piece.x + x, renderY, pieceType, cellSize);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Render grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 10; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * cellSize, 0);
+            ctx.lineTo(i * cellSize, canvas.height);
+            ctx.stroke();
+        }
+        for (let i = 0; i <= 20; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, i * cellSize);
+            ctx.lineTo(canvas.width, i * cellSize);
+            ctx.stroke();
+        }
+        
+        // Show KO overlay if player is defeated
+        if (player.ko) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('K.O.', canvas.width / 2, canvas.height / 2);
+        }
+        
+        // Render hold piece
+        this.renderHoldPiece(playerId);
+        
+        // Render next pieces
+        this.renderNextPieces(playerId);
+    }
+    
+    renderCell(ctx, x, y, type, cellSize) {
+        const colors = {
+            'I': '#00ffff', // I - Cyan
+            'J': '#0000ff', // J - Blue
+            'L': '#ff8800', // L - Orange
+            'O': '#ffff00', // O - Yellow
+            'S': '#00ff00', // S - Green
+            'T': '#ff00ff', // T - Purple
+            'Z': '#ff0000', // Z - Red
+            // Legacy number support for grid cells
+            1: '#00ffff',
+            2: '#0000ff',
+            3: '#ff8800',
+            4: '#ffff00',
+            5: '#00ff00',
+            6: '#ff00ff',
+            7: '#ff0000'
         };
+        
+        ctx.fillStyle = colors[type] || '#888';
+        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+        
+        // Add glow effect
+        ctx.shadowColor = colors[type] || '#888';
+        ctx.shadowBlur = 10;
+        ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+        ctx.shadowBlur = 0;
+    }
+    
+    getGhostPieceY(playerId) {
+        const player = this.players[playerId];
+        if (!player.currentPiece) return 0;
+        
+        let testY = player.currentPiece.y;
+        const shape = player.currentPiece.getCurrentShape();
+        
+        while (this.isValidPosition(playerId, shape, player.currentPiece.x, testY + 1)) {
+            testY++;
+        }
+        
+        return testY;
+    }
+    
+    renderHoldPiece(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.holdCtx;
+        const canvas = player.holdCanvas;
+        
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if (player.holdPiece) {
+            const piece = player.holdPiece;
+            const shape = piece.getCurrentShape();
+            const cellSize = 16;
+            const offsetX = (canvas.width - shape[0].length * cellSize) / 2;
+            const offsetY = (canvas.height - shape.length * cellSize) / 2;
+            
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        this.renderCell(ctx, offsetX / cellSize + x, offsetY / cellSize + y, piece.type, cellSize);
+                    }
+                }
+            }
+        }
+    }
+    
+    renderNextPieces(playerId) {
+        const player = this.players[playerId];
+        const ctx = player.nextCtx;
+        const canvas = player.nextCanvas;
+        
+        if (!ctx || !canvas) return;
+        
+        // Clear canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Show next 3 pieces
+        for (let i = 0; i < 3 && i < player.nextPieces.length; i++) {
+            const pieceType = player.nextPieces[i];
+            const piece = new Piece(pieceType);
+            const shape = piece.getCurrentShape();
+            const cellSize = 14;
+            const offsetX = (canvas.width - shape[0].length * cellSize) / 2;
+            const offsetY = 10 + i * 65;
+            
+            for (let y = 0; y < shape.length; y++) {
+                for (let x = 0; x < shape[y].length; x++) {
+                    if (shape[y][x] !== 0) {
+                        this.renderCell(ctx, offsetX / cellSize + x, offsetY / cellSize + y, piece.type, cellSize);
+                    }
+                }
+            }
+        }
+    }
+    
+    updateBattle2PUI() {
+        // Update player 1 stats
+        const p1Score = document.getElementById('p1-score');
+        const p1Lines = document.getElementById('p1-lines');
+        const p1Level = document.getElementById('p1-level');
+        const p1Wins = document.getElementById('p1-wins');
+        if (p1Score) p1Score.textContent = this.players.p1.score;
+        if (p1Lines) p1Lines.textContent = this.players.p1.lines;
+        if (p1Level) p1Level.textContent = this.players.p1.level;
+        if (p1Wins) p1Wins.textContent = this.players.p1.wins;
+        
+        // Update player 2 stats
+        const p2Score = document.getElementById('p2-score');
+        const p2Lines = document.getElementById('p2-lines');
+        const p2Level = document.getElementById('p2-level');
+        const p2Wins = document.getElementById('p2-wins');
+        if (p2Score) p2Score.textContent = this.players.p2.score;
+        if (p2Lines) p2Lines.textContent = this.players.p2.lines;
+        if (p2Level) p2Level.textContent = this.players.p2.level;
+        if (p2Wins) p2Wins.textContent = this.players.p2.wins;
+        
+        // Update round number
+        const roundNumber = document.getElementById('round-number');
+        if (roundNumber) roundNumber.textContent = this.roundNumber;
+    }
+    
+    render(ctx) {
+        // Main canvas is hidden in Battle 2P mode
+        // Rendering is done in renderPlayer for each canvas
+        return null;
     }
     
     getObjective() {
@@ -787,7 +1085,20 @@ export class Battle2PMode extends GameMode {
     }
     
     cleanup() {
-        // Clean up any mode-specific resources
+        // Remove Battle 2P class from body
+        document.body.classList.remove('battle2p-active');
+        
+        // Restore single canvas display
+        const singleCanvas = document.getElementById('game-canvas');
+        if (singleCanvas) {
+            singleCanvas.style.display = 'block';
+        }
+        
+        // Hide dual canvas container
+        const battle2pContainer = document.getElementById('battle2p-container');
+        if (battle2pContainer) {
+            battle2pContainer.style.display = 'none';
+        }
     }
     
     getLeaderboardCategory() {
