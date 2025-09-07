@@ -318,15 +318,6 @@ export class InputManager {
 
     handleCanvasClick(e) {
         // Handle canvas clicks for piece placement or rotation
-        const rect = e.target.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Convert to grid coordinates
-        const cellSize = rect.width / 10; // Assuming 10 columns
-        const gridX = Math.floor(x / cellSize);
-        const gridY = Math.floor(y / cellSize);
-        
         // For now, just rotate on click
         this.executeAction('rotateClockwise');
     }
@@ -633,7 +624,7 @@ export class InputManager {
                 e.stopPropagation();
             }, { passive: false });
             
-            button.addEventListener('touchcancel', (e) => {
+            button.addEventListener('touchcancel', () => {
                 button.classList.remove('touch-active');
             });
         });
