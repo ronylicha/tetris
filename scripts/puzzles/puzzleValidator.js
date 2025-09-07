@@ -362,13 +362,13 @@ export class PuzzleValidator {
     calculateMaxPossibleLines(puzzle) {
         // Count how many complete lines could theoretically be made
         let possibleLines = 0;
+        let totalBlocks = puzzle.pieces.length * 4; // Changed from const to let
         
         for (let row = GRID_HEIGHT - 1; row >= 0; row--) {
             const filledCount = puzzle.grid[row].filter(cell => cell !== 0).length;
             const emptyCount = GRID_WIDTH - filledCount;
             
             // Can we fill this line with available pieces?
-            const totalBlocks = puzzle.pieces.length * 4;
             if (emptyCount <= totalBlocks) {
                 possibleLines++;
                 // Subtract blocks used for this line from total
