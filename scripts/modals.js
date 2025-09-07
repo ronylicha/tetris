@@ -268,15 +268,15 @@ export class ModalManager {
             this.hideModeSelector();
             
             // Show puzzle selection menu for puzzle mode
-            if (modeName === 'puzzle' && this.game.ui) {
+            if (modeName === 'puzzle' && this.game.uiManager) {
                 setTimeout(() => {
-                    this.game.ui.showPuzzleSelection();
+                    this.game.uiManager.showPuzzleSelection();
                 }, 100);
             } 
             // Show AI difficulty selection for battle mode
-            else if (modeName === 'battle' && this.game.ui) {
+            else if (modeName === 'battle' && this.game.uiManager) {
                 setTimeout(() => {
-                    this.game.ui.showAIDifficultySelection((difficulty) => {
+                    this.game.uiManager.showAIDifficultySelection((difficulty) => {
                         // Restart game with selected difficulty
                         this.game.restart();
                     });

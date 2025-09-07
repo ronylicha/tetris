@@ -529,8 +529,8 @@ export class PuzzleMode extends GameMode {
     getObjective() {
         if (!this.currentPuzzle) return 'Select a puzzle';
         
-        // Return a clear description of what the player needs to do
-        return this.currentPuzzle.name || this.currentPuzzle.description || 'Complete the objective';
+        // Return the current objective with progress
+        return this.getObjectiveProgress();
     }
 
     getModeUI() {
@@ -543,11 +543,12 @@ export class PuzzleMode extends GameMode {
             showTimer: this.currentPuzzle && this.currentPuzzle.timeLimit > 0,
             showObjective: true,
             customDisplay: this.currentPuzzle ? {
-                puzzle: `#${this.currentPuzzle.id}`,
-                pieces: this.currentPuzzle.maxPieces > 0 ? 
-                    `${this.usedPieces}/${this.currentPuzzle.maxPieces}` : 
-                    `${this.usedPieces}`,
-                objective: this.getObjectiveProgress()
+                puzzle: `#${this.currentPuzzle.id}: ${this.currentPuzzle.name}`,
+                pieces: this.currentPuzzle.maxPieces > 0 && this.currentPuzzle.maxPieces < 999 ? 
+                    `Pieces: ${this.usedPieces}/${this.currentPuzzle.maxPieces}` : 
+                    `Pieces: ${this.usedPieces}`,
+                objective: this.getObjectiveProgress(),
+                hint: this.currentPuzzle.hint || null
             } : {}
         };
     }
@@ -556,21 +557,58 @@ export class PuzzleMode extends GameMode {
         if (!this.currentPuzzle) return '';
         
         switch (this.currentPuzzle.objective) {
+            case 'lines':
+            case 'clearLines':
             case 'clear':
-                return `Clear ${this.puzzleStats.linesCleared}/${this.currentPuzzle.targetLines || 1} lines`;
+                const targetLines = this.currentPuzzle.targetLines || 1;
+                return `🎯 Clear: ${this.puzzleStats.linesCleared}/${targetLines} line${targetLines > 1 ? 's' : ''}`;
+            
+            case 'clearAll':
+            case 'clearBoard':
+                const totalBlocks = this.countRemainingBlocks();
+                return `🧹 Clear all blocks (${totalBlocks} left)`;
+            
+            case 'score':
+            case 'minScore':
+                const targetScore = this.currentPuzzle.minScore || 1000;
+                return `💯 Score: ${this.game.score}/${targetScore}`;
+            
             case 'tspin':
-                return `Perform ${this.puzzleStats.tspinsPerformed}/${this.currentPuzzle.targetTSpins || 1} T-Spins`;
+                const targetTSpins = this.currentPuzzle.targetTSpins || 1;
+                return `🌀 T-Spins: ${this.puzzleStats.tspinsPerformed}/${targetTSpins}`;
+            
             case 'tetris':
-                return `Get ${this.puzzleStats.tetrisPerformed}/${this.currentPuzzle.targetTetris || 1} Tetris`;
+                const targetTetris = this.currentPuzzle.targetTetris || 1;
+                return `⚡ Tetris: ${this.puzzleStats.tetrisPerformed}/${targetTetris}`;
+            
             case 'combo':
-                return `Reach ${this.puzzleStats.maxCombo}/${this.currentPuzzle.targetCombo || 5} combo`;
+                const targetCombo = this.currentPuzzle.targetCombo || 5;
+                return `🔥 Combo: ${this.puzzleStats.maxCombo}/${targetCombo}`;
+            
             case 'perfect':
-                return `Clear the board completely`;
+                return `✨ Perfect Clear required`;
+            
             case 'survive':
-                return `Survive for ${this.currentPuzzle.timeLimit || 60} seconds`;
+                const timeLimit = this.currentPuzzle.timeLimit || 60;
+                const elapsed = Math.floor(this.timeElapsed / 1000);
+                return `⏱️ Time: ${elapsed}/${timeLimit}s`;
+            
             default:
-                return this.currentPuzzle.description || 'Complete the objective';
+                return this.currentPuzzle.description || 'Complete objective';
         }
+    }
+    
+    countRemainingBlocks() {
+        if (!this.game.grid || !this.game.grid.cells) return 0;
+        let count = 0;
+        for (let row = 0; row < 20; row++) {
+            for (let col = 0; col < 10; col++) {
+                if (this.game.grid.cells[row][col] !== 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     pause() {
