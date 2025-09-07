@@ -632,15 +632,20 @@ export class TetrisGame {
         this.start();
     }
 
-    gameOver() {
+    gameOver(isVictory = false, customStats = null) {
         this.state = 'gameover';
         
-        // Stop background music and play game over sound
+        // Stop background music and play appropriate sound
         this.audioManager.stopBackgroundMusic();
-        this.audioManager.playSFX('gameOver');
         
-        // Prepare final stats
-        const finalStats = {
+        if (isVictory) {
+            this.audioManager.playSFX('levelUp');
+        } else {
+            this.audioManager.playSFX('gameOver');
+        }
+        
+        // Use custom stats if provided (for modes like Sprint)
+        const finalStats = customStats || {
             score: this.score,
             lines: this.lines,
             level: this.level
@@ -657,7 +662,17 @@ export class TetrisGame {
         // Set game start time for score saver
         this.uiManager.scoreSaver.setGameStartTime(this.gameStartTime);
         
-        this.uiManager.showGameOverOverlay(finalStats, dbAchievements);
+        // Show appropriate overlay based on victory status
+        if (!isVictory) {
+            // Regular game over
+            this.uiManager.showGameOverOverlay(finalStats, dbAchievements);
+        }
+        // For victory cases, the mode handles showing its own victory overlay
+    }
+    
+    // Add helper method for modes to trigger game over
+    triggerGameOver(isVictory = false, customStats = null) {
+        this.gameOver(isVictory, customStats);
     }
 
     handleConfirm() {

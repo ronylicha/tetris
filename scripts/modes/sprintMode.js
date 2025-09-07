@@ -169,7 +169,7 @@ export class SprintMode extends GameMode {
 
     handleVictory() {
         this.stopTimer();
-        const result = super.handleVictory();
+        this.isComplete = true;
         
         // Check if new record
         const isNewRecord = !this.bestTime || this.elapsedTime < this.bestTime;
@@ -177,17 +177,37 @@ export class SprintMode extends GameMode {
             this.saveBestTime(this.elapsedTime);
         }
         
-        result.time = this.elapsedTime;
-        result.formattedTime = this.formatTime(this.elapsedTime);
-        result.isNewRecord = isNewRecord;
-        result.piecesUsed = this.modeSpecificStats.piecesUsed;
-        result.efficiency = this.modeSpecificStats.efficiency;
-        result.maxCombo = this.modeSpecificStats.maxCombo;
+        // Prepare result data
+        const result = {
+            mode: 'Sprint',
+            won: true,
+            time: this.elapsedTime,
+            formattedTime: this.formatTime(this.elapsedTime),
+            isNewRecord: isNewRecord,
+            piecesUsed: this.modeSpecificStats.piecesUsed,
+            efficiency: this.modeSpecificStats.efficiency,
+            maxCombo: this.modeSpecificStats.maxCombo,
+            score: this.game.score,
+            lines: this.game.lines
+        };
         
         // Play victory sound
         if (this.game.audioManager) {
             this.game.audioManager.playSFX('levelUp');
+            this.game.audioManager.stopBackgroundMusic();
         }
+        
+        // Show victory message with time
+        if (this.game.uiManager) {
+            const message = isNewRecord ? 
+                `🏆 NEW RECORD! 🏆\nTime: ${this.formatTime(this.elapsedTime)}\nPieces: ${this.modeSpecificStats.piecesUsed}` :
+                `Sprint Complete!\nTime: ${this.formatTime(this.elapsedTime)}\nPieces: ${this.modeSpecificStats.piecesUsed}\nBest: ${this.formatTime(this.bestTime)}`;
+            
+            this.game.uiManager.showOverlay('Sprint Victory!', message, true);
+        }
+        
+        // Trigger game over to stop the game
+        this.game.triggerGameOver(true, result);
         
         return result;
     }

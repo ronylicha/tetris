@@ -237,22 +237,37 @@ export class MarathonMode extends GameMode {
     }
 
     handleVictory() {
-        const result = super.handleVictory();
+        this.isComplete = true;
         
-        result.finalScore = this.game.score;
-        result.finalLevel = this.game.level;
-        result.checkpointsReached = this.modeSpecificStats.checkpointsReached;
-        result.maxCombo = this.modeSpecificStats.maxCombo;
-        result.tspins = this.modeSpecificStats.tspins;
-        result.tetris = this.modeSpecificStats.tetris;
+        const result = {
+            mode: 'Marathon',
+            won: true,
+            finalScore: this.game.score,
+            finalLevel: this.game.level,
+            checkpointsReached: this.modeSpecificStats.checkpointsReached,
+            maxCombo: this.modeSpecificStats.maxCombo,
+            tspins: this.modeSpecificStats.tspins,
+            tetris: this.modeSpecificStats.tetris,
+            lines: this.game.lines
+        };
         
         // Clear saved game
         localStorage.removeItem('tetris_marathon_saved');
         
         // Play victory sound
         if (this.game.audioManager) {
-            this.game.audioManager.playSFX('victory');
+            this.game.audioManager.playSFX('levelUp');
+            this.game.audioManager.stopBackgroundMusic();
         }
+        
+        // Show victory message
+        if (this.game.uiManager) {
+            const message = `🏆 Marathon Complete! 🏆\nScore: ${this.game.score.toLocaleString()}\nLevel: ${this.game.level}\nCheckpoints: ${this.modeSpecificStats.checkpointsReached}/3`;
+            this.game.uiManager.showOverlay('Marathon Victory!', message, true);
+        }
+        
+        // Trigger game over to stop the game
+        this.game.triggerGameOver(true, result);
         
         return result;
     }
