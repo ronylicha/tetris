@@ -190,7 +190,8 @@ body::before {
     gap: 25px;
 }
 
-.hold-area, .next-area, .stats {
+.hold-area, .next-area, .stats,
+.hold-stats-card, .next-pieces-card, .info-panel, .next-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -199,6 +200,25 @@ body::before {
     box-shadow: var(--shadow-glow);
     position: relative;
     overflow: hidden;
+}
+
+/* Default desktop layout */
+.game-container {
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Show desktop sidebars by default */
+.game-sidebar {
+    display: block;
+}
+
+/* Hide mobile panels by default */
+.info-panel, .next-panel {
+    display: none;
 }
 
 .hold-area::before, .next-area::before, .stats::before {

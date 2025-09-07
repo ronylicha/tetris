@@ -47,6 +47,7 @@
         </div>
 
         <main class="game-container">
+            <!-- Desktop layout - traditional 3-column -->
             <div class="game-sidebar left">
                 <div class="hold-area">
                     <h3>Hold</h3>
@@ -69,6 +70,7 @@
                 </div>
             </div>
 
+            <!-- Game board -->
             <div class="game-board">
                 <canvas id="game-canvas" width="400" height="800"></canvas>
                 <div class="game-overlay" id="game-overlay">
@@ -89,6 +91,41 @@
                         <div class="next-piece" id="next-0"></div>
                         <div class="next-piece" id="next-1"></div>
                         <div class="next-piece" id="next-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile compact panels - hidden by default, shown on small screens -->
+            <div class="info-panel">
+                <div class="hold-stats-card">
+                    <div class="hold-section">
+                        <h4>Hold</h4>
+                        <div class="hold-piece mobile-hold-piece"></div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stat-compact">
+                            <span class="stat-label-small">Score</span>
+                            <span class="stat-value-small mobile-score">0</span>
+                        </div>
+                        <div class="stat-compact">
+                            <span class="stat-label-small">Lines</span>
+                            <span class="stat-value-small mobile-lines">0</span>
+                        </div>
+                        <div class="stat-compact">
+                            <span class="stat-label-small">Level</span>
+                            <span class="stat-value-small mobile-level">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="next-panel">
+                <div class="next-pieces-card">
+                    <h4>Next</h4>
+                    <div class="next-pieces-compact">
+                        <div class="next-piece-small mobile-next-0"></div>
+                        <div class="next-piece-small mobile-next-1"></div>
+                        <div class="next-piece-small mobile-next-2"></div>
                     </div>
                 </div>
             </div>
