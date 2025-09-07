@@ -16,6 +16,9 @@ export class AudioManager {
             sfxEnabled: true
         };
         
+        // Master mute state
+        this.masterMuted = false;
+        
         // Load settings from localStorage
         this.loadSettings();
         
@@ -121,7 +124,10 @@ export class AudioManager {
     updateVolumes() {
         if (!this.audioContext) return;
         
-        this.masterGain.gain.value = this.settings.masterVolume;
+        // Only update master volume if not muted
+        if (!this.masterMuted) {
+            this.masterGain.gain.value = this.settings.masterVolume;
+        }
         this.musicGain.gain.value = this.settings.musicEnabled ? this.settings.musicVolume : 0;
         this.sfxGain.gain.value = this.settings.sfxEnabled ? this.settings.sfxVolume : 0;
     }
@@ -653,6 +659,8 @@ export class AudioManager {
     // Master mute control (for window focus/blur)
     setMasterMute(muted) {
         if (!this.masterGain) return;
+        
+        this.masterMuted = muted;
         
         if (muted) {
             // Store current volume before muting

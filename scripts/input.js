@@ -92,6 +92,15 @@ export class InputManager {
             canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
         }
         
+        // Also add touch events to game overlay for pause/resume functionality
+        const gameOverlay = document.getElementById('game-overlay');
+        if (gameOverlay) {
+            gameOverlay.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+            gameOverlay.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+            gameOverlay.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+            gameOverlay.addEventListener('click', (e) => this.handleCanvasClick(e));
+        }
+        
         // Add touch support for UI elements
         this.initializeTouchUI();
         
