@@ -33,7 +33,14 @@ export class UIManager {
                 document.getElementById('next-1'),
                 document.getElementById('next-2')
             ],
-            particlesContainer: document.getElementById('particles')
+            particlesContainer: document.getElementById('particles'),
+            
+            // Mobile elements for synchronization
+            mobileHold: document.querySelector('.mobile-hold'),
+            mobileScore: document.querySelectorAll('[data-sync="score"]'),
+            mobileLines: document.querySelectorAll('[data-sync="lines"]'),
+            mobileLevel: document.querySelectorAll('[data-sync="level"]'),
+            mobileNext: document.querySelectorAll('.mobile-next')
         };
     }
 
@@ -77,6 +84,11 @@ export class UIManager {
             const oldScore = parseInt(this.elements.score.textContent) || 0;
             this.elements.score.textContent = score.toLocaleString();
             
+            // Update mobile elements
+            this.elements.mobileScore.forEach(el => {
+                if (el) el.textContent = score.toLocaleString();
+            });
+            
             // Animate score increase
             if (score > oldScore) {
                 this.elements.score.classList.add('animate-score-pop');
@@ -91,12 +103,22 @@ export class UIManager {
         if (this.elements.lines) {
             this.elements.lines.textContent = lines;
         }
+        
+        // Update mobile elements
+        this.elements.mobileLines.forEach(el => {
+            if (el) el.textContent = lines;
+        });
     }
 
     updateLevel(level) {
         if (this.elements.level) {
             const oldLevel = parseInt(this.elements.level.textContent) || 1;
             this.elements.level.textContent = level;
+            
+            // Update mobile elements
+            this.elements.mobileLevel.forEach(el => {
+                if (el) el.textContent = level;
+            });
             
             // Animate level up
             if (level > oldLevel) {
@@ -113,24 +135,36 @@ export class UIManager {
 
     // Update hold piece display
     updateHoldPiece(piece) {
-        if (!this.elements.holdPiece) return;
-        
-        this.elements.holdPiece.innerHTML = '';
-        
-        if (piece) {
-            const miniGrid = this.createMiniGrid(piece);
-            this.elements.holdPiece.appendChild(miniGrid);
+        // Update desktop hold piece
+        if (this.elements.holdPiece) {
+            this.elements.holdPiece.innerHTML = '';
             
-            // Animate swap
-            this.elements.holdPiece.classList.add('animate-swap');
-            setTimeout(() => {
-                this.elements.holdPiece.classList.remove('animate-swap');
-            }, 600);
+            if (piece) {
+                const miniGrid = this.createMiniGrid(piece);
+                this.elements.holdPiece.appendChild(miniGrid);
+                
+                // Animate swap
+                this.elements.holdPiece.classList.add('animate-swap');
+                setTimeout(() => {
+                    this.elements.holdPiece.classList.remove('animate-swap');
+                }, 600);
+            }
+        }
+        
+        // Update mobile hold piece
+        if (this.elements.mobileHold) {
+            this.elements.mobileHold.innerHTML = '';
+            
+            if (piece) {
+                const mobileGrid = this.createMiniGrid(piece, true); // true for mobile size
+                this.elements.mobileHold.appendChild(mobileGrid);
+            }
         }
     }
 
     // Update next pieces display
     updateNextPieces(pieces) {
+        // Update desktop next pieces
         pieces.forEach((pieceType, index) => {
             if (this.elements.nextPieces[index]) {
                 this.elements.nextPieces[index].innerHTML = '';
@@ -151,16 +185,39 @@ export class UIManager {
                 }
             }
         });
+        
+        // Update mobile next pieces
+        pieces.forEach((pieceType, index) => {
+            const mobileNext = Array.from(this.elements.mobileNext).find(el => 
+                el.dataset.next === index.toString()
+            );
+            
+            if (mobileNext) {
+                mobileNext.innerHTML = '';
+                
+                if (pieceType) {
+                    const { Piece, PIECE_COLORS } = this.game.pieceModule;
+                    const piece = new Piece(pieceType);
+                    const mobileGrid = this.createMiniGrid(piece, true); // true for mobile size
+                    mobileNext.appendChild(mobileGrid);
+                }
+            }
+        });
     }
 
     // Create mini grid for piece preview
-    createMiniGrid(piece) {
+    createMiniGrid(piece, isMobile = false) {
         const container = document.createElement('div');
         container.className = 'mini-grid';
+        
+        const gap = isMobile ? '0.5px' : '1px';
+        const borderRadius = isMobile ? '1px' : '2px';
+        const glowSize = isMobile ? '6px' : '10px';
+        
         container.style.cssText = `
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
+            gap: ${gap};
             width: 100%;
             height: 100%;
         `;
@@ -172,13 +229,13 @@ export class UIManager {
                 const cell = document.createElement('div');
                 cell.style.cssText = `
                     aspect-ratio: 1;
-                    border-radius: 2px;
+                    border-radius: ${borderRadius};
                     transition: all 0.2s ease;
                 `;
                 
                 if (shape[y] && shape[y][x]) {
                     cell.style.backgroundColor = piece.color;
-                    cell.style.boxShadow = `0 0 10px ${piece.color}40`;
+                    cell.style.boxShadow = `0 0 ${glowSize} ${piece.color}40`;
                     cell.style.border = `1px solid ${piece.color}`;
                 } else {
                     cell.style.backgroundColor = 'transparent';
