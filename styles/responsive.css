@@ -72,12 +72,12 @@
     .game-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto 1fr;
-        gap: 10px;
+        grid-template-rows: min-content 1fr;
+        gap: 0.5em;
         max-width: 100%;
-        padding: 0 8px;
-        height: calc(100vh - 55px);
-        max-height: calc(100vh - 55px);
+        padding: 0 0.5em;
+        height: calc(100vh - 50px);
+        max-height: calc(100vh - 50px);
     }
     
     /* Info panel (hold + stats combined) */
@@ -91,10 +91,11 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
-        padding: 12px;
+        padding: 0.5em;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 0.4em;
+        max-height: 6em;
     }
     
     .hold-section {
@@ -102,15 +103,15 @@
     }
     
     .hold-section h4 {
-        margin: 0 0 8px 0;
-        font-size: 0.9rem;
+        margin: 0 0 0.3em 0;
+        font-size: 0.7em;
         color: var(--neon-blue);
         font-weight: 600;
     }
     
     .hold-piece {
-        width: 45px;
-        height: 45px;
+        width: 2.5em;
+        height: 2.5em;
         margin: 0 auto;
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -120,24 +121,24 @@
     .stats-section {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 0.2em;
     }
     
     .stat-compact {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 2px 0;
+        padding: 0.1em 0;
     }
     
     .stat-label-small {
-        font-size: 0.75rem;
+        font-size: 0.65em;
         color: var(--text-secondary);
         font-weight: 500;
     }
     
     .stat-value-small {
-        font-size: 0.85rem;
+        font-size: 0.75em;
         color: var(--neon-blue);
         font-weight: 600;
         font-family: 'Orbitron', monospace;
@@ -154,27 +155,29 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
-        padding: 12px;
+        padding: 0.5em;
         text-align: center;
+        max-height: 6em;
     }
     
     .next-pieces-card h4 {
-        margin: 0 0 10px 0;
-        font-size: 0.9rem;
+        margin: 0 0 0.3em 0;
+        font-size: 0.7em;
         color: var(--neon-blue);
         font-weight: 600;
     }
     
     .next-pieces-compact {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        flex-direction: row;
+        gap: 0.3em;
         align-items: center;
+        justify-content: center;
     }
     
     .next-piece-small {
-        width: 35px;
-        height: 35px;
+        width: 1.8em;
+        height: 1.8em;
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 3px;
@@ -188,15 +191,15 @@
         justify-content: center;
         align-items: flex-start;
         height: 100%;
-        max-height: calc(100vh - 140px);
-        padding-bottom: 10px;
+        max-height: calc(100vh - 100px);
+        padding-bottom: 5px;
     }
     
     #game-canvas {
         width: 100%;
         max-width: min(280px, calc(100vw - 20px));
-        height: calc(100vh - 140px);
-        max-height: min(560px, calc(100vh - 140px));
+        height: calc(100vh - 100px);
+        max-height: min(560px, calc(100vh - 100px));
     }
     
     #overlay-title {
