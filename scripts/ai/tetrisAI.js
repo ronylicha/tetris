@@ -138,6 +138,11 @@ export class TetrisAI {
     }
     
     update(deltaTime) {
+        // Ensure grid is initialized
+        if (!this.grid || !Array.isArray(this.grid) || this.grid.length === 0) {
+            this.grid = this.createEmptyGrid();
+        }
+        
         this.thinkingTime += deltaTime;
         
         // Process garbage lines
@@ -712,14 +717,19 @@ export class TetrisAI {
     processGarbage() {
         if (this.garbageQueue.length === 0) return;
         
+        // Ensure grid is initialized
+        if (!this.grid || !Array.isArray(this.grid)) {
+            this.grid = this.createEmptyGrid();
+        }
+        
         const lines = this.garbageQueue.shift();
         
         // Smart garbage handling based on difficulty
-        if (this.difficulty >= 3) {
+        if (this.difficulty >= 3 && this.grid && this.grid.length > 0) {
             // Try to clear garbage efficiently
             const garbageRows = [];
             for (let row = GRID_HEIGHT - 1; row >= GRID_HEIGHT - lines && row >= 0; row--) {
-                if (this.grid[row].some(cell => cell !== 0)) {
+                if (this.grid[row] && this.grid[row].some(cell => cell !== 0)) {
                     garbageRows.push(row);
                 }
             }
@@ -734,7 +744,9 @@ export class TetrisAI {
         
         // Add garbage lines to grid
         for (let i = 0; i < lines; i++) {
-            this.grid.shift(); // Remove top row
+            if (this.grid.length > 0) {
+                this.grid.shift(); // Remove top row
+            }
             const garbageLine = Array(GRID_WIDTH).fill(8); // Gray blocks
             
             // Smart hole placement for counter-attack potential
@@ -743,7 +755,7 @@ export class TetrisAI {
                 // Place hole strategically for easier clearing
                 const columnHeights = this.getColumnHeights();
                 const lowestCol = columnHeights.indexOf(Math.min(...columnHeights));
-                hole = lowestCol;
+                hole = lowestCol >= 0 ? lowestCol : Math.floor(Math.random() * GRID_WIDTH);
             } else {
                 hole = Math.floor(Math.random() * GRID_WIDTH);
             }
@@ -755,10 +767,16 @@ export class TetrisAI {
     
     getColumnHeights() {
         const heights = [];
+        // Check if grid exists and is properly initialized
+        if (!this.grid || !Array.isArray(this.grid) || this.grid.length === 0) {
+            // Return default heights array if grid is not ready
+            return Array(GRID_WIDTH).fill(0);
+        }
+        
         for (let col = 0; col < GRID_WIDTH; col++) {
             let height = 0;
             for (let row = 0; row < GRID_HEIGHT; row++) {
-                if (this.grid[row][col] !== 0) {
+                if (this.grid[row] && this.grid[row][col] !== 0) {
                     height = GRID_HEIGHT - row;
                     break;
                 }
