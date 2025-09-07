@@ -1,8 +1,8 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v2.0.0';
-const CACHE_VERSION = 'v2.0.0';
-const API_CACHE = 'tetris-api-v2.0.0';
-const AUDIO_CACHE = 'tetris-audio-v2.0.0';
+const CACHE_NAME = 'tetris-v2.0.2';
+const CACHE_VERSION = 'v2.0.2';
+const API_CACHE = 'tetris-api-v2.0.2';
+const AUDIO_CACHE = 'tetris-audio-v2.0.2';
 
 // Determine base path based on the service worker's location
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');
