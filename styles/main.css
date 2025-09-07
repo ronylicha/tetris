@@ -51,12 +51,13 @@ body::before {
     z-index: -1;
 }
 
+
 .app {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 80px 20px 20px; /* Add top padding for progression header */
 }
 
 /* Home Screen Styles */
@@ -128,37 +129,7 @@ body::before {
     flex-wrap: wrap;
 }
 
-/* Game Screen Header - Minimal */
-.game-header {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    gap: 8px;
-    z-index: 100;
-}
-
-.btn-game-icon {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    color: var(--text-primary);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-game-icon:hover {
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: var(--shadow-glow);
-    transform: scale(1.1);
-}
+/* Game controls now in progression header - see progression.css */
 
 /* Legacy Header Styles - for reference */
 .header {
@@ -254,7 +225,7 @@ body::before {
     align-items: center;
     justify-content: flex-start;
     padding: 10px;
-    padding-top: 50px; /* Reduced space for header buttons */
+    padding-top: 70px; /* Space for progression header (60px + 10px margin) */
     padding-bottom: env(safe-area-inset-bottom); /* Safe area for iOS */
     overflow: hidden;
     box-sizing: border-box;
@@ -336,6 +307,7 @@ body::before {
     gap: 1.2em;
     align-items: start;
     max-width: 70em;
+    margin-top: 10px; /* Additional spacing from progression bar */
     width: 100%;
     max-height: calc(100vh - 70px);
     margin: 0 auto;
@@ -862,7 +834,7 @@ body::before {
     font-weight: 700;
 }
 
-.btn-close {
+.btn-close, .modal-close {
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.2);
     color: var(--text-secondary);
@@ -878,7 +850,7 @@ body::before {
     transition: all 0.3s ease;
 }
 
-.btn-close:hover {
+.btn-close:hover, .modal-close:hover {
     color: var(--neon-red);
     background: rgba(255, 89, 94, 0.1);
     border-color: var(--neon-red);
@@ -1043,7 +1015,7 @@ body::before {
 }
 
 /* Settings Modal Styles */
-.settings-overlay, .help-overlay {
+.settings-overlay, .help-overlay, .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1058,7 +1030,7 @@ body::before {
     animation: fade-in 0.3s ease-out;
 }
 
-.settings-content, .help-content {
+.settings-content, .help-content, .modal-content, .achievements-content, .profile-content, .customization-content, .account-content {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -1072,7 +1044,7 @@ body::before {
     position: relative;
 }
 
-.settings-header, .help-header {
+.settings-header, .help-header, .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;

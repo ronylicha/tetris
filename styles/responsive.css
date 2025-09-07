@@ -17,9 +17,8 @@
     }
     
     .game-screen {
-        padding-top: 42px;
         padding: 5px;
-        padding-top: 42px;
+        padding-top: 70px; /* Space for progression header on mobile too */
         padding-bottom: env(safe-area-inset-bottom);
         height: 100vh;
         height: 100dvh; /* Dynamic viewport height for mobile browsers */

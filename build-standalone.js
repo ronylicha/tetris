@@ -18,7 +18,8 @@ const CONFIG = {
         'styles/main.css',
         'styles/animations.css',
         'styles/responsive.css',
-        'styles/modes.css'
+        'styles/modes.css',
+        'styles/progression.css'
     ],
     scripts: [
         // Order matters for dependencies
@@ -48,12 +49,14 @@ const CONFIG = {
         'scripts/modes/puzzleMode.js',
         'scripts/modes/battleMode.js',
         'scripts/modes/battle2PMode.js',
+        'scripts/modes/dailyChallengeMode.js',
         'scripts/modes/powerUpMode.js',
         'scripts/ai/tetrisAI.js',
         'scripts/modeSelector.js',
         'scripts/leaderboard.js',
         'scripts/ui.js',
         'scripts/modals.js',
+        'scripts/progression/progressionManager.js',
         'scripts/game.js'
     ],
     // Assets to embed as base64

@@ -1,8 +1,11 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v3.1.1';
-const CACHE_VERSION = 'v3.1.1';
-const API_CACHE = 'tetris-api-v3.1.1';
-const AUDIO_CACHE = 'tetris-audio-v3.1.1';
+const CACHE_NAME = 'tetris-v3.3.0';
+const CACHE_VERSION = 'v3.3.0';
+const API_CACHE = 'tetris-api-v3.3.0';
+const AUDIO_CACHE = 'tetris-audio-v3.3.0';
+const AUTH_CACHE = 'tetris-auth-v3.3.0';
+const PROGRESSION_CACHE = 'tetris-progression-v3.3.0';
+const DAILY_CACHE = 'tetris-daily-v3.3.0';
 
 // Determine base path based on the service worker's location
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');
@@ -23,6 +26,7 @@ const STATIC_CACHE_URLS = [
     ROOT_PATH + 'styles/responsive.css',
     ROOT_PATH + 'styles/animations.css',
     ROOT_PATH + 'styles/modes.css',
+    ROOT_PATH + 'styles/progression.css',
     ROOT_PATH + 'scripts/game.js',
     ROOT_PATH + 'scripts/pieces.js',
     ROOT_PATH + 'scripts/grid.js',
@@ -42,6 +46,8 @@ const STATIC_CACHE_URLS = [
     ROOT_PATH + 'scripts/modes/puzzleMode.js',
     ROOT_PATH + 'scripts/modes/battleMode.js',
     ROOT_PATH + 'scripts/modes/powerUpMode.js',
+    ROOT_PATH + 'scripts/modes/battle2PMode.js',
+    ROOT_PATH + 'scripts/modes/dailyChallengeMode.js',
     ROOT_PATH + 'scripts/puzzles/puzzleData.js',
     ROOT_PATH + 'scripts/puzzles/puzzleValidator.js',
     ROOT_PATH + 'scripts/puzzles/puzzleObjectives.js',
@@ -55,7 +61,7 @@ const STATIC_CACHE_URLS = [
     ROOT_PATH + 'scripts/challenges/dailyChallenge.js',
     ROOT_PATH + 'scripts/progression/playerProgression.js',
     ROOT_PATH + 'scripts/achievements/achievementSystem.js',
-    ROOT_PATH + 'scripts/modes/battle2PMode.js'
+    ROOT_PATH + 'scripts/progression/progressionManager.js'
 ];
 
 // Audio files to cache when available
@@ -114,7 +120,9 @@ self.addEventListener('activate', (event) => {
                         // Delete old caches
                         return cacheName.startsWith('tetris-') && 
                                cacheName !== CACHE_NAME &&
-                               cacheName !== API_CACHE;
+                               cacheName !== API_CACHE &&
+                               cacheName !== AUTH_CACHE &&
+                               cacheName !== PROGRESSION_CACHE;
                     })
                     .map(cacheName => {
                         console.log('[ServiceWorker] Deleting old cache:', cacheName);
@@ -260,6 +268,23 @@ self.addEventListener('fetch', (event) => {
 
 // Handle API requests with network-first strategy
 async function handleApiRequest(request) {
+    const url = new URL(request.url);
+    
+    // Handle authentication requests specially
+    if (url.pathname.includes('/api/auth.php')) {
+        return handleAuthRequest(request);
+    }
+    
+    // Handle progression requests specially
+    if (url.pathname.includes('/api/progression.php')) {
+        return handleProgressionRequest(request);
+    }
+    
+    // Handle daily challenge requests specially
+    if (url.pathname.includes('/api/daily-challenge.php')) {
+        return handleDailyChallengeRequest(request);
+    }
+    
     try {
         // Try network first
         const networkResponse = await fetch(request);
@@ -300,12 +325,200 @@ async function handleApiRequest(request) {
     }
 }
 
+// Handle authentication requests with offline support
+async function handleAuthRequest(request) {
+    const requestClone = request.clone();
+    const body = await requestClone.json().catch(() => ({}));
+    const action = body.action;
+    
+    try {
+        // Try network first
+        const networkResponse = await fetch(request);
+        
+        // Cache successful auth responses (except passwords)
+        if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            const responseData = await responseClone.json();
+            
+            if (action === 'verify' || action === 'login') {
+                // Cache user data without sensitive info
+                const cache = await caches.open(AUTH_CACHE);
+                const sanitizedData = { ...responseData };
+                if (sanitizedData.player) {
+                    delete sanitizedData.player.password_hash;
+                }
+                
+                const cacheResponse = new Response(JSON.stringify(sanitizedData), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                cache.put(request.url + '_cached', cacheResponse).catch(err => {
+                    console.warn('[ServiceWorker] Auth cache put failed:', err);
+                });
+            }
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        console.log('[ServiceWorker] Auth request failed, checking offline strategy');
+        
+        // Handle offline auth scenarios
+        switch (action) {
+            case 'verify':
+                // Return cached verification if available
+                const cache = await caches.open(AUTH_CACHE);
+                const cachedAuth = await cache.match(request.url + '_cached');
+                if (cachedAuth) {
+                    return cachedAuth;
+                }
+                break;
+                
+            case 'register':
+                // Queue registration for sync
+                await queueForSync('auth-registration', body);
+                return new Response(JSON.stringify({
+                    success: false,
+                    offline: true,
+                    queued: true,
+                    message: 'Registration queued. Will be processed when online.'
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+            case 'sync':
+                // Queue sync data
+                await queueForSync('progression-sync', body);
+                return new Response(JSON.stringify({
+                    success: true,
+                    offline: true,
+                    queued: true,
+                    message: 'Data queued for sync.'
+                }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+            case 'login':
+                // Can't login offline
+                return new Response(JSON.stringify({
+                    success: false,
+                    offline: true,
+                    error: 'Login requires internet connection.'
+                }), {
+                    status: 503,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+        }
+        
+        // Default offline response
+        return new Response(JSON.stringify({
+            success: false,
+            offline: true,
+            error: 'Authentication service unavailable offline.'
+        }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+// Handle progression requests with offline support
+async function handleProgressionRequest(request) {
+    const requestClone = request.clone();
+    const body = await requestClone.json().catch(() => ({}));
+    const action = body.action;
+    
+    try {
+        // Try network first
+        const networkResponse = await fetch(request);
+        
+        // Cache successful progression responses
+        if (networkResponse && networkResponse.status === 200) {
+            const cache = await caches.open(PROGRESSION_CACHE);
+            
+            if (action === 'get_player' || action === 'get_achievements') {
+                cache.put(request, networkResponse.clone()).catch(err => {
+                    console.warn('[ServiceWorker] Progression cache put failed:', err);
+                });
+            }
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        console.log('[ServiceWorker] Progression request failed, checking offline strategy');
+        
+        // Check cache for GET requests
+        if (action === 'get_player' || action === 'get_achievements') {
+            const cache = await caches.open(PROGRESSION_CACHE);
+            const cachedResponse = await cache.match(request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+        }
+        
+        // Queue update requests for sync
+        if (action === 'add_xp' || action === 'unlock_achievement' || action === 'update_player_stats') {
+            await queueForSync('progression-update', body);
+            return new Response(JSON.stringify({
+                success: true,
+                offline: true,
+                queued: true,
+                message: 'Progress saved offline. Will sync when online.'
+            }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        
+        // Default offline response
+        return new Response(JSON.stringify({
+            success: false,
+            offline: true,
+            error: 'Progression data unavailable offline.'
+        }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+// Queue data for background sync
+async function queueForSync(tag, data) {
+    const cache = await caches.open('sync-queue');
+    const timestamp = Date.now();
+    const queueKey = `${tag}_${timestamp}`;
+    
+    const queueEntry = {
+        tag,
+        data,
+        timestamp,
+        attempts: 0
+    };
+    
+    await cache.put(queueKey, new Response(JSON.stringify(queueEntry), {
+        headers: { 'Content-Type': 'application/json' }
+    }));
+    
+    // Register for background sync if available
+    if ('sync' in self.registration) {
+        await self.registration.sync.register(tag).catch(err => {
+            console.warn('[ServiceWorker] Sync registration failed:', err);
+        });
+    }
+}
+
 // Background sync for score submission
 self.addEventListener('sync', (event) => {
-    console.log('[ServiceWorker] Background sync triggered');
+    console.log('[ServiceWorker] Background sync triggered:', event.tag);
     
     if (event.tag === 'sync-scores') {
         event.waitUntil(syncPendingScores());
+    } else if (event.tag === 'auth-registration') {
+        event.waitUntil(syncPendingRegistrations());
+    } else if (event.tag === 'progression-sync') {
+        event.waitUntil(syncPendingProgression());
+    } else if (event.tag === 'progression-update') {
+        event.waitUntil(syncProgressionUpdates());
+    } else if (event.tag === 'daily-challenge-score') {
+        event.waitUntil(syncDailyChallengeScores());
     }
 });
 
@@ -321,6 +534,231 @@ async function syncPendingScores() {
             message: 'Syncing pending scores...'
         });
     });
+}
+
+// Sync pending registrations
+async function syncPendingRegistrations() {
+    console.log('[ServiceWorker] Syncing pending registrations...');
+    
+    const cache = await caches.open('sync-queue');
+    const requests = await cache.keys();
+    
+    for (const request of requests) {
+        const url = new URL(request.url);
+        if (url.pathname.includes('auth-registration')) {
+            const response = await cache.match(request);
+            const queueEntry = await response.json();
+            
+            try {
+                // Attempt to register
+                const result = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queueEntry.data)
+                });
+                
+                if (result.ok) {
+                    // Success - remove from queue
+                    await cache.delete(request);
+                    
+                    // Notify clients
+                    const clients = await self.clients.matchAll();
+                    clients.forEach(client => {
+                        client.postMessage({
+                            type: 'REGISTRATION_SYNCED',
+                            message: 'Registration completed successfully!'
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('[ServiceWorker] Registration sync failed:', error);
+                // Keep in queue for retry
+            }
+        }
+    }
+}
+
+// Sync pending progression data
+async function syncPendingProgression() {
+    console.log('[ServiceWorker] Syncing pending progression data...');
+    
+    const cache = await caches.open('sync-queue');
+    const requests = await cache.keys();
+    
+    for (const request of requests) {
+        const url = new URL(request.url);
+        if (url.pathname.includes('progression-sync')) {
+            const response = await cache.match(request);
+            const queueEntry = await response.json();
+            
+            try {
+                // Attempt to sync
+                const result = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queueEntry.data)
+                });
+                
+                if (result.ok) {
+                    // Success - remove from queue
+                    await cache.delete(request);
+                }
+            } catch (error) {
+                console.error('[ServiceWorker] Progression sync failed:', error);
+                // Keep in queue for retry
+            }
+        }
+    }
+}
+
+// Handle daily challenge requests with offline support
+async function handleDailyChallengeRequest(request) {
+    const requestClone = request.clone();
+    const body = await requestClone.json().catch(() => ({}));
+    const action = body.action;
+    
+    try {
+        // Try network first
+        const networkResponse = await fetch(request);
+        
+        // Cache successful responses for statistics
+        if (networkResponse && networkResponse.status === 200) {
+            if (action === 'getStats' || action === 'getLeaderboard') {
+                const cache = await caches.open(DAILY_CACHE);
+                cache.put(request, networkResponse.clone()).catch(err => {
+                    console.warn('[ServiceWorker] Daily challenge cache put failed:', err);
+                });
+            }
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        console.log('[ServiceWorker] Daily challenge request failed, using offline mode');
+        
+        // Check cache for stats/leaderboard
+        if (action === 'getStats' || action === 'getLeaderboard') {
+            const cache = await caches.open(DAILY_CACHE);
+            const cachedResponse = await cache.match(request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+        }
+        
+        // Queue score submissions for sync
+        if (action === 'submit') {
+            await queueForSync('daily-challenge-score', body);
+            return new Response(JSON.stringify({
+                success: true,
+                offline: true,
+                queued: true,
+                message: 'Score saved offline. Will submit when online.'
+            }), {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        
+        // Default offline response
+        return new Response(JSON.stringify({
+            success: false,
+            offline: true,
+            error: 'Daily challenge data unavailable offline.'
+        }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+// Sync progression updates (XP, achievements, etc.)
+async function syncProgressionUpdates() {
+    console.log('[ServiceWorker] Syncing progression updates...');
+    
+    const cache = await caches.open('sync-queue');
+    const requests = await cache.keys();
+    let syncedCount = 0;
+    
+    for (const request of requests) {
+        const url = new URL(request.url);
+        if (url.pathname.includes('progression-update')) {
+            const response = await cache.match(request);
+            const queueEntry = await response.json();
+            
+            try {
+                // Attempt to update
+                const result = await fetch('/api/progression.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queueEntry.data)
+                });
+                
+                if (result.ok) {
+                    // Success - remove from queue
+                    await cache.delete(request);
+                    syncedCount++;
+                }
+            } catch (error) {
+                console.error('[ServiceWorker] Progression update sync failed:', error);
+                // Keep in queue for retry
+            }
+        }
+    }
+    
+    if (syncedCount > 0) {
+        // Notify clients of successful sync
+        const clients = await self.clients.matchAll();
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'PROGRESSION_SYNCED',
+                message: `${syncedCount} progression updates synced!`
+            });
+        });
+    }
+}
+
+// Sync daily challenge scores
+async function syncDailyChallengeScores() {
+    console.log('[ServiceWorker] Syncing daily challenge scores...');
+    
+    const cache = await caches.open('sync-queue');
+    const requests = await cache.keys();
+    let syncedCount = 0;
+    
+    for (const request of requests) {
+        const url = new URL(request.url);
+        if (url.pathname.includes('daily-challenge-score')) {
+            const response = await cache.match(request);
+            const queueEntry = await response.json();
+            
+            try {
+                // Attempt to submit score
+                const result = await fetch('/api/daily-challenge.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queueEntry.data)
+                });
+                
+                if (result.ok) {
+                    // Success - remove from queue
+                    await cache.delete(request);
+                    syncedCount++;
+                }
+            } catch (error) {
+                console.error('[ServiceWorker] Daily challenge sync failed:', error);
+                // Keep in queue for retry
+            }
+        }
+    }
+    
+    if (syncedCount > 0) {
+        // Notify clients of successful sync
+        const clients = await self.clients.matchAll();
+        clients.forEach(client => {
+            client.postMessage({
+                type: 'DAILY_CHALLENGE_SYNCED',
+                message: `${syncedCount} daily challenge score(s) synced!`
+            });
+        });
+    }
 }
 
 // Handle messages from the main app

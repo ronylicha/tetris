@@ -174,6 +174,28 @@ export class Piece {
         return grid.checkCollision(testPiece);
     }
     
+    // Get bounding box of the piece
+    getBounds() {
+        const blocks = this.getBlocks();
+        if (blocks.length === 0) {
+            return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+        }
+        
+        let minX = blocks[0].x;
+        let maxX = blocks[0].x;
+        let minY = blocks[0].y;
+        let maxY = blocks[0].y;
+        
+        blocks.forEach(block => {
+            minX = Math.min(minX, block.x);
+            maxX = Math.max(maxX, block.x);
+            minY = Math.min(minY, block.y);
+            maxY = Math.max(maxY, block.y);
+        });
+        
+        return { minX, minY, maxX, maxY };
+    }
+    
     // Save piece state
     saveState() {
         return {

@@ -41,7 +41,7 @@ export class PlayerProgression {
     }
     
     async saveProgress() {
-        await storage.save('player_progression', {
+        const dataToSave = {
             level: this.level,
             xp: this.xp,
             totalXP: this.totalXP,
@@ -49,7 +49,8 @@ export class PlayerProgression {
             stats: this.stats,
             unlocks: this.unlocks,
             badges: this.badges
-        });
+        };
+        await storage.save('player_progression', dataToSave);
     }
     
     addXP(amount, source = 'gameplay') {
@@ -65,8 +66,8 @@ export class PlayerProgression {
         // Update rank
         this.updateRank();
         
-        // Save progress
-        this.saveProgress();
+        // Save progress (fire and forget, don't wait)
+        this.saveProgress().catch(err => console.error('Error saving XP progress:', err));
         
         return {
             xpGained: amount,
@@ -250,7 +251,7 @@ export class PlayerProgression {
             this.stats.favoriteMode = favoriteMode;
         }
         
-        this.saveProgress();
+        this.saveProgress().catch(err => console.error('Error saving stats:', err));
     }
     
     calculateGameXP(gameResults) {

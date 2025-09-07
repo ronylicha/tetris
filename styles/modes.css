@@ -278,6 +278,14 @@
     box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
 }
 
+.mode-card[data-mode="daily"] {
+    border-color: #ffd700;
+}
+.mode-card[data-mode="daily"]:hover {
+    border-color: #ffd700;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+}
+
 .mode-icon {
     font-size: 3rem;
     margin-bottom: 15px;
@@ -798,6 +806,81 @@ body.battle2p-active #game-canvas {
 
 body.battle2p-active #battle2p-container {
     display: flex !important;
+}
+
+/* Daily Challenge UI */
+.daily-challenge-info {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.daily-challenge-info h3 {
+    color: #ffd700;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.challenge-objective {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 3px solid #ffd700;
+}
+
+.challenge-modifiers {
+    margin-bottom: 10px;
+}
+
+.challenge-modifiers ul {
+    list-style: none;
+    padding-left: 10px;
+    margin-top: 5px;
+}
+
+.challenge-modifiers li {
+    padding: 3px 0;
+    color: #ffaa00;
+}
+
+.challenge-modifiers li:before {
+    content: '⚡ ';
+    color: #ffd700;
+}
+
+.challenge-timer {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff4444;
+    padding: 8px;
+    text-align: center;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.challenge-timer span {
+    color: #ff6666;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.challenge-progress {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid #00ff00;
+    padding: 8px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.challenge-progress span {
+    font-weight: bold;
+}
+
+#challenge-progress {
+    color: #00ff88;
+}
+
+#challenge-target {
+    color: #ffaa00;
 }
 
 @media (max-width: 480px) {

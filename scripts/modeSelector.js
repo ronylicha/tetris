@@ -7,6 +7,7 @@ import { PuzzleMode } from './modes/puzzleMode.js';
 import { BattleMode } from './modes/battleMode.js';
 import { PowerUpMode } from './modes/powerUpMode.js';
 import { Battle2PMode } from './modes/battle2PMode.js';
+import { DailyChallengeMode } from './modes/dailyChallengeMode.js';
 
 export class ModeSelector {
     constructor() {
@@ -75,6 +76,14 @@ export class ModeSelector {
                 description: 'Local 2-player split-screen battle',
                 unlocked: true,
                 desktopOnly: true // Flag for desktop-only mode
+            },
+            daily: {
+                name: 'Daily Challenge',
+                class: DailyChallengeMode,
+                icon: '📅',
+                color: '#ffd700',
+                description: 'New challenge every day with unique modifiers',
+                unlocked: true
             }
         };
         

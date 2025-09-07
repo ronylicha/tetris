@@ -11,6 +11,7 @@ import { ClassicMode } from './modes/classicMode.js';
 import { playerProgression } from './progression/playerProgression.js';
 import { achievementSystem } from './achievements/achievementSystem.js';
 import { dailyChallenge } from './challenges/dailyChallenge.js';
+import { customizationManager } from './customization/customizationManager.js';
 
 export class TetrisGame {
     constructor() {
@@ -50,6 +51,16 @@ export class TetrisGame {
             perfectClears: 0
         };
         
+        // Daily Challenge tracking
+        this.tetrisCount = 0;
+        this.tspinCount = 0;
+        this.maxCombo = 0;
+        this.cascadeCount = 0;
+        
+        // Game modifiers
+        this.canHold = true;
+        this.canRotateCounterClockwise = true;
+        
         // Game mechanics
         this.lockDelay = 0;
         this.maxLockDelay = 500;
@@ -61,6 +72,11 @@ export class TetrisGame {
         this.uiManager = new UIManager(this);
         this.modalManager = new ModalManager(this.audioManager);
         this.modalManager.setGame(this); // Connect modal manager to game
+        
+        // Connect music manager to audio manager
+        if (customizationManager && customizationManager.managers.music) {
+            customizationManager.managers.music.audioManager = this.audioManager;
+        }
         
         // Mode system
         this.modeSelector = new ModeSelector();
@@ -96,6 +112,13 @@ export class TetrisGame {
         
         // Initialize PWA install handler
         this.initializePWAInstall();
+        
+        // Apply saved customizations
+        if (customizationManager) {
+            customizationManager.applyAllCustomizations();
+            // Make game available globally for customization
+            window.tetrisGame = this;
+        }
     }
 
     setupCanvas() {
@@ -114,12 +137,6 @@ export class TetrisGame {
         this.ctx.imageSmoothingEnabled = false;
         this.cellSize = internalWidth / GRID_WIDTH;
         
-        // Log for debugging
-        console.log('Canvas setup:', {
-            width: this.canvas.width,
-            height: this.canvas.height,
-            cellSize: this.cellSize
-        });
     }
 
     // Game loop
@@ -167,6 +184,11 @@ export class TetrisGame {
     }
 
     updateGameLogic(deltaTime) {
+        // Update customization effects
+        if (customizationManager) {
+            customizationManager.updateEffects(deltaTime);
+        }
+        
         // Update game mode first
         if (this.gameMode) {
             const continueGame = this.gameMode.update(deltaTime);
@@ -241,6 +263,16 @@ export class TetrisGame {
             this.lastPiecePosition = this.currentPiece.copy();
             this.currentPiece = newPiece;
             
+            // Trigger movement effects
+            if (customizationManager && this.currentPiece) {
+                const bounds = this.currentPiece.getBounds();
+                customizationManager.onPieceMoved(
+                    bounds.minX * this.cellSize + (bounds.maxX - bounds.minX) * this.cellSize / 2,
+                    bounds.minY * this.cellSize + (bounds.maxY - bounds.minY) * this.cellSize / 2,
+                    this.currentPiece.type
+                );
+            }
+            
             // Play move sound
             this.audioManager.playSFX('move');
             
@@ -258,6 +290,9 @@ export class TetrisGame {
     // Piece rotation
     rotatePiece(direction = 1) {
         if (!this.currentPiece || this.state !== 'playing') return false;
+        
+        // Check if counter-clockwise rotation is disabled
+        if (direction === -1 && !this.canRotateCounterClockwise) return false;
         
         const rotatedPiece = this.grid.testPieceRotation(this.currentPiece, direction);
         
@@ -316,7 +351,7 @@ export class TetrisGame {
 
     // Hold piece
     holdPiece() {
-        if (!this.currentPiece || this.heldPieceUsed || this.state !== 'playing') return;
+        if (!this.currentPiece || this.heldPieceUsed || this.state !== 'playing' || !this.canHold) return;
         
         if (this.heldPiece) {
             // Swap current and held pieces
@@ -343,6 +378,19 @@ export class TetrisGame {
         
         // Place piece on grid
         this.grid.placePiece(this.currentPiece);
+        
+        // Trigger customization effects for piece placement
+        if (customizationManager && this.currentPiece) {
+            const bounds = this.currentPiece.getBounds();
+            const pieceType = this.currentPiece.type;
+            customizationManager.onPiecePlaced(
+                bounds.minX * this.cellSize,
+                bounds.minY * this.cellSize,
+                (bounds.maxX - bounds.minX + 1) * this.cellSize,
+                (bounds.maxY - bounds.minY + 1) * this.cellSize,
+                pieceType
+            );
+        }
         
         // Notify game mode that a piece was placed
         if (this.gameMode && this.gameMode.handlePiecePlaced) {
@@ -423,6 +471,7 @@ export class TetrisGame {
                 this.specialAchievements.tspinMinis++;
             } else {
                 this.specialAchievements.tspins++;
+                this.tspinCount++; // Track for Daily Challenge
             }
         }
         
@@ -436,6 +485,11 @@ export class TetrisGame {
         if (clearedLines > 0) {
             // Show visual effects using original line positions
             this.uiManager.showLineClearEffect(originalLinePositions, clearedLines === 4);
+            
+            // Trigger customization effects
+            if (customizationManager) {
+                customizationManager.onLinesCleared(originalLinePositions);
+            }
             
             // Play appropriate sound
             if (clearedLines === 4) {
@@ -487,11 +541,16 @@ export class TetrisGame {
                 break;
             case 4:
                 baseScore = 800; // Tetris
+                this.tetrisCount++; // Track for Daily Challenge
                 break;
         }
         
         // Combo bonus
         this.combo++;
+        // Track max combo for Daily Challenge
+        if (this.combo > this.maxCombo) {
+            this.maxCombo = this.combo;
+        }
         if (this.combo > 1) {
             baseScore += 50 * this.combo * multiplier;
             this.uiManager.showComboEffect(this.combo);
@@ -710,7 +769,7 @@ export class TetrisGame {
         
         // Calculate and award XP
         const xpEarned = playerProgression.calculateGameXP(gameResults);
-        playerProgression.addXP(xpEarned, 'gameplay');
+        const xpResult = playerProgression.addXP(xpEarned, 'gameplay');
         playerProgression.updateStats(gameResults);
         
         // Check achievements
@@ -747,10 +806,25 @@ export class TetrisGame {
         this.clearCanvas();
         
         if (this.state === 'playing' || this.state === 'paused') {
+            // Apply mode-specific pre-render effects (like monochrome filter)
+            if (this.gameMode && this.gameMode.render) {
+                this.gameMode.render(this.ctx, this.canvas);
+            }
+            
             this.renderGrid();
             this.renderGhostPiece();
             this.renderCurrentPiece();
             this.renderGridLines();
+            
+            // Render customization effects
+            if (customizationManager) {
+                customizationManager.renderEffects(this.ctx);
+            }
+            
+            // Apply mode-specific post-render effects
+            if (this.gameMode && this.gameMode.postRender) {
+                this.gameMode.postRender(this.ctx);
+            }
             
             // Update mode-specific UI
             if (this.gameMode && this.uiManager) {
@@ -768,7 +842,8 @@ export class TetrisGame {
         const gridData = this.grid.getRenderData();
         
         gridData.forEach(cell => {
-            this.renderCell(cell.x, cell.y, cell.color, false);
+            // Pass the type directly if available, otherwise use color
+            this.renderCell(cell.x, cell.y, cell.color, false, cell.type);
         });
     }
 
@@ -778,7 +853,7 @@ export class TetrisGame {
         const blocks = this.currentPiece.getBlocks();
         blocks.forEach(block => {
             if (block.y >= 4) { // Only render visible blocks
-                this.renderCell(block.x, block.y - 4, block.color, false);
+                this.renderCell(block.x, block.y - 4, block.color, false, this.currentPiece.type);
             }
         });
     }
@@ -789,39 +864,67 @@ export class TetrisGame {
         const blocks = this.ghostPiece.getBlocks();
         blocks.forEach(block => {
             if (block.y >= 4) { // Only render visible blocks
-                this.renderCell(block.x, block.y - 4, block.color, true);
+                this.renderCell(block.x, block.y - 4, block.color, true, this.ghostPiece.type);
             }
         });
     }
 
-    renderCell(x, y, color, isGhost = false) {
+    renderCell(x, y, color, isGhost = false, pieceType = null) {
         const cellX = x * this.cellSize;
         const cellY = y * this.cellSize;
         
-        this.ctx.save();
-        
-        if (isGhost) {
-            this.ctx.globalAlpha = 0.3;
-            this.ctx.strokeStyle = color;
-            this.ctx.lineWidth = 2;
-            this.ctx.strokeRect(cellX + 1, cellY + 1, this.cellSize - 2, this.cellSize - 2);
+        // Use customization manager for piece rendering
+        if (customizationManager) {
+            // Use the provided pieceType or try to get it from color
+            if (!pieceType) {
+                pieceType = this.getPieceTypeFromColor(color);
+            }
+            customizationManager.renderPiece(this.ctx, cellX, cellY, this.cellSize, pieceType, isGhost);
         } else {
-            // Filled block with glow effect
-            this.ctx.fillStyle = color;
-            this.ctx.fillRect(cellX, cellY, this.cellSize, this.cellSize);
+            // Fallback to original rendering
+            this.ctx.save();
             
-            // Inner highlight
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            this.ctx.fillRect(cellX + 1, cellY + 1, this.cellSize - 2, 2);
-            this.ctx.fillRect(cellX + 1, cellY + 1, 2, this.cellSize - 2);
+            if (isGhost) {
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(cellX + 1, cellY + 1, this.cellSize - 2, this.cellSize - 2);
+            } else {
+                // Filled block with glow effect
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(cellX, cellY, this.cellSize, this.cellSize);
+                
+                // Inner highlight
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                this.ctx.fillRect(cellX + 1, cellY + 1, this.cellSize - 2, 2);
+                this.ctx.fillRect(cellX + 1, cellY + 1, 2, this.cellSize - 2);
+                
+                // Border
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(cellX, cellY, this.cellSize, this.cellSize);
+            }
             
-            // Border
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeRect(cellX, cellY, this.cellSize, this.cellSize);
+            this.ctx.restore();
         }
+    }
+    
+    getPieceTypeFromColor(color) {
+        // Map colors back to piece types for customization
+        // Using the actual PIECE_COLORS from pieces.js
+        const colorMap = {
+            '#00d4ff': 'I',  // Cyan
+            '#ffff00': 'O',  // Yellow
+            '#9d4edd': 'T',  // Purple
+            '#39ff14': 'S',  // Green
+            '#ff0040': 'Z',  // Red
+            '#0066ff': 'J',  // Blue
+            '#ff8500': 'L'   // Orange
+        };
         
-        this.ctx.restore();
+        // Try lowercase version of color
+        const lowerColor = color.toLowerCase();
+        return colorMap[lowerColor] || 'J';  // Default to J if not found
     }
 
     renderGridLines() {

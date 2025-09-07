@@ -362,12 +362,16 @@ export class DailyChallenge {
     async submitToLeaderboard(completion) {
         // Submit score to global daily leaderboard
         try {
+            // Get player name from storage or use Guest
+            const playerName = localStorage.getItem('tetris_player_name') || 'Guest';
+            
             const response = await fetch('/api/daily-challenge.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'submit',
                     challengeId: completion.challengeId,
+                    playerName: playerName,
                     score: completion.score,
                     time: completion.time,
                     stats: completion.stats
