@@ -1,28 +1,30 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v1.1.0';
+const CACHE_NAME = 'tetris-v1.2.0';
 const API_CACHE = 'tetris-api-v1';
 
 // Resources to cache immediately on install
 const STATIC_CACHE_URLS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/favicon.ico',
-    '/favicon-192x192.png',
-    '/favicon-512x512.png',
-    '/apple-touch-icon.png',
-    '/styles/main.css',
-    '/styles/responsive.css',
-    '/styles/animations.css',
-    '/scripts/game.js',
-    '/scripts/pieces.js',
-    '/scripts/grid.js',
-    '/scripts/input.js',
-    '/scripts/ui.js',
-    '/scripts/audio.js',
-    '/scripts/modals.js',
-    '/scripts/leaderboard.js',
-    '/scripts/offline-storage.js'
+    '/tetris/',
+    '/tetris/index.html',
+    '/tetris/manifest.json',
+    '/tetris/favicon.ico',
+    '/tetris/favicon.svg',
+    '/tetris/logo.svg',
+    '/tetris/favicon-192x192.png',
+    '/tetris/favicon-512x512.png',
+    '/tetris/apple-touch-icon.png',
+    '/tetris/styles/main.css',
+    '/tetris/styles/responsive.css',
+    '/tetris/styles/animations.css',
+    '/tetris/scripts/game.js',
+    '/tetris/scripts/pieces.js',
+    '/tetris/scripts/grid.js',
+    '/tetris/scripts/input.js',
+    '/tetris/scripts/ui.js',
+    '/tetris/scripts/audio.js',
+    '/tetris/scripts/modals.js',
+    '/tetris/scripts/leaderboard.js',
+    '/tetris/scripts/offline-storage.js'
 ];
 
 // Install event - cache all static resources
@@ -33,7 +35,16 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('[ServiceWorker] Caching static assets');
-                return cache.addAll(STATIC_CACHE_URLS);
+                // Cache resources individually to handle failures gracefully
+                return Promise.all(
+                    STATIC_CACHE_URLS.map(url => {
+                        return cache.add(url).catch(error => {
+                            console.warn(`[ServiceWorker] Failed to cache ${url}:`, error);
+                            // Continue even if individual resource fails
+                            return Promise.resolve();
+                        });
+                    })
+                );
             })
             .then(() => {
                 console.log('[ServiceWorker] Install complete');
@@ -42,6 +53,8 @@ self.addEventListener('install', (event) => {
             })
             .catch(error => {
                 console.error('[ServiceWorker] Install failed:', error);
+                // Still skip waiting even if some resources failed
+                return self.skipWaiting();
             })
     );
 });
@@ -84,6 +97,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // For navigation requests, always serve the app shell
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            caches.match('/tetris/index.html')
+                .then(response => response || fetch('/tetris/index.html'))
+                .catch(() => caches.match('/tetris/'))
+        );
+        return;
+    }
+    
     // For static assets, use cache-first strategy
     event.respondWith(
         caches.match(request)
@@ -93,30 +116,58 @@ self.addEventListener('fetch', (event) => {
                     return cachedResponse;
                 }
                 
-                // Not in cache, fetch from network
-                return fetch(request)
-                    .then(response => {
-                        // Don't cache non-successful responses
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
+                // Try with /tetris/ prefix if not found
+                const tetrisUrl = `/tetris${url.pathname}`;
+                return caches.match(tetrisUrl)
+                    .then(tetrisResponse => {
+                        if (tetrisResponse) {
+                            return tetrisResponse;
                         }
                         
-                        // Clone the response before caching
-                        const responseToCache = response.clone();
-                        
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(request, responseToCache);
+                        // Not in cache, fetch from network
+                        return fetch(request)
+                            .then(response => {
+                                // Don't cache non-successful responses
+                                if (!response || response.status !== 200 || response.type !== 'basic') {
+                                    return response;
+                                }
+                                
+                                // Clone the response before caching
+                                const responseToCache = response.clone();
+                                
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+                                        cache.put(request, responseToCache);
+                                    });
+                                
+                                return response;
+                            })
+                            .catch(error => {
+                                console.error('[ServiceWorker] Fetch failed:', error);
+                                
+                                // Return fallback responses for different file types
+                                if (request.destination === 'document') {
+                                    return caches.match('/tetris/index.html');
+                                }
+                                if (request.destination === 'script') {
+                                    // Return empty module for missing scripts
+                                    return new Response('', {
+                                        headers: { 'Content-Type': 'application/javascript' }
+                                    });
+                                }
+                                if (request.destination === 'style') {
+                                    // Return empty stylesheet for missing styles
+                                    return new Response('', {
+                                        headers: { 'Content-Type': 'text/css' }
+                                    });
+                                }
+                                if (request.destination === 'image') {
+                                    // Return transparent 1x1 image for missing images
+                                    return new Response('', {
+                                        headers: { 'Content-Type': 'image/svg+xml' }
+                                    });
+                                }
                             });
-                        
-                        return response;
-                    })
-                    .catch(error => {
-                        console.error('[ServiceWorker] Fetch failed:', error);
-                        // Return offline page if available
-                        if (request.destination === 'document') {
-                            return caches.match('/index.html');
-                        }
                     });
             })
     );
@@ -209,6 +260,7 @@ async function updateCache() {
                 const response = await fetch(url, { cache: 'no-cache' });
                 if (response && response.status === 200) {
                     await cache.put(url, response);
+                    console.log(`[ServiceWorker] Updated ${url}`);
                 }
             } catch (error) {
                 console.warn(`[ServiceWorker] Failed to update ${url}:`, error);
@@ -230,6 +282,29 @@ async function updateCache() {
         console.error('[ServiceWorker] Cache update failed:', error);
     }
 }
+
+// Pre-cache on first visit
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'INIT_CACHE') {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => {
+                return Promise.all(
+                    STATIC_CACHE_URLS.map(url => {
+                        return fetch(url)
+                            .then(response => {
+                                if (response.ok) {
+                                    return cache.put(url, response);
+                                }
+                            })
+                            .catch(error => {
+                                console.warn(`Failed to cache ${url}:`, error);
+                            });
+                    })
+                );
+            })
+        );
+    }
+});
 
 // Listen for push notifications (future feature)
 self.addEventListener('push', (event) => {
