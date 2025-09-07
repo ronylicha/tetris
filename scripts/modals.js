@@ -1,9 +1,11 @@
 // Modern Tetris - Modal Management System
+import { LeaderboardManager } from './leaderboard.js';
 
 export class ModalManager {
     constructor(audioManager) {
         this.audioManager = audioManager;
         this.currentModal = null;
+        this.leaderboardManager = new LeaderboardManager();
         this.initializeEventListeners();
     }
 
@@ -12,7 +14,7 @@ export class ModalManager {
         const headerLeaderboardButton = document.getElementById('header-leaderboard-button');
         if (headerLeaderboardButton) {
             headerLeaderboardButton.addEventListener('click', () => {
-                this.showLeaderboard();
+                this.leaderboardManager.showLeaderboard();
             });
         }
 
