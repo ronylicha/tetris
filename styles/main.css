@@ -252,8 +252,9 @@ body::before {
     align-items: center;
     justify-content: flex-start;
     padding: 10px;
-    padding-top: 60px; /* Reduced space for header buttons */
+    padding-top: 50px; /* Reduced space for header buttons */
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* Logo Styles */

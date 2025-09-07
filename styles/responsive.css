@@ -5,7 +5,11 @@
 /* Small Mobile Devices (320px - 480px) */
 @media (max-width: 480px) {
     .app {
-        padding: 10px;
+        padding: 5px;
+    }
+    
+    .game-screen {
+        padding-top: 45px;
     }
     
     
@@ -68,9 +72,12 @@
     .game-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto;
-        gap: 12px;
+        grid-template-rows: auto 1fr;
+        gap: 10px;
         max-width: 100%;
+        padding: 0 8px;
+        height: calc(100vh - 55px);
+        max-height: calc(100vh - 55px);
     }
     
     /* Info panel (hold + stats combined) */
@@ -179,12 +186,17 @@
         grid-row: 2;
         display: flex;
         justify-content: center;
+        align-items: flex-start;
+        height: 100%;
+        max-height: calc(100vh - 140px);
+        padding-bottom: 10px;
     }
     
     #game-canvas {
         width: 100%;
-        max-width: 280px;
-        height: 560px;
+        max-width: min(280px, calc(100vw - 20px));
+        height: calc(100vh - 140px);
+        max-height: min(560px, calc(100vh - 140px));
     }
     
     #overlay-title {
