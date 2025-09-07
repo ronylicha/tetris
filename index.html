@@ -42,8 +42,8 @@
         <div class="controls-hint" id="mobile-controls-hint" style="display: none;">
             <span>👆 Tap to rotate</span>
             <span>👈👉 Swipe to move</span>
-            <span>👇 Swipe down to drop</span>
-            <span>🤏 Long press to hold</span>
+            <span>👇 Hold & drag down for fast drop</span>
+            <span>🤏 Long press to hold piece</span>
         </div>
 
         <main class="game-container">
@@ -100,7 +100,7 @@
                 <div class="hold-stats-card">
                     <div class="hold-section">
                         <h4>Hold</h4>
-                        <div class="hold-piece mobile-hold"></div>
+                        <div class="hold-piece" id="mobile-hold-piece"></div>
                     </div>
                     <div class="stats-section">
                         <div class="stat-compact">
@@ -123,9 +123,9 @@
                 <div class="next-pieces-card">
                     <h4>Next</h4>
                     <div class="next-pieces-compact">
-                        <div class="next-piece-small mobile-next" data-next="0"></div>
-                        <div class="next-piece-small mobile-next" data-next="1"></div>
-                        <div class="next-piece-small mobile-next" data-next="2"></div>
+                        <div class="next-piece-small" id="mobile-next-0"></div>
+                        <div class="next-piece-small" id="mobile-next-1"></div>
+                        <div class="next-piece-small" id="mobile-next-2"></div>
                     </div>
                 </div>
             </div>

@@ -51,7 +51,10 @@ export class InputManager {
             isActive: false,
             startTime: 0,
             longPressThreshold: 500, // 500ms for long press
-            longPressTriggered: false
+            longPressTriggered: false,
+            isDownSwipe: false,
+            downSwipeSpeed: 0,
+            continuousDropActive: false
         };
         
         this.initializeEventListeners();
@@ -228,6 +231,26 @@ export class InputManager {
     handleTouchMove(e) {
         if (!this.touchControls.isActive) return;
         e.preventDefault();
+        
+        const touch = e.touches[0];
+        const rect = e.target.getBoundingClientRect();
+        const currentY = touch.clientY - rect.top;
+        const deltaY = currentY - this.touchControls.startY;
+        
+        // Detect continuous down swipe
+        if (deltaY > this.touchControls.threshold && !this.touchControls.longPressTriggered) {
+            if (!this.touchControls.isDownSwipe) {
+                this.touchControls.isDownSwipe = true;
+                this.touchControls.continuousDropActive = true;
+                
+                // Calculate swipe speed (distance per time)
+                const timeElapsed = Date.now() - this.touchControls.startTime;
+                this.touchControls.downSwipeSpeed = Math.min(deltaY / Math.max(timeElapsed, 1), 2); // Cap at 2x speed
+                
+                // Start continuous soft drop
+                this.startContinuousDrop();
+            }
+        }
     }
 
     handleTouchEnd(e) {
@@ -240,9 +263,20 @@ export class InputManager {
             this.longPressTimeout = null;
         }
         
+        // Stop continuous drop if active
+        if (this.touchControls.continuousDropActive) {
+            this.stopContinuousDrop();
+        }
+        
         // If long press was triggered, don't process other gestures
         if (this.touchControls.longPressTriggered) {
-            this.touchControls.isActive = false;
+            this.resetTouchControls();
+            return;
+        }
+        
+        // If continuous drop was active, don't process other gestures
+        if (this.touchControls.isDownSwipe) {
+            this.resetTouchControls();
             return;
         }
         
@@ -268,18 +302,18 @@ export class InputManager {
         } else {
             // Vertical swipe
             if (Math.abs(deltaY) > threshold) {
-                if (deltaY > 0) {
-                    this.executeAction('softDrop');
-                } else {
+                if (deltaY < 0) {
+                    // Swipe up - hard drop
                     this.executeAction('hardDrop');
                 }
+                // Note: Down swipe is now handled by continuous drop in touchMove
             } else if (touchDuration < this.touchControls.longPressThreshold) {
                 // Quick tap - rotate
                 this.executeAction('rotateClockwise');
             }
         }
         
-        this.touchControls.isActive = false;
+        this.resetTouchControls();
     }
 
     handleCanvasClick(e) {
@@ -474,6 +508,48 @@ export class InputManager {
                window.getComputedStyle(overlay).display !== 'none';
     }
 
+    // Start continuous drop for touch down swipe
+    startContinuousDrop() {
+        if (!this.game || this.game.state !== 'playing') return;
+        
+        // Calculate drop interval based on swipe speed (faster swipe = faster drop)
+        const baseInterval = 50; // Base 50ms interval
+        const speedMultiplier = Math.max(0.3, 1 - this.touchControls.downSwipeSpeed * 0.3);
+        const dropInterval = baseInterval * speedMultiplier; // Faster swipe = shorter interval
+        
+        // Clear any existing interval
+        if (this.continuousDropInterval) {
+            clearInterval(this.continuousDropInterval);
+        }
+        
+        // Start continuous dropping
+        this.continuousDropInterval = setInterval(() => {
+            if (!this.touchControls.continuousDropActive || !this.game || this.game.state !== 'playing') {
+                this.stopContinuousDrop();
+                return;
+            }
+            this.executeAction('softDrop');
+        }, dropInterval);
+    }
+    
+    // Stop continuous drop
+    stopContinuousDrop() {
+        if (this.continuousDropInterval) {
+            clearInterval(this.continuousDropInterval);
+            this.continuousDropInterval = null;
+        }
+        this.touchControls.continuousDropActive = false;
+    }
+    
+    // Reset touch controls state
+    resetTouchControls() {
+        this.touchControls.isActive = false;
+        this.touchControls.isDownSwipe = false;
+        this.touchControls.longPressTriggered = false;
+        this.touchControls.continuousDropActive = false;
+        this.touchControls.downSwipeSpeed = 0;
+    }
+
     // Update DAS settings
     updateDASSettings(settings) {
         if (settings.delay !== undefined) this.das.delay = settings.delay;
@@ -489,8 +565,10 @@ export class InputManager {
         this.firstPress.left = false;
         this.firstPress.right = false;
         this.firstPress.down = false;
-        this.touchControls.isActive = false;
-        this.touchControls.longPressTriggered = false;
+        
+        // Reset touch controls
+        this.stopContinuousDrop();
+        this.resetTouchControls();
         
         // Clear any pending long press timeout
         if (this.longPressTimeout) {
@@ -591,6 +669,15 @@ export class InputManager {
             canvas.removeEventListener('touchstart', this.handleTouchStart);
             canvas.removeEventListener('touchmove', this.handleTouchMove);
             canvas.removeEventListener('touchend', this.handleTouchEnd);
+        }
+        
+        // Clean up continuous drop
+        this.stopContinuousDrop();
+        
+        // Clear long press timeout
+        if (this.longPressTimeout) {
+            clearTimeout(this.longPressTimeout);
+            this.longPressTimeout = null;
         }
         
         window.removeEventListener('blur', this.handleWindowBlur);

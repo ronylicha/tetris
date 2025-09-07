@@ -8,6 +8,7 @@
         padding: 10px;
     }
     
+    
     .logo {
         height: 40px;
     }
@@ -60,7 +61,7 @@
     }
     
     .info-panel, .next-panel {
-        display: block;
+        display: block !important;
     }
     
     /* Compact two-column layout */
@@ -81,7 +82,7 @@
     .hold-stats-card {
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
         padding: 12px;
         display: flex;
@@ -105,7 +106,7 @@
         height: 45px;
         margin: 0 auto;
         background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--glass-border);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 4px;
     }
     
@@ -144,7 +145,7 @@
     .next-pieces-card {
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
         padding: 12px;
         text-align: center;
@@ -168,7 +169,7 @@
         width: 35px;
         height: 35px;
         background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--glass-border);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 3px;
     }
     
@@ -211,7 +212,7 @@
     }
     
     .info-panel, .next-panel {
-        display: block;
+        display: block !important;
     }
     
     .game-container {

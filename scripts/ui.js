@@ -36,11 +36,15 @@ export class UIManager {
             particlesContainer: document.getElementById('particles'),
             
             // Mobile elements for synchronization
-            mobileHold: document.querySelector('.mobile-hold'),
+            mobileHold: document.getElementById('mobile-hold-piece'),
             mobileScore: document.querySelectorAll('[data-sync="score"]'),
             mobileLines: document.querySelectorAll('[data-sync="lines"]'),
             mobileLevel: document.querySelectorAll('[data-sync="level"]'),
-            mobileNext: document.querySelectorAll('.mobile-next')
+            mobileNext: [
+                document.getElementById('mobile-next-0'),
+                document.getElementById('mobile-next-1'),
+                document.getElementById('mobile-next-2')
+            ]
         };
     }
 
@@ -188,18 +192,14 @@ export class UIManager {
         
         // Update mobile next pieces
         pieces.forEach((pieceType, index) => {
-            const mobileNext = Array.from(this.elements.mobileNext).find(el => 
-                el.dataset.next === index.toString()
-            );
-            
-            if (mobileNext) {
-                mobileNext.innerHTML = '';
+            if (this.elements.mobileNext[index]) {
+                this.elements.mobileNext[index].innerHTML = '';
                 
                 if (pieceType) {
                     const { Piece, PIECE_COLORS } = this.game.pieceModule;
                     const piece = new Piece(pieceType);
                     const mobileGrid = this.createMiniGrid(piece, true); // true for mobile size
-                    mobileNext.appendChild(mobileGrid);
+                    this.elements.mobileNext[index].appendChild(mobileGrid);
                 }
             }
         });
