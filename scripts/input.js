@@ -104,9 +104,6 @@ export class InputManager {
         // Add touch support for UI elements
         this.initializeTouchUI();
         
-        // Show mobile controls hint on touch devices
-        this.showMobileControlsHint();
-        
         // Focus management
         window.addEventListener('blur', () => this.handleWindowBlur());
         window.addEventListener('focus', () => this.handleWindowFocus());
@@ -626,43 +623,6 @@ export class InputManager {
         if (this.longPressTimeout) {
             clearTimeout(this.longPressTimeout);
             this.longPressTimeout = null;
-        }
-    }
-
-    // Show mobile controls hint on touch devices
-    showMobileControlsHint() {
-        // Check if device supports touch
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        const mobileControlsHint = document.getElementById('mobile-controls-hint');
-        
-        if (isTouchDevice && mobileControlsHint) {
-            mobileControlsHint.style.display = 'flex';
-            
-            // Auto-hide after 5 seconds during gameplay
-            const autoHide = () => {
-                if (this.game && this.game.state === 'playing') {
-                    mobileControlsHint.style.opacity = '0.7';
-                    setTimeout(() => {
-                        if (this.game && this.game.state === 'playing') {
-                            mobileControlsHint.style.display = 'none';
-                        }
-                    }, 5000);
-                }
-            };
-            
-            // Hide hint after 10 seconds or when game starts
-            setTimeout(autoHide, 10000);
-            
-            // Also hide when game starts
-            if (this.game) {
-                const originalStart = this.game.start?.bind(this.game);
-                if (originalStart) {
-                    this.game.start = (...args) => {
-                        originalStart(...args);
-                        setTimeout(autoHide, 3000);
-                    };
-                }
-            }
         }
     }
     
