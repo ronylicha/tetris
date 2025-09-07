@@ -373,6 +373,100 @@ export class UIManager {
             modeUIContainer.appendChild(puzzleNumElement);
         }
         
+        // Add Battle mode display (AI score, round info, etc.)
+        if (customDisplay.aiScore !== undefined || customDisplay.round) {
+            const battleInfoElement = document.createElement('div');
+            battleInfoElement.className = 'battle-info';
+            battleInfoElement.innerHTML = `
+                <div class="battle-round">${customDisplay.round || 'Round 1'}</div>
+                <div class="battle-scores">
+                    <div class="player-score-section">
+                        <div class="score-label">You</div>
+                        <div class="score-value" id="player-battle-score">${customDisplay.playerScore || 0}</div>
+                        <div class="wins-indicator">Wins: ${customDisplay.playerWins || 0}</div>
+                    </div>
+                    <div class="vs-separator">VS</div>
+                    <div class="ai-score-section">
+                        <div class="score-label">AI (${customDisplay.aiDifficulty || 'Normal'})</div>
+                        <div class="score-value" id="ai-battle-score">${customDisplay.aiScore || 0}</div>
+                        <div class="wins-indicator">Wins: ${customDisplay.aiWins || 0}</div>
+                    </div>
+                </div>
+                <div class="ai-stats">
+                    <span>AI Lines: <span id="ai-lines">${customDisplay.aiLines || 0}</span></span>
+                </div>
+            `;
+            modeUIContainer.appendChild(battleInfoElement);
+            
+            // Add CSS for battle info display
+            if (!document.getElementById('battle-mode-styles')) {
+                const style = document.createElement('style');
+                style.id = 'battle-mode-styles';
+                style.textContent = `
+                    .battle-info {
+                        background: rgba(255, 0, 0, 0.1);
+                        border: 2px solid #ff0000;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                        box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+                    }
+                    .battle-round {
+                        text-align: center;
+                        font-size: 1.2rem;
+                        font-weight: bold;
+                        color: #ff0000;
+                        margin-bottom: 10px;
+                        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+                    }
+                    .battle-scores {
+                        display: grid;
+                        grid-template-columns: 1fr auto 1fr;
+                        gap: 15px;
+                        align-items: center;
+                        margin-bottom: 10px;
+                    }
+                    .player-score-section, .ai-score-section {
+                        text-align: center;
+                    }
+                    .score-label {
+                        font-size: 0.9rem;
+                        color: #999;
+                        margin-bottom: 5px;
+                    }
+                    .score-value {
+                        font-size: 1.8rem;
+                        font-weight: bold;
+                        color: #39ff14;
+                        text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+                    }
+                    .ai-score-section .score-value {
+                        color: #ff0040;
+                        text-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+                    }
+                    .vs-separator {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        color: #ffff00;
+                        text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+                    }
+                    .wins-indicator {
+                        font-size: 0.8rem;
+                        color: #666;
+                        margin-top: 5px;
+                    }
+                    .ai-stats {
+                        text-align: center;
+                        font-size: 0.9rem;
+                        color: #999;
+                        padding-top: 10px;
+                        border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
         // Insert into game area
         const gameBoard = document.querySelector('.game-board');
         if (gameBoard) {
@@ -414,6 +508,28 @@ export class UIManager {
             const piecesElement = document.getElementById('puzzle-pieces-count');
             if (piecesElement) {
                 piecesElement.textContent = modeConfig.customDisplay.pieces;
+            }
+        }
+        
+        // Update Battle mode scores
+        if (modeConfig.customDisplay.playerScore !== undefined) {
+            const playerScoreElement = document.getElementById('player-battle-score');
+            if (playerScoreElement) {
+                playerScoreElement.textContent = modeConfig.customDisplay.playerScore;
+            }
+        }
+        
+        if (modeConfig.customDisplay.aiScore !== undefined) {
+            const aiScoreElement = document.getElementById('ai-battle-score');
+            if (aiScoreElement) {
+                aiScoreElement.textContent = modeConfig.customDisplay.aiScore;
+            }
+        }
+        
+        if (modeConfig.customDisplay.aiLines !== undefined) {
+            const aiLinesElement = document.getElementById('ai-lines');
+            if (aiLinesElement) {
+                aiLinesElement.textContent = modeConfig.customDisplay.aiLines;
             }
         }
     }

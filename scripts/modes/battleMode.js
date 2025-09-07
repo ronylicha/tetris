@@ -285,7 +285,12 @@ export class BattleMode extends GameMode {
             case 'left':
             case 'right':
             case 'rotate':
+                break;
             case 'drop':
+                // AI placed a piece, update score
+                if (this.ai) {
+                    this.ai.score += 10; // Base points for piece placement
+                }
                 // Update AI grid visualization
                 if (this.game.uiManager) {
                     this.game.uiManager.updateAIGrid(this.aiGrid);
@@ -296,6 +301,17 @@ export class BattleMode extends GameMode {
         // Check if AI cleared lines
         const aiLines = this.checkAILineClears();
         if (aiLines > 0) {
+            // Update AI score for line clears
+            if (this.ai) {
+                const baseScore = aiLines * 100;
+                const levelMultiplier = Math.max(1, Math.floor(this.ai.lines / 10) + 1);
+                this.ai.score += baseScore * levelMultiplier;
+                
+                // Bonus for special clears
+                if (aiLines === 4) {
+                    this.ai.score += 800; // Tetris bonus
+                }
+            }
             this.receiveGarbageFromAI(this.calculateGarbageFromLines(aiLines));
         }
     }
@@ -586,6 +602,9 @@ export class BattleMode extends GameMode {
                 round: `Round ${this.currentRound}`,
                 playerWins: this.playerWins,
                 aiWins: this.aiWins,
+                playerScore: this.game.score,
+                aiScore: this.ai ? this.ai.score : 0,
+                aiLines: this.ai ? this.ai.lines : 0,
                 aiDifficulty: ['Easy', 'Normal', 'Hard', 'Expert', 'Grandmaster'][this.aiDifficulty - 1],
                 powerUps: this.getAvailablePowerUps()
             }
