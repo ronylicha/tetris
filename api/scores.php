@@ -78,6 +78,12 @@ class ScoreManager {
     private function saveScore() {
         $input = json_decode(file_get_contents('php://input'), true);
         
+        // Check if JSON decode was successful
+        if ($input === null && json_last_error() !== JSON_ERROR_NONE) {
+            $this->sendError("Invalid JSON data: " . json_last_error_msg());
+            return;
+        }
+        
         // Validate input
         $requiredFields = ['playerName', 'score', 'lines', 'level', 'gameDuration'];
         foreach ($requiredFields as $field) {
@@ -95,6 +101,23 @@ class ScoreManager {
         $gameDuration = (int) $input['gameDuration'];
         $specialAchievements = json_encode($input['specialAchievements'] ?? []);
         
+        // Handle game mode (default to classic if not provided)
+        $gameMode = isset($input['mode']) ? $input['mode'] : 'classic';
+        $validModes = ['classic', 'sprint', 'marathon', 'zen', 'puzzle', 'battle'];
+        if (!in_array($gameMode, $validModes)) {
+            $gameMode = 'classic';
+        }
+        
+        // Store mode-specific data (for sprint time, puzzle number, etc.)
+        $modeData = null;
+        if (isset($input['time'])) { // Sprint mode time
+            $modeData = json_encode(['time' => $input['time']]);
+        } elseif (isset($input['puzzleNumber'])) { // Puzzle mode
+            $modeData = json_encode(['puzzleNumber' => $input['puzzleNumber']]);
+        } elseif (isset($input['difficulty'])) { // Battle mode
+            $modeData = json_encode(['difficulty' => $input['difficulty']]);
+        }
+        
         // Validate ranges
         if ($score < 0 || $lines < 0 || $level < 1 || $gameDuration < 0) {
             $this->sendError('Invalid score data');
@@ -109,12 +132,12 @@ class ScoreManager {
         try {
             $stmt = $this->db->prepare("
                 INSERT INTO high_scores 
-                (player_name, score, lines, level, game_duration, special_achievements)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (player_name, score, lines, level, game_duration, special_achievements, game_mode, mode_data)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
             $result = $stmt->execute([
-                $playerName, $score, $lines, $level, $gameDuration, $specialAchievements
+                $playerName, $score, $lines, $level, $gameDuration, $specialAchievements, $gameMode, $modeData
             ]);
             
             if ($result) {
@@ -145,24 +168,37 @@ class ScoreManager {
     private function getLeaderboard() {
         $limit = (int) ($_GET['limit'] ?? 50);
         $limit = min(max($limit, 1), 100); // Between 1 and 100
+        $mode = $_GET['mode'] ?? 'classic';
+        
+        // Validate mode
+        $validModes = ['classic', 'sprint', 'marathon', 'zen', 'puzzle', 'battle'];
+        if (!in_array($mode, $validModes)) {
+            $mode = 'classic';
+        }
         
         try {
+            // For Sprint mode, order by time (ascending) instead of score
+            $orderBy = ($mode === 'sprint') ? 'game_duration ASC' : 'score DESC';
+            
             $stmt = $this->db->prepare("
                 SELECT 
-                    ROW_NUMBER() OVER (ORDER BY score DESC) as rank,
+                    ROW_NUMBER() OVER (ORDER BY $orderBy) as rank,
                     player_name,
                     score,
                     lines,
                     level,
                     game_duration,
                     datetime(date_achieved, 'localtime') as date_achieved,
-                    special_achievements
+                    special_achievements,
+                    game_mode,
+                    mode_data
                 FROM high_scores
-                ORDER BY score DESC
+                WHERE game_mode = ?
+                ORDER BY $orderBy
                 LIMIT ?
             ");
             
-            $stmt->execute([$limit]);
+            $stmt->execute([$mode, $limit]);
             $leaderboard = $stmt->fetchAll();
             
             // Parse special achievements JSON
@@ -310,6 +346,7 @@ class ScoreManager {
     
     private function sendError($message, $code = 400) {
         http_response_code($code);
+        error_log("Tetris API Error ($code): $message");
         echo json_encode([
             'success' => false,
             'error' => $message

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Modern Tetris is a fully-featured, responsive web-based Tetris game built with vanilla JavaScript ES6 modules. It features neon graphics, dynamic audio, advanced touch controls, and Progressive Web App (PWA) capabilities with offline support.
 
-**Latest Version: 2.5.0** - Major AI improvements, puzzle fixes, and offline enhancements.
+**Latest Version: 2.0.0** - Complete UI overhaul with new home screen, improved navigation, responsive leaderboard, and enhanced game modes support.
 
 ## Architecture
 
@@ -209,12 +209,52 @@ No automated testing framework is currently implemented. Manual testing should f
 - Difficulty analysis based on solution complexity
 - Import/Export puzzle configurations as JSON
 
+## Version 2.0.0 Changes (Latest)
+
+### Major UI/UX Improvements
+1. **New Home Screen**: 
+   - Dedicated landing page with game mode selection grid
+   - Large animated logo and title
+   - Quick access to Settings, Leaderboard, and Help
+   - Modern card-based layout for 6 game modes
+
+2. **Improved Game Navigation**:
+   - Clean game view without header clutter
+   - Floating action buttons (Back to Menu, Help, Mute)
+   - ESC key returns to home screen
+   - Complete game reset when returning to menu
+
+3. **Responsive Leaderboard**:
+   - Mobile-optimized card layout for entries
+   - Top 3 highlighted with gold/silver/bronze
+   - Smooth scrolling with styled scrollbar
+   - Mode-specific filtering with database support
+
+4. **Enhanced Help Modal**:
+   - Tabbed interface (Keyboard/Touch/Scoring)
+   - Visual keyboard keys display
+   - Touch gesture icons and explanations
+   - Comprehensive scoring system documentation
+
+5. **Database Updates**:
+   - Added `game_mode` column for mode-specific leaderboards
+   - Added `mode_data` column for storing mode-specific information
+   - Fixed permissions issues with SQLite database
+   - API now handles different game modes properly
+
+### Technical Improvements
+1. **Canvas Rendering**: Responsive sizing using em units
+2. **Navigation Flow**: Home → Game Mode Selection → Game → Home
+3. **State Management**: Proper cleanup when switching screens
+4. **Error Handling**: Better API error messages and logging
+5. **Mobile Optimization**: Touch-friendly UI elements throughout
+
 ### Recent Critical Fixes
-1. **IndexedDB Error**: Fixed invalid `getAll(false)` by filtering results manually
-2. **Service Worker 404**: Added dynamic path detection for production environments
-3. **Overlay Issues**: Removed duplicate indicator systems, now only minimal offline dot
-4. **Puzzle 2 Fix**: Changed from 1 to 2 O pieces for feasibility
-5. **AI Improvements**: Complete overhaul of evaluation algorithm and strategies
+1. **Game Reset Issue**: Fixed game continuing in background when returning to menu
+2. **Score Saving 400 Error**: Fixed API path and database permissions
+3. **Canvas Visibility**: Fixed canvas sizing and display issues
+4. **Leaderboard Mobile**: Complete responsive redesign for all screen sizes
+5. **Database Permissions**: Fixed write permissions for Apache/PHP
 
 ### Testing Checklist
 - [ ] Test in server mode (http://)

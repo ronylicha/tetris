@@ -236,7 +236,7 @@ export class OfflineStorage {
         
         for (const score of unsyncedScores) {
             try {
-                const response = await fetch('/tetris/api/scores.php?action=save', {
+                const response = await fetch('api/scores.php?action=save', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

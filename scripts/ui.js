@@ -53,17 +53,10 @@ export class UIManager {
     }
 
     initializeUI() {
-        // Button event listeners
-        if (this.elements.startButton) {
-            this.elements.startButton.addEventListener('click', async () => {
-                // Trigger audio context on first user interaction
-                if (this.game.audioManager) {
-                    await this.game.audioManager.resumeAudioContext();
-                }
-                this.game.start();
-            });
-        }
+        // Hide game overlay by default since we start on home screen
+        this.hideOverlay();
         
+        // Button event listeners for game over screen
         if (this.elements.restartButton) {
             this.elements.restartButton.addEventListener('click', () => {
                 this.game.restart();

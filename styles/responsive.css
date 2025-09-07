@@ -567,9 +567,26 @@
 /* Modal Responsive Styles */
 @media (max-width: 480px) {
     .name-input-content, .leaderboard-content {
-        padding: 20px;
+        padding: 15px;
         margin: 10px;
-        max-width: 95%;
+        max-width: calc(100% - 20px);
+        width: 100%;
+    }
+    
+    .leaderboard-content {
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .leaderboard-header {
+        flex-shrink: 0;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .leaderboard-header h2 {
+        font-size: 1.3rem;
     }
     
     .name-input-content h2 {
@@ -592,24 +609,105 @@
         min-height: 50px;
     }
     
-    .leaderboard-entry {
-        grid-template-columns: 40px 1fr 80px;
-        gap: 10px;
-        padding: 12px 15px;
-        font-size: 0.9rem;
+    /* Leaderboard mobile card layout */
+    .leaderboard-list {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 5px;
+        max-height: calc(90vh - 200px);
     }
     
-    .entry-lines, .entry-level {
-        display: none;
+    .leaderboard-entry {
+        display: block;
+        position: relative;
+        padding: 15px;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        margin-bottom: 12px;
+    }
+    
+    .leaderboard-entry .entry-rank {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        width: 40px;
+        text-align: center;
+    }
+    
+    .leaderboard-entry .entry-name {
+        margin-left: 60px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+    
+    .leaderboard-entry .entry-score {
+        margin-left: 60px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: var(--neon-green);
+        text-shadow: 0 0 5px currentColor;
+        margin-bottom: 10px;
+    }
+    
+    /* Mobile stats row */
+    .leaderboard-entry .entry-lines,
+    .leaderboard-entry .entry-level {
+        display: inline-block;
+        margin-left: 60px;
+        margin-right: 15px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .leaderboard-entry .entry-lines::before {
+        content: 'Lines: ';
+        opacity: 0.7;
+    }
+    
+    .leaderboard-entry .entry-level::before {
+        content: 'Lvl: ';
+        opacity: 0.7;
     }
     
     .leaderboard-tabs {
-        flex-direction: column;
+        flex-direction: row;
         gap: 5px;
+        padding: 3px;
+        flex-shrink: 0;
     }
     
     .tab-button {
-        padding: 12px;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    /* Mode selector for mobile */
+    .mode-selector-container {
+        margin: 10px 0;
+        padding: 5px;
+    }
+    
+    .mode-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .mode-button {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .mode-button .mode-icon {
+        font-size: 1.2rem;
+        margin-bottom: 3px;
     }
 }
 
@@ -623,9 +721,55 @@
         grid-template-columns: repeat(3, 1fr);
     }
     
+    .leaderboard-list {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
     .leaderboard-entry {
-        grid-template-columns: 45px 1fr 90px 50px 50px;
+        display: grid;
+        grid-template-columns: 50px 2fr 1fr 60px 60px;
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
         font-size: 0.95rem;
+    }
+    
+    .leaderboard-entry .entry-rank {
+        position: static;
+        font-size: 1.3rem;
+    }
+    
+    .leaderboard-entry .entry-name {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .leaderboard-entry .entry-score {
+        margin: 0;
+        font-size: 1.1rem;
+        text-align: right;
+    }
+    
+    .leaderboard-entry .entry-lines,
+    .leaderboard-entry .entry-level {
+        display: block;
+        margin: 0;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .leaderboard-entry .entry-lines::before,
+    .leaderboard-entry .entry-level::before {
+        content: '';
+    }
+    
+    .leaderboard-tabs {
+        flex-direction: row;
+    }
+    
+    .mode-selector {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 

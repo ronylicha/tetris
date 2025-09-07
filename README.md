@@ -1,6 +1,8 @@
-# Modern Tetris 🎮
+# Modern Tetris 🎮 v2.0
 
 A modern, fully responsive Tetris game with neon graphics, 90s-style music, and advanced touch controls optimized for all devices.
+
+**Version 2.0** brings a complete UI overhaul with a new home screen, improved navigation, responsive leaderboard, and enhanced game modes support.
 
 ![Tetris Game Preview](https://img.shields.io/badge/Game-Tetris-brightgreen) ![License](https://img.shields.io/badge/License-MIT-blue.svg) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![Responsive](https://img.shields.io/badge/Responsive-Mobile_First-green) ![Touch](https://img.shields.io/badge/Touch-Optimized-blue)
 
@@ -27,6 +29,13 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 - **Long press hold system** - intuitive piece holding
 - **Multi-touch support** with gesture conflict prevention
 
+### 🏠 **New Home Screen (v2.0)**
+- **Modern landing page** with animated logo and title
+- **Game mode selection grid** - 6 modes with icons and descriptions
+- **Quick access buttons** for Settings, Leaderboard, and Help
+- **Smooth transitions** between home and game screens
+- **Clean game interface** with minimal floating controls
+
 ### 🏆 **Game Features**
 - **6 Unique Game Modes** - Classic, Sprint, Marathon, Zen, Puzzle, and Battle
 - **Modern Tetris mechanics** (SRS rotation, hold piece, ghost piece)
@@ -34,7 +43,11 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 - **Combo system** with multiplier bonuses
 - **Perfect clear** detection and massive bonus points
 - **Progressive difficulty** with adaptive level progression
-- **Leaderboard system** with local storage and statistics per mode
+- **Enhanced Leaderboard (v2.0)** - Fully responsive with mode-specific filtering
+  - Mobile-optimized card layout
+  - Top 3 highlighted with gold/silver/bronze
+  - Smooth scrolling with styled scrollbar
+  - Per-mode leaderboards with database support
 - **150 Puzzle Challenges** with varied objectives and difficulty levels
 - **AI Battle System** with 5 difficulty levels from Easy to Grandmaster
 
@@ -464,6 +477,61 @@ Access the puzzle creator at `/puzzleCreator.html` to:
   - Resolved Service Worker 404 issues
   - Dynamic path detection for production
 - **Minimal Offline Indicator**: Reduced to discrete 8x8px red dot (offline only)
+
+## 📚 Changelog
+
+### Version 2.0.0 (Current) - September 2025
+**Major UI/UX Overhaul**
+
+#### 🎨 New Features
+- **Brand New Home Screen**
+  - Dedicated landing page with animated logo
+  - Game mode selection grid with icons and descriptions
+  - Quick access to Settings, Leaderboard, and Help
+  - Modern card-based UI design
+
+- **Improved Navigation**
+  - Clean game view without header clutter
+  - Floating action buttons (Back, Help, Mute)
+  - ESC key returns to home screen
+  - Complete game state reset when returning to menu
+
+- **Responsive Leaderboard**
+  - Mobile-optimized card layout
+  - Top 3 highlighted with gold/silver/bronze medals
+  - Smooth scrolling with styled scrollbar
+  - Mode-specific filtering
+
+- **Enhanced Help System**
+  - Tabbed interface (Keyboard/Touch/Scoring)
+  - Visual keyboard keys display
+  - Touch gesture icons
+  - Comprehensive documentation
+
+#### 🔧 Technical Improvements
+- Canvas responsive sizing using em units
+- Proper state management between screens
+- Database support for game modes
+- Fixed score saving 400 errors
+- Improved API error handling
+
+#### 🐛 Bug Fixes
+- Fixed game continuing in background when returning to menu
+- Resolved canvas visibility issues
+- Fixed database write permissions
+- Corrected API path issues
+- Improved mobile responsiveness
+
+### Version 1.3.5 - September 2025
+- AI improvements and puzzle fixes
+- Battle mode enhancements
+- Offline support improvements
+
+### Version 1.0.0 - September 2025
+- Initial release
+- 6 game modes
+- PWA support
+- Touch controls
 
 ---
 

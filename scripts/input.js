@@ -23,7 +23,7 @@ export class InputManager {
             'Space': 'hardDrop',
             'KeyC': 'hold',
             'KeyP': 'pause',
-            'Escape': 'pause',
+            'Escape': 'menu',
             'KeyR': 'restart',
             'Enter': 'confirm'
         };
@@ -487,6 +487,12 @@ export class InputManager {
                 break;
             case 'pause':
                 this.game.togglePause();
+                break;
+            case 'menu':
+                // Return to home screen
+                if (this.game.modalManager) {
+                    this.game.modalManager.backToHome();
+                }
                 break;
             case 'restart':
                 this.game.restart();

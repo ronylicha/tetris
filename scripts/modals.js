@@ -1,5 +1,6 @@
 // Modern Tetris - Modal Management System
 import { LeaderboardManager } from './leaderboard.js';
+import { PieceBag } from './pieces.js';
 
 export class ModalManager {
     constructor(audioManager) {
@@ -11,53 +12,35 @@ export class ModalManager {
     }
 
     initializeEventListeners() {
-        // Mode selector button
-        const modeSelectorButton = document.getElementById('mode-selector-button');
-        if (modeSelectorButton) {
-            modeSelectorButton.addEventListener('click', () => {
-                this.showModeSelector();
-            });
-        }
-        
-        // Mode cards
-        document.querySelectorAll('.mode-card').forEach(card => {
+        // Home screen mode cards
+        document.querySelectorAll('.home-mode-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const mode = e.currentTarget.dataset.mode;
-                this.selectMode(mode);
+                this.selectModeAndStart(mode);
             });
         });
         
-        // Close mode selector
-        const closeModeSelector = document.getElementById('close-mode-selector');
-        if (closeModeSelector) {
-            closeModeSelector.addEventListener('click', () => {
-                this.hideModeSelector();
-            });
-        }
+        // Home screen buttons
+        document.getElementById('home-settings-button')?.addEventListener('click', () => {
+            this.showSettings();
+        });
         
-        // Header leaderboard button
-        const headerLeaderboardButton = document.getElementById('header-leaderboard-button');
-        if (headerLeaderboardButton) {
-            headerLeaderboardButton.addEventListener('click', () => {
-                this.leaderboardManager.showLeaderboard();
-            });
-        }
-
-        // Settings button
-        const settingsButton = document.getElementById('settings-button');
-        if (settingsButton) {
-            settingsButton.addEventListener('click', () => {
-                this.showSettings();
-            });
-        }
-
-        // Help button
-        const helpButton = document.getElementById('help-button');
-        if (helpButton) {
-            helpButton.addEventListener('click', () => {
-                this.showHelp();
-            });
-        }
+        document.getElementById('home-leaderboard-button')?.addEventListener('click', () => {
+            this.leaderboardManager.showLeaderboard();
+        });
+        
+        document.getElementById('home-help-button')?.addEventListener('click', () => {
+            this.showHelp();
+        });
+        
+        // Game screen buttons
+        document.getElementById('back-to-menu')?.addEventListener('click', () => {
+            this.backToHome();
+        });
+        
+        document.getElementById('game-help-button')?.addEventListener('click', () => {
+            this.showHelp();
+        })
 
         // Mute button
         const muteButton = document.getElementById('mute-button');
@@ -74,6 +57,13 @@ export class ModalManager {
 
         document.getElementById('close-help')?.addEventListener('click', () => {
             this.hideHelp();
+        });
+        
+        // Help tabs
+        document.querySelectorAll('.help-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                this.switchHelpTab(e.target.dataset.tab);
+            });
         });
 
         // Settings tabs
@@ -221,9 +211,21 @@ export class ModalManager {
                 window.tetrisGame.inputManager.reset();
             }
 
-            // Populate quick controls based on device
-            this.populateQuickControls();
+            // Show keyboard tab by default
+            this.switchHelpTab('keyboard');
         }
+    }
+    
+    switchHelpTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.help-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === tabName);
+        });
+        
+        // Update tab content
+        document.getElementById('keyboard-controls').style.display = tabName === 'keyboard' ? 'block' : 'none';
+        document.getElementById('touch-controls').style.display = tabName === 'touch' ? 'block' : 'none';
+        document.getElementById('scoring-system').style.display = tabName === 'scoring' ? 'block' : 'none';
     }
 
     hideHelp() {
@@ -244,51 +246,75 @@ export class ModalManager {
         }
     }
     
-    // Mode selector methods
-    showModeSelector() {
-        const modal = document.getElementById('mode-selector');
-        if (modal) {
-            modal.style.display = 'flex';
-            this.currentModal = 'mode-selector';
-        }
-    }
-    
-    hideModeSelector() {
-        const modal = document.getElementById('mode-selector');
-        if (modal) {
-            modal.style.display = 'none';
-            this.currentModal = null;
-        }
-    }
-    
-    selectMode(modeName) {
-        // Set the game mode
+    // Navigation methods
+    selectModeAndStart(modeName) {
         if (this.game) {
+            // Hide home screen
+            document.getElementById('home-screen').style.display = 'none';
+            // Show game screen
+            document.getElementById('game-screen').style.display = 'block';
+            
+            // Select mode
             this.game.selectMode(modeName);
-            this.hideModeSelector();
             
             // Show puzzle selection menu for puzzle mode
             if (modeName === 'puzzle' && this.game.uiManager) {
-                setTimeout(() => {
-                    this.game.uiManager.showPuzzleSelection();
-                }, 100);
+                this.game.uiManager.showPuzzleSelection();
             } 
             // Show AI difficulty selection for battle mode
             else if (modeName === 'battle' && this.game.uiManager) {
-                setTimeout(() => {
-                    this.game.uiManager.showAIDifficultySelection((difficulty) => {
-                        // Restart game with selected difficulty
-                        this.game.restart();
-                    });
-                }, 100);
+                this.game.uiManager.showAIDifficultySelection((difficulty) => {
+                    // Start game with selected difficulty
+                    this.game.start();
+                });
             } else {
-                // Restart game with new mode
-                this.game.restart();
+                // Start game with new mode
+                this.game.start();
             }
-        } else {
-            // Store for when game is ready
-            localStorage.setItem('selected_mode', modeName);
-            this.hideModeSelector();
+        }
+    }
+    
+    backToHome() {
+        if (this.game) {
+            // Stop game and music
+            this.game.state = 'menu';
+            this.game.audioManager.stopBackgroundMusic();
+            
+            // Clear any running timers
+            this.game.dropTimer = 0;
+            this.game.lockDelay = 0;
+            
+            // Reset game state completely
+            this.game.grid.reset();
+            this.game.score = 0;
+            this.game.lines = 0;
+            this.game.level = 1;
+            this.game.combo = 0;
+            this.game.currentPiece = null;
+            this.game.ghostPiece = null;
+            this.game.heldPiece = null;
+            this.game.heldPieceUsed = false;
+            
+            // Reset next pieces
+            this.game.pieceBag = new PieceBag();
+            this.game.nextPieces = [];
+            for (let i = 0; i < 3; i++) {
+                this.game.nextPieces.push(this.game.pieceBag.getNextPiece().type);
+            }
+            
+            // Update UI after pieces are reset
+            this.game.uiManager.updateNextPieces(this.game.nextPieces);
+            
+            // Hide game overlay
+            this.game.uiManager.hideOverlay();
+            
+            // Update UI
+            this.game.updateUI();
+            
+            // Show home screen
+            document.getElementById('home-screen').style.display = 'flex';
+            // Hide game screen  
+            document.getElementById('game-screen').style.display = 'none';
         }
     }
     

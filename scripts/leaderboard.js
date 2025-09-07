@@ -317,24 +317,15 @@ export class LeaderboardManager {
 
     // Create mode selector UI
     createModeSelector() {
-        let selectorContainer = document.getElementById('mode-selector-container');
-        if (!selectorContainer) {
-            // Create container if it doesn't exist
-            const header = document.querySelector('.leaderboard-header');
-            if (header) {
-                selectorContainer = document.createElement('div');
-                selectorContainer.id = 'mode-selector-container';
-                selectorContainer.className = 'mode-selector-container';
-                header.appendChild(selectorContainer);
-            }
-        }
+        const selectorContainer = document.getElementById('mode-selector-container');
         
         if (selectorContainer) {
             const selectorHTML = `
                 <div class="mode-selector">
                     ${this.gameModes.map(mode => `
                         <button class="mode-select-btn ${mode.id === this.currentMode ? 'active' : ''}" 
-                                data-mode="${mode.id}">
+                                data-mode="${mode.id}"
+                                title="${mode.name}">
                             <span class="mode-icon">${mode.icon}</span>
                             <span class="mode-name">${mode.name}</span>
                         </button>

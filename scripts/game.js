@@ -77,6 +77,11 @@ export class TetrisGame {
         // Setup canvas
         this.setupCanvas();
         
+        // Add resize listener
+        window.addEventListener('resize', () => {
+            this.setupCanvas();
+        });
+        
         // Generate initial next pieces
         for (let i = 0; i < 3; i++) {
             this.nextPieces.push(this.pieceBag.getNextPiece().type);
@@ -84,22 +89,33 @@ export class TetrisGame {
         
         // Update UI
         this.updateUI();
+        
+        // Initialize PWA install handler
+        this.initializePWAInstall();
     }
 
     setupCanvas() {
-        const dpr = window.devicePixelRatio || 1;
-        const rect = this.canvas.getBoundingClientRect();
+        // Fixed internal resolution
+        const internalWidth = 400;
+        const internalHeight = 800;
         
-        this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        // Set internal dimensions
+        this.canvas.width = internalWidth;
+        this.canvas.height = internalHeight;
         
-        this.ctx.scale(dpr, dpr);
-        this.canvas.style.width = rect.width + 'px';
-        this.canvas.style.height = rect.height + 'px';
+        // CSS will handle the display size
+        // The canvas will scale to fit its container
         
         // Setup rendering context
         this.ctx.imageSmoothingEnabled = false;
-        this.cellSize = rect.width / GRID_WIDTH;
+        this.cellSize = internalWidth / GRID_WIDTH;
+        
+        // Log for debugging
+        console.log('Canvas setup:', {
+            width: this.canvas.width,
+            height: this.canvas.height,
+            cellSize: this.cellSize
+        });
     }
 
     // Game loop
@@ -787,6 +803,60 @@ export class TetrisGame {
         }
         
         this.ctx.restore();
+    }
+    
+    initializePWAInstall() {
+        let deferredPrompt;
+        const installButton = document.getElementById('install-button');
+        
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Show install button
+            if (installButton) {
+                installButton.style.display = 'inline-block';
+                
+                installButton.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        // Show the install prompt
+                        deferredPrompt.prompt();
+                        
+                        // Wait for the user to respond to the prompt
+                        const { outcome } = await deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                            installButton.style.display = 'none';
+                        } else {
+                            console.log('User dismissed the install prompt');
+                        }
+                        
+                        // Clear the deferredPrompt for use later
+                        deferredPrompt = null;
+                    }
+                });
+            }
+        });
+        
+        // Hide button if already installed
+        window.addEventListener('appinstalled', () => {
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+            console.log('PWA was installed');
+        });
+        
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+        }
     }
 }
 

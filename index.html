@@ -25,20 +25,66 @@
 </head>
 <body>
     <div class="app">
-        <header class="header">
-            <div class="header-top">
-                <div class="logo-container">
-                    <img src="logo.svg" alt="Modern Tetris" class="logo">
-                    <h1 class="title sr-only">TETRIS</h1>
+        <!-- Home Screen -->
+        <div class="home-screen" id="home-screen">
+            <div class="home-container">
+                <div class="home-header">
+                    <img src="logo.svg" alt="Modern Tetris" class="home-logo">
+                    <h1 class="home-title">TETRIS</h1>
+                    <p class="home-subtitle">Choose Your Game Mode</p>
                 </div>
-                <div class="header-controls">
-                    <button id="mode-selector-button" class="btn-icon" title="Select Mode">🎮</button>
-                    <button id="header-leaderboard-button" class="btn-icon" title="View Leaderboard">🏆</button>
-                    <button id="settings-button" class="btn-icon" title="Settings">⚙️</button>
-                    <button id="help-button" class="btn-icon" title="Controls">❓</button>
-                    <button id="mute-button" class="btn-icon" title="Toggle Sound">🔊</button>
+                
+                <div class="home-modes">
+                    <div class="mode-grid">
+                        <div class="mode-card home-mode-card" data-mode="classic">
+                            <div class="mode-icon">🎮</div>
+                            <h3>Classic</h3>
+                            <p>The original endless Tetris experience</p>
+                        </div>
+                        <div class="mode-card home-mode-card" data-mode="sprint">
+                            <div class="mode-icon">⏱️</div>
+                            <h3>Sprint</h3>
+                            <p>Clear 40 lines as fast as possible</p>
+                        </div>
+                        <div class="mode-card home-mode-card" data-mode="marathon">
+                            <div class="mode-icon">🏃</div>
+                            <h3>Marathon</h3>
+                            <p>Survive 150 lines with increasing difficulty</p>
+                        </div>
+                        <div class="mode-card home-mode-card" data-mode="zen">
+                            <div class="mode-icon">🧘</div>
+                            <h3>Zen</h3>
+                            <p>Relaxing endless mode with no pressure</p>
+                        </div>
+                        <div class="mode-card home-mode-card" data-mode="puzzle">
+                            <div class="mode-icon">🧩</div>
+                            <h3>Puzzle</h3>
+                            <p>Solve 150 unique challenges</p>
+                        </div>
+                        <div class="mode-card home-mode-card" data-mode="battle">
+                            <div class="mode-icon">⚔️</div>
+                            <h3>Battle</h3>
+                            <p>Face off against intelligent AI opponents</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="home-actions">
+                    <button id="home-settings-button" class="btn-secondary">⚙️ Settings</button>
+                    <button id="home-leaderboard-button" class="btn-secondary">🏆 Leaderboard</button>
+                    <button id="home-help-button" class="btn-secondary">❓ Help</button>
+                    <button id="install-button" class="btn-secondary pwa-install" style="display: none;">📱 Install App</button>
                 </div>
             </div>
+        </div>
+        
+        <!-- Game Screen -->
+        <div class="game-screen" id="game-screen" style="display: none;">
+        <!-- Minimal game header with only back and help buttons -->
+        <header class="game-header">
+            <button id="back-to-menu" class="btn-game-icon" title="Back to Menu">↩️</button>
+            <button id="game-help-button" class="btn-game-icon" title="Show Controls">❓</button>
+            <button id="mute-button" class="btn-game-icon" title="Toggle Sound">🔊</button>
         </header>
 
         <!-- Mobile controls hint - only visible on touch devices -->
@@ -75,12 +121,11 @@
 
             <!-- Game board -->
             <div class="game-board">
-                <canvas id="game-canvas" width="400" height="800"></canvas>
-                <div class="game-overlay" id="game-overlay">
+                <canvas id="game-canvas"></canvas>
+                <div class="game-overlay" id="game-overlay" style="display: none;">
                     <div class="overlay-content">
                         <h2 id="overlay-title">Game Paused</h2>
                         <p id="overlay-message">Press P to resume</p>
-                        <button id="start-button" class="btn-primary">Start Game</button>
                         <button id="restart-button" class="btn-secondary" style="display: none;">Restart</button>
                         <button id="leaderboard-button" class="btn-secondary" style="display: none;">View Leaderboard</button>
                     </div>
@@ -133,48 +178,10 @@
                 </div>
             </div>
         </main>
+        </div> <!-- End of game-screen -->
 
         <div class="particles-container" id="particles"></div>
         
-        <!-- Mode Selection Modal -->
-        <div class="mode-selector-modal" id="mode-selector" style="display: none;">
-            <div class="mode-selector-content">
-                <h2>Select Game Mode</h2>
-                <div class="mode-grid">
-                    <div class="mode-card" data-mode="classic">
-                        <div class="mode-icon">🎮</div>
-                        <h3>Classic</h3>
-                        <p>The original endless Tetris experience</p>
-                    </div>
-                    <div class="mode-card" data-mode="sprint">
-                        <div class="mode-icon">⏱️</div>
-                        <h3>Sprint</h3>
-                        <p>Clear 40 lines as fast as possible</p>
-                    </div>
-                    <div class="mode-card" data-mode="marathon">
-                        <div class="mode-icon">🏃</div>
-                        <h3>Marathon</h3>
-                        <p>Survive 150 lines with increasing difficulty</p>
-                    </div>
-                    <div class="mode-card" data-mode="zen">
-                        <div class="mode-icon">🧘</div>
-                        <h3>Zen</h3>
-                        <p>Relaxing endless mode with no pressure</p>
-                    </div>
-                    <div class="mode-card" data-mode="puzzle">
-                        <div class="mode-icon">🧩</div>
-                        <h3>Puzzle</h3>
-                        <p>Solve 150 unique challenges</p>
-                    </div>
-                    <div class="mode-card" data-mode="battle">
-                        <div class="mode-icon">⚔️</div>
-                        <h3>Battle</h3>
-                        <p>Face off against intelligent AI opponents</p>
-                    </div>
-                </div>
-                <button class="close-mode-selector" id="close-mode-selector">×</button>
-            </div>
-        </div>
         
         <!-- Player Name Input Modal -->
         <div class="name-input-overlay" id="name-input-overlay" style="display: none;">
@@ -211,6 +218,9 @@
                 <div class="leaderboard-header">
                     <h2>🏆 Leaderboard</h2>
                     <button id="close-leaderboard" class="btn-close">×</button>
+                </div>
+                <div id="mode-selector-container" class="mode-selector-container">
+                    <!-- Mode selector will be inserted here by JavaScript -->
                 </div>
                 <div class="leaderboard-tabs">
                     <button class="tab-button active" data-tab="top-scores">Top Scores</button>
@@ -353,7 +363,7 @@
             </div>
         </div>
         
-        <!-- Help Modal -->
+        <!-- Enhanced Help Modal -->
         <div class="help-overlay" id="help-overlay" style="display: none;">
             <div class="help-content">
                 <div class="help-header">
@@ -361,55 +371,147 @@
                     <button id="close-help" class="btn-close">×</button>
                 </div>
                 
+                <div class="help-tabs">
+                    <button class="help-tab active" data-tab="keyboard">⌨️ Keyboard</button>
+                    <button class="help-tab" data-tab="touch">📱 Touch</button>
+                    <button class="help-tab" data-tab="scoring">📊 Scoring</button>
+                </div>
+                
                 <div class="help-sections">
-                    <div class="help-section">
-                        <h3>🎯 Objective</h3>
-                        <p>Arrange falling tetrominoes (puzzle pieces) to create complete horizontal lines. Completed lines disappear, giving you points and more space to play.</p>
-                    </div>
-                    
-                    <div class="help-section">
-                        <h3>🎮 Basic Controls</h3>
-                        <div class="quick-controls" id="quick-controls">
-                            <!-- Will be populated by JavaScript based on device -->
+                    <!-- Keyboard Controls -->
+                    <div class="help-section help-tab-content" id="keyboard-controls">
+                        <h3>⌨️ Keyboard Controls</h3>
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <kbd>←</kbd><kbd>→</kbd>
+                                <span>Move Left/Right</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>↓</kbd>
+                                <span>Soft Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>↑</kbd>
+                                <span>Rotate Clockwise</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>Space</kbd>
+                                <span>Hard Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>C</kbd>
+                                <span>Hold Piece</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>P</kbd>
+                                <span>Pause Game</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>Z</kbd>
+                                <span>Rotate Counter-clockwise</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>Esc</kbd>
+                                <span>Back to Menu</span>
+                            </div>
+                        </div>
+                        
+                        <h4>Alternative Keys (WASD)</h4>
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <kbd>A</kbd><kbd>D</kbd>
+                                <span>Move Left/Right</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>S</kbd>
+                                <span>Soft Drop</span>
+                            </div>
+                            <div class="control-item">
+                                <kbd>W</kbd>
+                                <span>Rotate</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="help-section">
-                        <h3>⭐ Special Moves</h3>
-                        <div class="special-moves">
-                            <div class="special-item">
-                                <strong>T-Spin:</strong> Rotate a T-piece into a tight spot for bonus points
+                    <!-- Touch Controls -->
+                    <div class="help-section help-tab-content" id="touch-controls" style="display: none;">
+                        <h3>📱 Touch Controls</h3>
+                        <div class="touch-controls-list">
+                            <div class="touch-control">
+                                <div class="gesture-icon">👆</div>
+                                <div class="gesture-info">
+                                    <strong>Tap</strong>
+                                    <span>Rotate piece clockwise</span>
+                                </div>
                             </div>
-                            <div class="special-item">
-                                <strong>Tetris:</strong> Clear 4 lines at once for maximum points
+                            <div class="touch-control">
+                                <div class="gesture-icon">👈👉</div>
+                                <div class="gesture-info">
+                                    <strong>Swipe Left/Right</strong>
+                                    <span>Move piece horizontally</span>
+                                </div>
                             </div>
-                            <div class="special-item">
-                                <strong>Combo:</strong> Clear lines consecutively for multiplier bonuses
+                            <div class="touch-control">
+                                <div class="gesture-icon">👇</div>
+                                <div class="gesture-info">
+                                    <strong>Swipe Down</strong>
+                                    <span>Soft drop (faster fall)</span>
+                                </div>
                             </div>
-                            <div class="special-item">
-                                <strong>Perfect Clear:</strong> Clear the entire board for massive bonus
+                            <div class="touch-control">
+                                <div class="gesture-icon">⬆️</div>
+                                <div class="gesture-info">
+                                    <strong>Swipe Up</strong>
+                                    <span>Hard drop (instant placement)</span>
+                                </div>
+                            </div>
+                            <div class="touch-control">
+                                <div class="gesture-icon">🤏</div>
+                                <div class="gesture-info">
+                                    <strong>Long Press (0.8s)</strong>
+                                    <span>Hold current piece</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="help-section">
+                    <!-- Scoring System -->
+                    <div class="help-section help-tab-content" id="scoring-system" style="display: none;">
                         <h3>📊 Scoring System</h3>
-                        <div class="scoring-info">
-                            <div class="score-item">
-                                <span>Single Line:</span>
-                                <span>100 × Level</span>
+                        
+                        <h4>Basic Points</h4>
+                        <div class="scoring-table">
+                            <div class="score-row">
+                                <span>Single Line</span>
+                                <span class="score-value">100 × Level</span>
                             </div>
-                            <div class="score-item">
-                                <span>Double Lines:</span>
-                                <span>300 × Level</span>
+                            <div class="score-row">
+                                <span>Double Lines</span>
+                                <span class="score-value">300 × Level</span>
                             </div>
-                            <div class="score-item">
-                                <span>Triple Lines:</span>
-                                <span>500 × Level</span>
+                            <div class="score-row">
+                                <span>Triple Lines</span>
+                                <span class="score-value">500 × Level</span>
                             </div>
-                            <div class="score-item">
-                                <span>Tetris (4 lines):</span>
-                                <span>800 × Level</span>
+                            <div class="score-row">
+                                <span>Tetris (4 lines)</span>
+                                <span class="score-value">800 × Level</span>
+                            </div>
+                        </div>
+                        
+                        <h4>Special Moves</h4>
+                        <div class="special-moves-list">
+                            <div class="special-move">
+                                <strong>T-Spin:</strong>
+                                <p>Rotate T-piece into tight spot for 2× points</p>
+                            </div>
+                            <div class="special-move">
+                                <strong>Combo:</strong>
+                                <p>Clear lines consecutively for increasing multipliers</p>
+                            </div>
+                            <div class="special-move">
+                                <strong>Perfect Clear:</strong>
+                                <p>Clear entire board for 1000 bonus points</p>
                             </div>
                         </div>
                     </div>
