@@ -47,10 +47,10 @@ export class InputManager {
         this.touchControls = {
             startX: 0,
             startY: 0,
-            threshold: 30,
+            threshold: 25, // Reduced threshold for more responsive swipe detection
             isActive: false,
             startTime: 0,
-            longPressThreshold: 500, // 500ms for long press
+            longPressThreshold: 800, // 800ms for long press (increased to avoid conflicts with continuous drop)
             longPressTriggered: false,
             isDownSwipe: false,
             downSwipeSpeed: 0,
@@ -101,6 +101,9 @@ export class InputManager {
         // Focus management
         window.addEventListener('blur', () => this.handleWindowBlur());
         window.addEventListener('focus', () => this.handleWindowFocus());
+        
+        // Page visibility API for better mobile support
+        document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
     }
 
     handleKeyDown(e) {
@@ -221,7 +224,10 @@ export class InputManager {
         
         // Set timeout for long press detection
         this.longPressTimeout = setTimeout(() => {
-            if (this.touchControls.isActive && !this.touchControls.longPressTriggered) {
+            if (this.touchControls.isActive && 
+                !this.touchControls.longPressTriggered && 
+                !this.touchControls.isDownSwipe && 
+                !this.touchControls.continuousDropActive) {
                 this.touchControls.longPressTriggered = true;
                 this.executeAction('hold');
             }
@@ -266,6 +272,17 @@ export class InputManager {
         // Stop continuous drop if active
         if (this.touchControls.continuousDropActive) {
             this.stopContinuousDrop();
+        }
+        
+        // Check if game is paused - allow tap to unpause
+        if (this.game && this.game.state === 'paused') {
+            const touchDuration = Date.now() - this.touchControls.startTime;
+            // Only unpause on quick tap (not long press or swipe)
+            if (touchDuration < 300 && !this.touchControls.longPressTriggered && !this.touchControls.isDownSwipe) {
+                this.game.togglePause();
+                this.resetTouchControls();
+                return;
+            }
         }
         
         // If long press was triggered, don't process other gestures
@@ -333,9 +350,19 @@ export class InputManager {
         this.firstPress.right = false;
         this.firstPress.down = false;
         
-        // Auto-pause if game is active
+        // Stop any continuous touch actions
+        this.stopContinuousDrop();
+        this.resetTouchControls();
+        
+        // Auto-pause if game is active and mute audio
         if (this.game && this.game.state === 'playing') {
             this.game.pause();
+            this.wasAutoPaused = true; // Flag to remember this was auto-paused
+        }
+        
+        // Mute audio when window loses focus
+        if (this.game && this.game.audioManager) {
+            this.game.audioManager.setMasterMute(true);
         }
     }
 
@@ -347,6 +374,25 @@ export class InputManager {
         this.firstPress.left = false;
         this.firstPress.right = false;
         this.firstPress.down = false;
+        
+        // Restore audio when window regains focus
+        if (this.game && this.game.audioManager) {
+            this.game.audioManager.setMasterMute(false);
+        }
+        
+        // Note: We don't auto-resume the game to let the user decide when to continue
+        // The game will remain paused and can be resumed with P key or touch
+        this.wasAutoPaused = false;
+    }
+
+    handleVisibilityChange() {
+        if (document.hidden) {
+            // Page is now hidden (mobile browser switching, etc.)
+            this.handleWindowBlur();
+        } else {
+            // Page is now visible
+            this.handleWindowFocus();
+        }
     }
 
     // Update input state (called every frame)
@@ -673,5 +719,6 @@ export class InputManager {
         
         window.removeEventListener('blur', this.handleWindowBlur);
         window.removeEventListener('focus', this.handleWindowFocus);
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     }
 }

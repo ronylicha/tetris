@@ -286,7 +286,12 @@ export class UIManager {
 
     // Show pause overlay
     showPauseOverlay() {
-        this.showOverlay('Game Paused', 'Press P to resume');
+        // Check if device supports touch for appropriate message
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const message = isTouchDevice ? 
+            'Press P or tap screen to resume' : 
+            'Press P to resume';
+        this.showOverlay('Game Paused', message);
     }
 
     // Show game over overlay

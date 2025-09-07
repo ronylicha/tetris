@@ -650,6 +650,21 @@ export class AudioManager {
         this.saveSettings();
     }
 
+    // Master mute control (for window focus/blur)
+    setMasterMute(muted) {
+        if (!this.masterGain) return;
+        
+        if (muted) {
+            // Store current volume before muting
+            this.previousMasterVolume = this.settings.masterVolume;
+            this.masterGain.gain.value = 0;
+        } else {
+            // Restore previous volume or use current setting
+            const volumeToRestore = this.previousMasterVolume ?? this.settings.masterVolume;
+            this.masterGain.gain.value = volumeToRestore;
+        }
+    }
+
     // Get current settings for UI
     getSettings() {
         return { ...this.settings };

@@ -69,13 +69,20 @@ A modern, fully responsive Tetris game with neon graphics, 90s-style music, and 
 | **👉 Swipe Right** | Move Right | Horizontal swipe gesture |
 | **👇 Hold & Drag Down** | **Continuous Soft Drop** | Hold finger and drag down - speed varies with swipe velocity |
 | **👆 Swipe Up** | Hard Drop | Quick upward swipe for instant drop |
-| **🤏 Long Press** | Hold Piece | Press and hold for 500ms |
+| **🤏 Long Press** | Hold Piece | Press and hold for 800ms |
 
 #### 🎯 **Advanced Touch Features:**
 - **Variable Speed Dropping**: The faster you drag down, the faster pieces fall
 - **Gesture Recognition**: Smart detection prevents accidental actions
+- **Touch to Resume**: Quick tap to resume from pause state
 - **Touch Feedback**: Visual feedback for all touch interactions
 - **Optimized Touch Targets**: All UI elements are 44px minimum for easy tapping
+
+#### ⏸️ **Smart Pause System:**
+- **Auto-pause on focus loss**: Game automatically pauses when you switch apps or tabs
+- **Audio muting**: Sound is muted when window loses focus and restored on return
+- **Touch to resume**: On mobile, tap the screen to resume from pause
+- **Page Visibility API**: Advanced detection for mobile browser tab switching
 
 ### Objective
 Arrange falling tetrominoes to create complete horizontal lines. Completed lines disappear, giving you points and more space. The game ends when pieces reach the top of the playing field.
