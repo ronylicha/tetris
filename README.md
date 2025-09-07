@@ -434,6 +434,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 🛠️ Puzzle Creator & Validator
+
+Access the puzzle creator at `/puzzleCreator.html` to:
+- **Create custom puzzles** with visual grid editor
+- **Automatic validation** ensures all puzzles are solvable
+- **Real-time feasibility checking** with detailed feedback
+- **Auto-fix suggestions** for common issues
+- **Import/Export** puzzle configurations
+- **Batch validation** for all existing puzzles
+- **Difficulty analysis** based on solution complexity
+
 ## 📝 Recent Updates (v2.5.0)
 
 ### AI & Battle Mode Enhancements

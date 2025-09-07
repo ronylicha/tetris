@@ -35,7 +35,9 @@ Modern Tetris is a fully-featured, responsive web-based Tetris game built with v
 - **modes/puzzleMode.js**: Challenge mode with 150 puzzles
 - **modes/battleMode.js**: VS AI battle mode with power-ups and rounds
 - **puzzles/puzzleData.js**: 150 puzzle configurations (fixed impossible puzzles)
+- **puzzles/puzzleValidator.js**: Automatic puzzle validation and feasibility checking
 - **ai/tetrisAI.js**: Advanced AI with T-spin detection, combo tracking, optimal pathfinding (5 difficulty levels)
+- **puzzleCreator.html**: Visual puzzle creation tool with integrated validator
 
 ### Backend Components
 - **api/scores.php**: PHP API for score management
@@ -199,6 +201,13 @@ No automated testing framework is currently implemented. Manual testing should f
 - **Difficulty Levels**: Each level has unique error rates, thinking delays, and evaluation weights
 - **Pathfinding**: Higher difficulties use optimal move sequencing
 - **Garbage Handling**: Smart placement and counter-attack strategies
+
+### Puzzle Creation & Validation
+- Use `/puzzleCreator.html` to create and validate puzzles
+- Validator checks: grid validity, objective feasibility, piece requirements
+- Auto-fix suggestions for common issues
+- Difficulty analysis based on solution complexity
+- Import/Export puzzle configurations as JSON
 
 ### Recent Critical Fixes
 1. **IndexedDB Error**: Fixed invalid `getAll(false)` by filtering results manually

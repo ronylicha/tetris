@@ -38,6 +38,7 @@ const STATIC_CACHE_URLS = [
     '/tetris/scripts/modes/puzzleMode.js',
     '/tetris/scripts/modes/battleMode.js',
     '/tetris/scripts/puzzles/puzzleData.js',
+    '/tetris/scripts/puzzles/puzzleValidator.js',
     '/tetris/scripts/ai/tetrisAI.js'
 ];
 
