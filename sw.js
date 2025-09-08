@@ -1,11 +1,11 @@
 // Tetris PWA Service Worker
-const CACHE_NAME = 'tetris-v3.3.5';
-const CACHE_VERSION = 'v3.3.5';
-const API_CACHE = 'tetris-api-v3.3.5';
-const AUDIO_CACHE = 'tetris-audio-v3.3.5';
-const AUTH_CACHE = 'tetris-auth-v3.3.5';
-const PROGRESSION_CACHE = 'tetris-progression-v3.3.5';
-const DAILY_CACHE = 'tetris-daily-v3.3.5';
+const CACHE_NAME = 'tetris-v3.3.6';
+const CACHE_VERSION = 'v3.3.6';
+const API_CACHE = 'tetris-api-v3.3.6';
+const AUDIO_CACHE = 'tetris-audio-v3.3.6';
+const AUTH_CACHE = 'tetris-auth-v3.3.6';
+const PROGRESSION_CACHE = 'tetris-progression-v3.3.6';
+const DAILY_CACHE = 'tetris-daily-v3.3.6';
 
 // Determine base path based on the service worker's location
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');
@@ -27,6 +27,7 @@ const STATIC_CACHE_URLS = [
     ROOT_PATH + 'styles/animations.css',
     ROOT_PATH + 'styles/modes.css',
     ROOT_PATH + 'styles/progression.css',
+    ROOT_PATH + 'styles/merge-modal.css',
     ROOT_PATH + 'scripts/game.js',
     ROOT_PATH + 'scripts/pieces.js',
     ROOT_PATH + 'scripts/grid.js',

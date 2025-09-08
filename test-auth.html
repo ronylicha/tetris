@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Authentication</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a2e; 
+            color: #0ff;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            background: #16213e;
+            color: #0ff;
+            border: 1px solid #0ff;
+            cursor: pointer;
+        }
+        #output { 
+            margin-top: 20px; 
+            padding: 20px; 
+            background: #0f0f23;
+            white-space: pre-wrap;
+            border: 1px solid #0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Authentication API</h1>
+    
+    <div>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testVerify()">Test Verify</button>
+        <button onclick="testRegister()">Test Register</button>
+    </div>
+    
+    <div id="output">Ready for testing...</div>
+
+    <script>
+        const output = document.getElementById('output');
+        let authToken = null;
+        
+        function log(message, data = null) {
+            const timestamp = new Date().toISOString();
+            let text = `[${timestamp}] ${message}`;
+            if (data) {
+                text += '\n' + JSON.stringify(data, null, 2);
+            }
+            output.textContent = text + '\n\n' + output.textContent;
+        }
+        
+        async function testLogin() {
+            log('Testing login...');
+            try {
+                const response = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'login',
+                        email: 'ronylicha@gmail.com',
+                        password: '21081986Rl@'
+                    })
+                });
+                
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+                if (data.success) {
+                    authToken = data.auth_token;
+                    log('✓ Login successful!', data);
+                } else {
+                    log('✗ Login failed', data);
+                }
+            } catch (error) {
+                log('✗ Error during login', { error: error.message });
+            }
+        }
+        
+        async function testVerify() {
+            if (!authToken) {
+                log('✗ No auth token. Please login first.');
+                return;
+            }
+            
+            log('Testing verify...');
+            try {
+                const response = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'verify',
+                        auth_token: authToken
+                    })
+                });
+                
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+                if (data.success) {
+                    log('✓ Verification successful!', data);
+                } else {
+                    log('✗ Verification failed', data);
+                }
+            } catch (error) {
+                log('✗ Error during verification', { error: error.message });
+            }
+        }
+        
+        async function testRegister() {
+            const username = 'testuser_' + Date.now();
+            const email = username + '@test.com';
+            
+            log('Testing registration...');
+            try {
+                const response = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        username: username,
+                        email: email,
+                        password: 'Test123456!'
+                    })
+                });
+                
+                log(`Response status: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+                if (data.success) {
+                    authToken = data.auth_token;
+                    log('✓ Registration successful!', data);
+                } else {
+                    log('✗ Registration failed', data);
+                }
+            } catch (error) {
+                log('✗ Error during registration', { error: error.message });
+            }
+        }
+        
+        // Log initial state
+        log('Test page loaded. Current location: ' + window.location.href);
+        log('API endpoint will be: ' + window.location.origin + '/api/auth.php');
+    </script>
+</body>
+</html>

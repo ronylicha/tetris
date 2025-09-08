@@ -29,13 +29,21 @@ export class ProgressionManager {
     
     async init() {
         console.log('[ProgressionManager] Initializing...');
-        // Initialize in guest mode first
-        this.initGuestMode();
-        console.log('[ProgressionManager] Guest mode initialized');
         
         // Check authentication if token exists
         if (this.authToken) {
-            await this.verifyAuth();
+            console.log('[ProgressionManager] Auth token found, verifying...');
+            const isValid = await this.verifyAuth();
+            if (!isValid) {
+                console.log('[ProgressionManager] Auth token invalid, initializing guest mode');
+                this.initGuestMode();
+            } else {
+                console.log('[ProgressionManager] Authentication successful');
+                this.isGuest = false;
+            }
+        } else {
+            console.log('[ProgressionManager] No auth token, initializing guest mode');
+            this.initGuestMode();
         }
         
         // Setup UI event listeners
@@ -285,6 +293,12 @@ export class ProgressionManager {
             profileBtn.addEventListener('click', () => this.showProfileModal());
         }
         
+        // Account button - for login/register
+        const accountBtn = document.getElementById('account-status');
+        if (accountBtn) {
+            accountBtn.addEventListener('click', () => this.showAccount());
+        }
+        
         // Achievements button
         const achievementsBtn = document.getElementById('home-achievements-button');
         if (achievementsBtn) {
@@ -397,6 +411,154 @@ export class ProgressionManager {
         } catch (error) {
             console.error('Error loading player:', error);
             // Stay in guest mode
+        }
+    }
+    
+    async askMergePreference(guestData) {
+        return new Promise((resolve) => {
+            // Create merge modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+            
+            const content = document.createElement('div');
+            content.className = 'merge-modal';
+            content.style.cssText = 'background: #1a1a2e; border: 2px solid #00ff88; border-radius: 10px; padding: 30px; max-width: 500px; color: #fff; font-family: "Orbitron", sans-serif;';
+            
+            content.innerHTML = `
+                <h2 style="color: #00ff88; margin-bottom: 20px;">Guest Progress Detected</h2>
+                <p style="margin-bottom: 20px;">You have progress saved as a guest. How would you like to proceed?</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div style="background: #0f0f23; padding: 15px; border-radius: 5px; border: 1px solid #444;">
+                        <h4 style="color: #ffaa00; margin-bottom: 10px;">Guest Progress</h4>
+                        <div style="font-size: 0.9em; line-height: 1.6;">
+                            <div>Level: ${Math.floor(guestData.totalXp / 1000) + 1}</div>
+                            <div>XP: ${guestData.xp || 0}</div>
+                            <div>Games: ${guestData.gamesPlayed || 0}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #0f0f23; padding: 15px; border-radius: 5px; border: 1px solid #444;">
+                        <h4 style="color: #00aaff; margin-bottom: 10px;">Account Progress</h4>
+                        <div style="font-size: 0.9em; line-height: 1.6;">
+                            <div>Level: ${this.playerData.level || 1}</div>
+                            <div>XP: ${this.playerData.current_xp || 0}</div>
+                            <div>Games: ${this.playerData.games_played || 0}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button id="merge-combine" style="padding: 10px 20px; background: #00ff88; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                        🔀 Combine Both
+                    </button>
+                    <button id="merge-keep-guest" style="padding: 10px 20px; background: #ffaa00; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                        💾 Keep Guest Only
+                    </button>
+                    <button id="merge-keep-account" style="padding: 10px 20px; background: #00aaff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                        👤 Keep Account Only
+                    </button>
+                </div>
+                
+                <p style="margin-top: 15px; font-size: 0.8em; color: #888; text-align: center;">
+                    This choice cannot be undone
+                </p>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Button handlers
+            document.getElementById('merge-combine').addEventListener('click', async () => {
+                modal.remove();
+                await this.mergeGuestDataToAccount(guestData);
+                resolve('combine');
+            });
+            
+            document.getElementById('merge-keep-guest').addEventListener('click', async () => {
+                modal.remove();
+                await this.replaceAccountWithGuest(guestData);
+                resolve('guest');
+            });
+            
+            document.getElementById('merge-keep-account').addEventListener('click', () => {
+                modal.remove();
+                // Just clear guest data
+                localStorage.removeItem('tetris_guest_data');
+                this.showNotification('Keeping account data, guest progress discarded', 'info');
+                resolve('account');
+            });
+        });
+    }
+    
+    async mergeGuestDataToAccount(guestData) {
+        if (!this.isAuthenticated || !guestData) return;
+        
+        try {
+            console.log('[ProgressionManager] Merging guest progress with account');
+            
+            // Add guest XP to account
+            if (guestData.xp > 0) {
+                await this.addXP(guestData.xp, 'Guest session merge');
+            }
+            
+            // Update stats
+            if (guestData.gamesPlayed > 0) {
+                await this.updatePlayerStats({
+                    games_played: this.playerData.games_played + guestData.gamesPlayed,
+                    total_score: this.playerData.total_score + (guestData.totalScore || 0),
+                    total_lines: this.playerData.total_lines + (guestData.totalLines || 0)
+                });
+            }
+            
+            // Clear guest data after merge
+            localStorage.removeItem('tetris_guest_data');
+            
+            this.showNotification('Progress combined successfully!', 'success');
+        } catch (error) {
+            console.error('[ProgressionManager] Error merging guest data:', error);
+        }
+    }
+    
+    async replaceAccountWithGuest(guestData) {
+        if (!this.isAuthenticated || !guestData) return;
+        
+        try {
+            console.log('[ProgressionManager] Replacing account data with guest progress');
+            
+            // Reset account to base state
+            await fetch(`${API_BASE}/progression.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'reset_progress',
+                    player_id: this.playerId
+                })
+            });
+            
+            // Add all guest progress
+            if (guestData.totalXp > 0) {
+                await this.addXP(guestData.totalXp, 'Guest data restore');
+            }
+            
+            // Set stats from guest
+            await this.updatePlayerStats({
+                games_played: guestData.gamesPlayed || 0,
+                total_score: guestData.totalScore || 0,
+                total_lines: guestData.totalLines || 0
+            });
+            
+            // Clear guest data
+            localStorage.removeItem('tetris_guest_data');
+            
+            // Reload to get updated data
+            await this.loadPlayer();
+            this.updateProgressionUI();
+            
+            this.showNotification('Guest progress applied to account!', 'success');
+        } catch (error) {
+            console.error('[ProgressionManager] Error replacing with guest data:', error);
         }
     }
     
@@ -1660,6 +1822,19 @@ export class ProgressionManager {
         }
         
         try {
+            // Save guest data before login if in guest mode
+            let guestDataToMerge = null;
+            if (this.isGuest && this.playerData) {
+                guestDataToMerge = {
+                    xp: this.playerData.current_xp || 0,
+                    totalXp: this.playerData.total_xp || 0,
+                    gamesPlayed: this.playerData.games_played || 0,
+                    achievements: [...this.achievements],
+                    unlockables: [...this.unlockables]
+                };
+                console.log('[ProgressionManager] Saving guest data before login:', guestDataToMerge);
+            }
+            
             const response = await fetch(`${API_BASE}/auth.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1677,15 +1852,17 @@ export class ProgressionManager {
                 this.authToken = data.auth_token;
                 localStorage.setItem('auth_token', this.authToken);
                 this.isAuthenticated = true;
+                this.isGuest = false;
                 
-                // Link guest account if exists
-                if (this.playerId && !this.playerData.email) {
-                    await this.linkGuestAccount();
-                }
-                
-                // Update player data
+                // Update player data from server
                 this.playerData = data.player;
                 this.playerId = data.player.id;
+                
+                // Handle guest data if exists
+                if (guestDataToMerge && (guestDataToMerge.xp > 0 || guestDataToMerge.gamesPlayed > 0)) {
+                    console.log('[ProgressionManager] Guest data found, asking user for merge preference');
+                    await this.askMergePreference(guestDataToMerge);
+                }
                 
                 // Reload progression data
                 await this.loadPlayer();
@@ -1814,10 +1991,32 @@ export class ProgressionManager {
                 new Date(this.playerData.created_at).toLocaleDateString();
             document.getElementById('lastSync').textContent = 'Just now';
         } else {
-            // Show login form
+            // Show login form with guest info
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('accountInfo').style.display = 'none';
+            
+            // Show guest progress info if exists
+            if (this.isGuest && this.playerData) {
+                const guestInfo = document.getElementById('guestProgressInfo');
+                if (!guestInfo) {
+                    const info = document.createElement('div');
+                    info.id = 'guestProgressInfo';
+                    info.className = 'guest-info-banner';
+                    info.innerHTML = `
+                        <p style="color: #ffaa00; margin-bottom: 10px;">
+                            ⚠️ Playing as Guest - Your progress will be merged when you login
+                        </p>
+                        <div style="font-size: 0.9em; color: #888;">
+                            Current Progress: Level ${this.playerData.level || 1} • 
+                            ${this.playerData.current_xp || 0} XP • 
+                            ${this.playerData.games_played || 0} games played
+                        </div>
+                    `;
+                    const loginForm = document.getElementById('loginForm');
+                    loginForm.insertBefore(info, loginForm.firstChild);
+                }
+            }
         }
         
         modal.style.display = 'flex';
