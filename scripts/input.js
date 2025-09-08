@@ -69,7 +69,7 @@ export class InputManager {
         document.addEventListener('keydown', (e) => {
             // Don't prevent default when modals are active to allow typing
             if (this.isNameInputActive() || this.isLeaderboardActive() || 
-                this.isSettingsActive() || this.isHelpActive()) {
+                this.isSettingsActive() || this.isHelpActive() || this.isAccountModalActive()) {
                 return;
             }
             
@@ -115,7 +115,7 @@ export class InputManager {
     handleKeyDown(e) {
         // Check if any modal is active - if so, ignore game controls
         if (this.isNameInputActive() || this.isLeaderboardActive() || 
-            this.isSettingsActive() || this.isHelpActive()) {
+            this.isSettingsActive() || this.isHelpActive() || this.isAccountModalActive()) {
             // Only allow specific keys during name input
             if (this.isNameInputActive()) {
                 // Allow normal typing, Enter for save, Escape to close
@@ -150,6 +150,17 @@ export class InputManager {
             if (this.isHelpActive() && e.code === 'Escape') {
                 const closeButton = document.getElementById('close-help');
                 if (closeButton) closeButton.click();
+                return;
+            }
+            
+            // For account modal, allow Escape to close and normal typing in inputs
+            if (this.isAccountModalActive()) {
+                if (e.code === 'Escape') {
+                    const modal = document.getElementById('accountModal');
+                    if (modal) modal.style.display = 'none';
+                    return;
+                }
+                // Allow all keys for typing in login/register forms
                 return;
             }
             
@@ -202,7 +213,7 @@ export class InputManager {
     handleKeyUp(e) {
         // Check if any modal is active - if so, ignore game key releases
         if (this.isNameInputActive() || this.isLeaderboardActive() || 
-            this.isSettingsActive() || this.isHelpActive()) {
+            this.isSettingsActive() || this.isHelpActive() || this.isAccountModalActive()) {
             return;
         }
         
@@ -433,7 +444,7 @@ export class InputManager {
         
         // Check if any modal is active - if so, disable game controls
         if (this.isNameInputActive() || this.isLeaderboardActive() || 
-            this.isSettingsActive() || this.isHelpActive()) return;
+            this.isSettingsActive() || this.isHelpActive() || this.isAccountModalActive()) return;
         
         // Handle DAS (Delayed Auto Shift)
         this.updateDAS(deltaTime);
@@ -597,6 +608,13 @@ export class InputManager {
         const overlay = document.getElementById('help-overlay');
         return overlay && overlay.style.display !== 'none' && 
                window.getComputedStyle(overlay).display !== 'none';
+    }
+    
+    // Check if account modal (login/register) is active
+    isAccountModalActive() {
+        const modal = document.getElementById('accountModal');
+        return modal && modal.style.display !== 'none' && 
+               window.getComputedStyle(modal).display !== 'none';
     }
 
     // Start continuous drop for touch down swipe
