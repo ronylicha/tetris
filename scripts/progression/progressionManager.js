@@ -528,11 +528,10 @@ export class ProgressionManager {
             console.log('[ProgressionManager] Replacing account data with guest progress');
             
             // Reset account to base state
-            await fetch(`${API_BASE}/progression.php`, {
+            await fetch(`${API_BASE}/progression.php?action=reset_progress`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'reset_progress',
                     player_id: this.playerId
                 })
             });
@@ -573,14 +572,13 @@ export class ProgressionManager {
             console.log('[ProgressionManager] Migrating guest data to authenticated account');
             
             // Send guest data to server for migration
-            const response = await fetch(`${API_BASE}/progression.php`, {
+            const response = await fetch(`${API_BASE}/progression.php?action=migrate_guest_data`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.authToken}`
                 },
                 body: JSON.stringify({
-                    action: 'migrate_guest_data',
                     guest_data: parsed
                 })
             });
@@ -1354,11 +1352,10 @@ export class ProgressionManager {
         // Try to sync with server if not guest
         if (!this.isGuest) {
             try {
-                const response = await fetch(`${API_BASE}/progression.php`, {
+                const response = await fetch(`${API_BASE}/progression.php?action=equip_item`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'equip_item',
                         player_id: this.playerId,
                         unlockable_code: itemCode
                     })
@@ -1533,11 +1530,10 @@ export class ProgressionManager {
         }
         
         try {
-            const response = await fetch(`${API_BASE}/progression.php`, {
+            const response = await fetch(`${API_BASE}/progression.php?action=add_xp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'add_xp',
                     player_id: this.playerId,
                     amount: amount,
                     source: source
@@ -1672,11 +1668,10 @@ export class ProgressionManager {
     
     async unlockAchievement(achievementCode) {
         try {
-            const response = await fetch(`${API_BASE}/progression.php`, {
+            const response = await fetch(`${API_BASE}/progression.php?action=unlock_achievement`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'unlock_achievement',
                     player_id: this.playerId,
                     achievement_code: achievementCode,
                     progress: 1.0
@@ -1708,11 +1703,10 @@ export class ProgressionManager {
     
     async updateAchievementProgress(achievementCode, progress) {
         try {
-            await fetch(`${API_BASE}/progression.php`, {
+            await fetch(`${API_BASE}/progression.php?action=unlock_achievement`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'unlock_achievement',
                     player_id: this.playerId,
                     achievement_code: achievementCode,
                     progress: progress
@@ -1725,11 +1719,10 @@ export class ProgressionManager {
     
     async updatePlayerStats(stats) {
         try {
-            await fetch(`${API_BASE}/progression.php`, {
+            await fetch(`${API_BASE}/progression.php?action=update_player_stats`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'update_player_stats',
                     player_id: this.playerId,
                     ...stats
                 })
@@ -2113,11 +2106,10 @@ export class ProgressionManager {
     
     async createGuestPlayer() {
         try {
-            const response = await fetch(`${API_BASE}/progression.php`, {
+            const response = await fetch(`${API_BASE}/progression.php?action=create_player`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    action: 'create_player',
                     username: 'guest_' + Date.now(),
                     display_name: 'Guest'
                 })
