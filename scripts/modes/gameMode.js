@@ -98,7 +98,12 @@ export class GameMode {
     // Handle mode-specific input
     handleInput(action) {
         // Override in subclasses if needed
-        return false;
+        // Return undefined to indicate this mode doesn't handle input
+        // Subclasses can return:
+        // - null to block the action
+        // - a different action string to modify it
+        // - the same action to process it normally
+        return undefined;
     }
 
     // Get current progress percentage
