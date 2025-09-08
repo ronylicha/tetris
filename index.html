@@ -29,14 +29,26 @@
         <!-- Progression Header with game controls -->
         <div class="progression-header" id="progression-header">
             <div class="progression-container">
+                <!-- Hamburger Menu for Mobile -->
+                <div class="hamburger-menu" id="hamburger-menu">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                </div>
+                
+                <!-- Desktop Controls -->
                 <div class="game-controls">
                     <button id="back-to-menu" class="btn-game-icon" title="Back to Menu">↩️</button>
                     <button id="game-help-button" class="btn-game-icon" title="Show Controls">❓</button>
                     <button id="mute-button" class="btn-game-icon" title="Toggle Sound">🔊</button>
                 </div>
+                
+                <!-- Level Badge -->
                 <div class="level-badge">
                     <span class="level-number" id="player-level">1</span>
                 </div>
+                
+                <!-- XP Section -->
                 <div class="xp-section">
                     <div class="xp-bar-container">
                         <div class="xp-bar" id="xp-bar"></div>
@@ -44,6 +56,8 @@
                     </div>
                     <div class="rank-display" id="player-rank">Novice</div>
                 </div>
+                
+                <!-- Desktop Profile Section -->
                 <div class="profile-section">
                     <button class="profile-btn" id="account-btn" title="Account" onclick="window.progressionManager.showAccount()">
                         <span class="profile-icon">🔐</span>
@@ -53,6 +67,64 @@
                         <span class="profile-icon">👤</span>
                         <span class="profile-name" id="profile-name">Guest</span>
                     </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Dropdown -->
+        <div class="mobile-menu" id="mobile-menu">
+            <div class="mobile-menu-content">
+                <!-- Game Controls Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Game Controls</div>
+                    <div class="mobile-menu-buttons">
+                        <button id="mobile-back-to-menu" class="btn-game-icon mobile" title="Back to Menu">
+                            <span>↩️</span>
+                            <span class="btn-text">Menu</span>
+                        </button>
+                        <button id="mobile-game-help" class="btn-game-icon mobile" title="Show Controls">
+                            <span>❓</span>
+                            <span class="btn-text">Help</span>
+                        </button>
+                        <button id="mobile-mute" class="btn-game-icon mobile" title="Toggle Sound">
+                            <span>🔊</span>
+                            <span class="btn-text">Sound</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Profile</div>
+                    <div class="mobile-profile-buttons">
+                        <button class="profile-btn" id="mobile-account-btn" title="Account" onclick="window.progressionManager.showAccount(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span class="profile-icon">🔐</span>
+                            <span class="profile-name" id="mobile-account-status">Login</span>
+                        </button>
+                        <button class="profile-btn" id="mobile-profile-btn" title="Profile" onclick="window.progressionManager && window.progressionManager.showProfileModal(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span class="profile-icon">👤</span>
+                            <span class="profile-name" id="mobile-profile-name">Guest</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Quick Actions</div>
+                    <div class="mobile-menu-buttons">
+                        <button class="btn-game-icon mobile" onclick="window.progressionManager && window.progressionManager.showAchievements(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>🏆</span>
+                            <span class="btn-text">Achievements</span>
+                        </button>
+                        <button class="btn-game-icon mobile" onclick="window.progressionManager && window.progressionManager.showCustomization(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>🎨</span>
+                            <span class="btn-text">Customize</span>
+                        </button>
+                        <button class="btn-game-icon mobile" onclick="showLeaderboard(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>📊</span>
+                            <span class="btn-text">Leaderboard</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

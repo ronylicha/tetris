@@ -253,7 +253,7 @@ body::before {
     align-items: center;
     justify-content: flex-start;
     padding: 10px;
-    padding-top: 50px; /* Reduced space for header buttons */
+    padding-top: 70px; /* Space for progression header (60px + 10px margin) */
     padding-bottom: env(safe-area-inset-bottom); /* Safe area for iOS */
     overflow: hidden;
     box-sizing: border-box;
@@ -335,6 +335,7 @@ body::before {
     gap: 1.2em;
     align-items: start;
     max-width: 70em;
+    margin-top: 10px; /* Additional spacing from progression bar */
     width: 100%;
     max-height: calc(100vh - 70px);
     margin: 0 auto;
@@ -2166,9 +2167,8 @@ body::before {
     }
     
     .game-screen {
-        padding-top: 42px;
         padding: 5px;
-        padding-top: 42px;
+        padding-top: 70px; /* Space for progression header on mobile too */
         padding-bottom: env(safe-area-inset-bottom);
         height: 100vh;
         height: 100dvh; /* Dynamic viewport height for mobile browsers */
@@ -3925,6 +3925,17 @@ body.battle2p-active #battle2p-container {
 /* ========================================
    PROGRESSION HEADER
    ======================================== */
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .progression-header {
     position: fixed;
     top: 0;
@@ -3939,6 +3950,7 @@ body.battle2p-active #battle2p-container {
     align-items: center;
     padding: 0 20px;
     box-shadow: 0 2px 20px rgba(0, 212, 255, 0.2);
+    animation: slideInFromTop 0.5s ease;
 }
 
 .progression-container {
@@ -3948,6 +3960,137 @@ body.battle2p-active #battle2p-container {
     display: flex;
     align-items: center;
     gap: 20px;
+    position: relative;
+}
+
+/* Hamburger Menu */
+@keyframes neon-flicker {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.5; }
+}
+
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    z-index: 1002;
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.hamburger-menu:hover {
+    transform: scale(1.1);
+}
+
+.hamburger-menu:active {
+    transform: scale(0.95);
+}
+
+.hamburger-line {
+    width: 25px;
+    height: 3px;
+    background: var(--neon-blue);
+    margin: 3px 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: 2px;
+    box-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+    position: relative;
+}
+
+.hamburger-line::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: inherit;
+    animation: neon-flicker 3s infinite;
+    opacity: 0;
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+    background: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.hamburger-menu.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+    background: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+/* Mobile Menu Dropdown */
+@keyframes slideDown {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    60% {
+        transform: translateY(5%);
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(15, 15, 35, 0.98) 100%);
+    border-bottom: 2px solid var(--neon-blue);
+    padding: 20px;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease;
+    z-index: 999;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-menu.active {
+    transform: translateY(0);
+    opacity: 1;
+    animation: slideDown 0.4s ease forwards;
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mobile-menu-section {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.mobile-menu-section:last-child {
+    border-bottom: none;
+}
+
+.mobile-menu-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.mobile-menu-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* Game controls (moved from floating buttons) */
@@ -3966,6 +4109,7 @@ body.battle2p-active #battle2p-container {
     cursor: pointer;
     transition: all 0.3s ease;
     color: var(--text-primary);
+    white-space: nowrap;
 }
 
 .btn-game-icon:hover {
@@ -3974,7 +4118,62 @@ body.battle2p-active #battle2p-container {
     box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
 }
 
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.btn-game-icon.mobile {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    animation: fadeInScale 0.5s ease backwards;
+}
+
+.mobile-menu-section:nth-child(1) .btn-game-icon.mobile:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-section:nth-child(1) .btn-game-icon.mobile:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu-section:nth-child(1) .btn-game-icon.mobile:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu-section:nth-child(2) .profile-btn:nth-child(1) { animation: fadeInScale 0.5s ease 0.25s backwards; }
+.mobile-menu-section:nth-child(2) .profile-btn:nth-child(2) { animation: fadeInScale 0.5s ease 0.3s backwards; }
+.mobile-menu-section:nth-child(3) .btn-game-icon.mobile:nth-child(1) { animation-delay: 0.35s; }
+.mobile-menu-section:nth-child(3) .btn-game-icon.mobile:nth-child(2) { animation-delay: 0.4s; }
+.mobile-menu-section:nth-child(3) .btn-game-icon.mobile:nth-child(3) { animation-delay: 0.45s; }
+
+.btn-text {
+    display: none;
+    font-size: 0.9rem;
+    font-family: 'Orbitron', monospace;
+}
+
+.mobile-menu .btn-text {
+    display: inline;
+}
+
 /* Level Badge */
+@keyframes pulse-glow {
+    0% { 
+        transform: scale(1); 
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+    50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+}
+
 .level-badge {
     width: 45px;
     height: 45px;
@@ -3985,7 +4184,13 @@ body.battle2p-active #battle2p-container {
     justify-content: center;
     box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
     position: relative;
-    animation: pulse-glow 2s infinite;
+    animation: pulse-glow 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+.level-badge:hover {
+    transform: scale(1.1) rotate(5deg);
+    cursor: pointer;
 }
 
 .level-number {
@@ -4011,13 +4216,23 @@ body.battle2p-active #battle2p-container {
     margin-bottom: 5px;
 }
 
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+}
+
 .xp-bar {
     height: 100%;
     background: linear-gradient(90deg, #00ff88 0%, #00d4ff 100%);
     width: 0%;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
     position: relative;
+    animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .xp-bar::after {
@@ -4063,6 +4278,7 @@ body.battle2p-active #battle2p-container {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-left: auto;
 }
 
 .profile-btn {
@@ -4075,7 +4291,27 @@ body.battle2p-active #battle2p-container {
     padding: 5px 15px;
     color: #fff;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.profile-btn:active::before {
+    width: 300px;
+    height: 300px;
 }
 
 .profile-btn:hover {
@@ -4091,6 +4327,19 @@ body.battle2p-active #battle2p-container {
 .profile-name {
     font-size: 0.9rem;
     font-weight: 500;
+}
+
+/* Mobile profile buttons */
+.mobile-profile-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mobile-profile-buttons .profile-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px;
 }
 
 /* ========================================
@@ -5162,6 +5411,20 @@ body.battle2p-active #battle2p-container {
         gap: 10px;
     }
     
+    /* Show hamburger menu on mobile */
+    .hamburger-menu {
+        display: flex;
+    }
+    
+    /* Hide desktop controls on mobile */
+    .game-controls {
+        display: none;
+    }
+    
+    .profile-section {
+        display: none;
+    }
+    
     .level-badge {
         width: 35px;
         height: 35px;
@@ -5172,7 +5435,8 @@ body.battle2p-active #battle2p-container {
     }
     
     .xp-section {
-        max-width: 200px;
+        flex: 1;
+        max-width: none;
     }
     
     .xp-bar-container {
@@ -5187,10 +5451,6 @@ body.battle2p-active #battle2p-container {
         font-size: 0.75rem;
     }
     
-    .profile-name {
-        display: none;
-    }
-    
     .daily-challenge-card {
         margin: 10px;
         padding: 15px;
@@ -5202,13 +5462,137 @@ body.battle2p-active #battle2p-container {
     }
 }
 
+@media (max-width: 480px) {
+    .progression-header {
+        height: 45px;
+        padding: 0 8px;
+    }
+    
+    .hamburger-menu {
+        width: 30px;
+        height: 30px;
+        margin-right: 8px;
+    }
+    
+    .hamburger-line {
+        width: 22px;
+        height: 2px;
+        margin: 3px 0;
+    }
+    
+    .level-badge {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .level-number {
+        font-size: 0.9rem;
+    }
+    
+    .xp-bar-container {
+        height: 12px;
+        margin-bottom: 3px;
+    }
+    
+    .xp-text {
+        font-size: 0.6rem;
+    }
+    
+    .rank-display {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .mobile-menu {
+        top: 45px;
+        padding: 15px;
+    }
+    
+    .mobile-menu-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-game-icon.mobile {
+        padding: 10px;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .progression-container {
+        gap: 15px;
+    }
+    
+    .game-controls {
+        gap: 8px;
+        margin-right: 10px;
+    }
+    
+    .btn-game-icon {
+        padding: 6px 10px;
+        font-size: 1.1rem;
+    }
+    
+    .xp-section {
+        max-width: 300px;
+    }
+    
+    .profile-name {
+        display: none;
+    }
+    
+    .profile-btn {
+        padding: 5px 10px;
+    }
+    
+    .profile-icon {
+        font-size: 1.1rem;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1440px) {
+    .progression-header {
+        height: 65px;
+    }
+    
+    .progression-container {
+        gap: 25px;
+    }
+    
+    .level-badge {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .level-number {
+        font-size: 1.3rem;
+    }
+    
+    .xp-section {
+        max-width: 500px;
+    }
+    
+    .xp-bar-container {
+        height: 22px;
+    }
+    
+    .xp-text {
+        font-size: 0.8rem;
+    }
+    
+    .rank-display {
+        font-size: 0.95rem;
+    }
+}
+
 /* Adjust main content for progression header */
 .home-screen {
     padding-top: 70px;
 }
 
 .game-screen {
-    padding-top: 60px;
+    padding-top: 70px; /* Increased to avoid overlap with progression bar */
 }
 
 </style>
@@ -5218,14 +5602,26 @@ body.battle2p-active #battle2p-container {
         <!-- Progression Header with game controls -->
         <div class="progression-header" id="progression-header">
             <div class="progression-container">
+                <!-- Hamburger Menu for Mobile -->
+                <div class="hamburger-menu" id="hamburger-menu">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                </div>
+                
+                <!-- Desktop Controls -->
                 <div class="game-controls">
                     <button id="back-to-menu" class="btn-game-icon" title="Back to Menu">↩️</button>
                     <button id="game-help-button" class="btn-game-icon" title="Show Controls">❓</button>
                     <button id="mute-button" class="btn-game-icon" title="Toggle Sound">🔊</button>
                 </div>
+                
+                <!-- Level Badge -->
                 <div class="level-badge">
                     <span class="level-number" id="player-level">1</span>
                 </div>
+                
+                <!-- XP Section -->
                 <div class="xp-section">
                     <div class="xp-bar-container">
                         <div class="xp-bar" id="xp-bar"></div>
@@ -5233,6 +5629,8 @@ body.battle2p-active #battle2p-container {
                     </div>
                     <div class="rank-display" id="player-rank">Novice</div>
                 </div>
+                
+                <!-- Desktop Profile Section -->
                 <div class="profile-section">
                     <button class="profile-btn" id="account-btn" title="Account" onclick="window.progressionManager.showAccount()">
                         <span class="profile-icon">🔐</span>
@@ -5242,6 +5640,64 @@ body.battle2p-active #battle2p-container {
                         <span class="profile-icon">👤</span>
                         <span class="profile-name" id="profile-name">Guest</span>
                     </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Dropdown -->
+        <div class="mobile-menu" id="mobile-menu">
+            <div class="mobile-menu-content">
+                <!-- Game Controls Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Game Controls</div>
+                    <div class="mobile-menu-buttons">
+                        <button id="mobile-back-to-menu" class="btn-game-icon mobile" title="Back to Menu">
+                            <span>↩️</span>
+                            <span class="btn-text">Menu</span>
+                        </button>
+                        <button id="mobile-game-help" class="btn-game-icon mobile" title="Show Controls">
+                            <span>❓</span>
+                            <span class="btn-text">Help</span>
+                        </button>
+                        <button id="mobile-mute" class="btn-game-icon mobile" title="Toggle Sound">
+                            <span>🔊</span>
+                            <span class="btn-text">Sound</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Profile</div>
+                    <div class="mobile-profile-buttons">
+                        <button class="profile-btn" id="mobile-account-btn" title="Account" onclick="window.progressionManager.showAccount(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span class="profile-icon">🔐</span>
+                            <span class="profile-name" id="mobile-account-status">Login</span>
+                        </button>
+                        <button class="profile-btn" id="mobile-profile-btn" title="Profile" onclick="window.progressionManager && window.progressionManager.showProfileModal(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span class="profile-icon">👤</span>
+                            <span class="profile-name" id="mobile-profile-name">Guest</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions Section -->
+                <div class="mobile-menu-section">
+                    <div class="mobile-menu-label">Quick Actions</div>
+                    <div class="mobile-menu-buttons">
+                        <button class="btn-game-icon mobile" onclick="window.progressionManager && window.progressionManager.showAchievements(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>🏆</span>
+                            <span class="btn-text">Achievements</span>
+                        </button>
+                        <button class="btn-game-icon mobile" onclick="window.progressionManager && window.progressionManager.showCustomization(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>🎨</span>
+                            <span class="btn-text">Customize</span>
+                        </button>
+                        <button class="btn-game-icon mobile" onclick="showLeaderboard(); document.getElementById('mobile-menu').classList.remove('active'); document.getElementById('hamburger-menu').classList.remove('active');">
+                            <span>📊</span>
+                            <span class="btn-text">Leaderboard</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -8894,6 +9350,12 @@ window.InputManager = class InputManager {
     // Execute game action
     executeAction(action) {
         if (!this.game) return;
+        
+        // Allow game mode to intercept/modify input
+        if (this.game.gameMode && this.game.gameMode.handleInput) {
+            action = this.game.gameMode.handleInput(action);
+            if (!action) return; // Action was blocked
+        }
         
         switch (action) {
             case 'moveLeft':
@@ -13159,7 +13621,7 @@ window.PlayerProgression = class PlayerProgression {
     }
     
     async saveProgress() {
-        await storage.save('player_progression', {
+        const dataToSave = {
             level: this.level,
             xp: this.xp,
             totalXP: this.totalXP,
@@ -13167,7 +13629,8 @@ window.PlayerProgression = class PlayerProgression {
             stats: this.stats,
             unlocks: this.unlocks,
             badges: this.badges
-        });
+        };
+        await storage.save('player_progression', dataToSave);
     }
     
     addXP(amount, source = 'gameplay') {
@@ -13183,8 +13646,8 @@ window.PlayerProgression = class PlayerProgression {
         // Update rank
         this.updateRank();
         
-        // Save progress
-        this.saveProgress();
+        // Save progress (fire and forget, don't wait)
+        this.saveProgress().catch(err => console.error('Error saving XP progress:', err));
         
         return {
             xpGained: amount,
@@ -13368,7 +13831,7 @@ window.PlayerProgression = class PlayerProgression {
             this.stats.favoriteMode = favoriteMode;
         }
         
-        this.saveProgress();
+        this.saveProgress().catch(err => console.error('Error saving stats:', err));
     }
     
     calculateGameXP(gameResults) {
@@ -13871,6 +14334,9 @@ window.AchievementSystem = class AchievementSystem {
             this.unlockedAchievements = saved.achievements || [];
             this.unlockedTrophies = saved.trophies || [];
             this.progress = saved.progress || {};
+            console.log(`[AchievementSystem] Loaded ${this.unlockedAchievements.length} achievements, ${this.unlockedTrophies.length} trophies`);
+        } else {
+            console.log('[AchievementSystem] No saved achievements found, starting fresh');
         }
     }
     
@@ -13906,11 +14372,18 @@ window.AchievementSystem = class AchievementSystem {
             return false;
         }
         
+        console.log(`[AchievementSystem] Unlocking achievement: ${achievement.name}`);
+        
         // Add to unlocked list
         this.unlockedAchievements.push(achievementId);
         
-        // Award XP
-        if (playerProgression) {
+        // Award XP through progressionManager for notifications
+        if (window.progressionManager) {
+            window.progressionManager.addXP(achievement.xp, `Achievement: ${achievement.name}`).catch(err => {
+                console.error('Error awarding achievement XP:', err);
+            });
+        } else if (playerProgression) {
+            // Fallback to direct playerProgression
             playerProgression.addXP(achievement.xp, 'achievement');
         }
         
@@ -14009,21 +14482,33 @@ window.AchievementSystem = class AchievementSystem {
     }
     
     updateProgress(key, value, increment = false) {
+        const oldValue = this.progress[key] || 0;
+        
         if (increment) {
             this.progress[key] = (this.progress[key] || 0) + value;
         } else {
             this.progress[key] = value;
         }
         
+        console.log(`[AchievementSystem] Progress update - ${key}: ${oldValue} -> ${this.progress[key]}`);
+        
         // Check related achievements
         this.checkProgressAchievements(key);
+        
+        // Save progress after update
+        this.saveProgress().catch(err => console.error('Error saving achievement progress:', err));
     }
     
     checkProgressAchievements(key) {
         const value = this.progress[key];
+        console.log(`[AchievementSystem] Checking progress for ${key}: ${value}`);
         
         switch (key) {
             case 'totalLines':
+                // Check for first line achievement
+                if (value >= 1) {
+                    this.checkAchievement('FIRST_LINE', true);
+                }
                 this.checkAchievement('LINES_100', value >= 100);
                 this.checkAchievement('LINES_1000', value >= 1000);
                 this.checkAchievement('LINES_10000', value >= 10000);
@@ -14071,6 +14556,8 @@ window.AchievementSystem = class AchievementSystem {
             timestamp: Date.now()
         };
         
+        console.log(`[AchievementSystem] Creating notification for: ${data.name}`);
+        
         this.notifications.push(notification);
         
         // Dispatch event for UI
@@ -14078,10 +14565,41 @@ window.AchievementSystem = class AchievementSystem {
             detail: notification 
         }));
         
+        // Show achievement unlock notification
+        this.showAchievementNotification(notification);
+        
         // Show UI notification if available
         if (window.game && window.game.uiManager) {
             window.game.uiManager.showAchievement(notification);
         }
+    }
+    
+    showAchievementNotification(notification) {
+        console.log(`[AchievementSystem] Showing achievement notification: ${notification.name}`);
+        
+        const container = document.getElementById('achievement-unlocks');
+        if (!container) {
+            console.error('[AchievementSystem] Achievement notification container not found!');
+            return;
+        }
+        
+        const element = document.createElement('div');
+        element.className = 'achievement-unlock';
+        element.innerHTML = `
+            <div class="achievement-icon">${notification.icon}</div>
+            <div class="achievement-title">${notification.title}</div>
+            <div class="achievement-name">${notification.name}</div>
+            <div class="achievement-description">${notification.description}</div>
+            <div class="achievement-xp">+${notification.xp} XP</div>
+        `;
+        
+        container.appendChild(element);
+        
+        // Remove after animation
+        setTimeout(() => {
+            element.style.animation = 'fade-out 0.5s ease forwards';
+            setTimeout(() => element.remove(), 500);
+        }, 4000);
     }
     
     getProgress() {
@@ -14256,7 +14774,7 @@ window.DailyChallenge = class DailyChallenge {
             {
                 id: 'speed_increase',
                 name: 'Accelerating Speed',
-                description: 'Speed increases every 10 seconds',
+                description: 'Speed increases every 45 seconds',
                 effect: 'speed_ramp',
                 difficulty: 2
             },
@@ -14287,13 +14805,6 @@ window.DailyChallenge = class DailyChallenge {
                 description: 'Only see bottom 10 rows',
                 effect: 'fog',
                 difficulty: 2
-            },
-            {
-                id: 'giant',
-                name: 'Giant Pieces',
-                description: 'All pieces are 2x size',
-                effect: 'giant_pieces',
-                difficulty: 3
             },
             {
                 id: 'tiny',
@@ -18700,12 +19211,15 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
             mirrorControls: false,
             shakeIntensity: 0,
             fogActive: false,
-            monochromeActive: false
+            monochromeActive: false,
+            giantPieces: false,
+            clockwiseOnly: false,
+            tinyGrid: false
         };
     }
     
     initialize() {
-        super.initialize();
+        // Don't call super.initialize() as it's an abstract method
         
         // Get today's challenge
         this.challenge = dailyChallenge.getTodaysChallenge();
@@ -18733,7 +19247,7 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
         // Apply difficulty
         const baseSpeed = 1000;
         const speedMultiplier = 1 - (this.challenge.difficulty * 0.15);
-        this.game.dropTime = baseSpeed * speedMultiplier;
+        this.game.dropInterval = baseSpeed * speedMultiplier;
         
         // Apply modifiers
         if (this.challenge.modifiers) {
@@ -18756,16 +19270,25 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
         switch(modifier.effect) {
             case 'invisible_grid':
                 this.modifierStates.invisible = true;
+                // Store original render method to make pieces invisible after placement
+                this.originalRenderGrid = this.game.renderGrid;
                 break;
                 
             case 'speed_ramp':
-                // Speed increases every 10 seconds
+                // Speed increases every 45 seconds
                 this.modifierStates.speedRamp = 1.5;
+                this.baseDropInterval = this.game.dropInterval;
                 break;
                 
             case 'no_hold':
                 // Disable hold feature
                 this.game.canHold = false;
+                // Hide hold display
+                const holdContainer = document.querySelector('.hold-container');
+                if (holdContainer) {
+                    holdContainer.style.opacity = '0.3';
+                    holdContainer.style.pointerEvents = 'none';
+                }
                 break;
                 
             case 'mirror_controls':
@@ -18774,6 +19297,7 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
                 
             case 'shake':
                 this.modifierStates.shakeIntensity = 5;
+                this.shakeStartTime = Date.now();
                 break;
                 
             case 'fog':
@@ -18781,15 +19305,32 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
                 break;
                 
             case 'giant_pieces':
-                // Would need special handling in piece generation
+                // Giant pieces modifier removed - skip
                 break;
                 
             case 'tiny_grid':
-                // Would need to modify grid width
+                // Reduce grid width to 6 columns
+                this.modifierStates.tinyGrid = true;
+                if (this.game.grid) {
+                    // Store original grid dimensions
+                    this.originalGridWidth = this.game.grid.width;
+                    // Create a narrower grid
+                    this.game.grid.width = 6;
+                    // Re-initialize grid cells with new width
+                    const newCells = [];
+                    for (let y = 0; y < this.game.grid.height; y++) {
+                        newCells[y] = [];
+                        for (let x = 0; x < 6; x++) {
+                            newCells[y][x] = null;
+                        }
+                    }
+                    this.game.grid.cells = newCells;
+                }
                 break;
                 
             case 'clockwise_only':
-                // Restrict rotation direction
+                // Restrict rotation direction - disable counter-clockwise
+                this.modifierStates.clockwiseOnly = true;
                 this.game.canRotateCounterClockwise = false;
                 break;
                 
@@ -18842,9 +19383,10 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
         
         // Apply speed ramp modifier
         if (this.modifierStates.speedRamp > 1) {
-            const rampTime = Math.floor(this.elapsedTime / 10000); // Every 10 seconds
+            const rampTime = Math.floor(this.elapsedTime / 45000); // Every 45 seconds
             const speedMultiplier = Math.pow(this.modifierStates.speedRamp, rampTime);
-            this.game.dropTime = Math.max(50, 1000 / speedMultiplier);
+            const baseInterval = this.baseDropInterval || 1000;
+            this.game.dropInterval = Math.max(50, baseInterval / speedMultiplier);
         }
         
         // Apply shake effect
@@ -18965,25 +19507,49 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
     applyShakeEffect() {
         // Apply visual shake to canvas
         if (this.game.canvas) {
-            const shake = Math.sin(Date.now() * 0.01) * this.modifierStates.shakeIntensity;
-            this.game.canvas.style.transform = `translateX(${shake}px)`;
+            const time = (Date.now() - this.shakeStartTime) / 1000;
+            // Shake periodically (every 3 seconds)
+            if (time % 3 < 0.5) {
+                const shakeX = (Math.random() - 0.5) * this.modifierStates.shakeIntensity * 2;
+                const shakeY = (Math.random() - 0.5) * this.modifierStates.shakeIntensity;
+                this.game.canvas.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+            } else {
+                this.game.canvas.style.transform = '';
+            }
         }
     }
     
-    handleLineClears(lines) {
+    handleLineClears(lines, specialClear = {}) {
         // Check for no line clear rule violation
         if (this.noLineClearRule && lines > 0) {
             this.failChallenge('Line clear rule violated!');
             return 0;
         }
         
-        // Normal line clear handling
-        const score = super.handleLineClears(lines);
+        // Calculate score (implement base scoring logic)
+        let baseScore = 0;
+        const level = this.game.level || 1;
         
-        // Update tetris count
-        if (lines === 4) {
-            this.game.tetrisCount = (this.game.tetrisCount || 0) + 1;
+        switch (lines) {
+            case 1:
+                baseScore = specialClear.type === 'tspin' ? 
+                    (specialClear.mini ? 200 : 800) : 100;
+                break;
+            case 2:
+                baseScore = specialClear.type === 'tspin' ? 1200 : 300;
+                break;
+            case 3:
+                baseScore = specialClear.type === 'tspin' ? 1600 : 500;
+                break;
+            case 4:
+                baseScore = 800; // Tetris
+                this.game.tetrisCount = (this.game.tetrisCount || 0) + 1;
+                break;
         }
+        
+        const score = baseScore * level;
+        this.game.score += score;
+        this.game.lines += lines;
         
         return score;
     }
@@ -19005,7 +19571,7 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
         
         // Apply speed increase rule
         if (this.speedIncreaseRule) {
-            this.game.dropTime = Math.max(50, this.game.dropTime * 0.98);
+            this.game.dropInterval = Math.max(50, this.game.dropInterval * 0.98);
         }
     }
     
@@ -19107,7 +19673,7 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
                     <div class="challenge-modifiers">
                         <strong>Modifiers:</strong>
                         <ul>
-                            ${this.modifiersActive.map(m => `<li>${m.name}</li>`).join('')}
+                            ${this.modifiersActive.map(m => `<li>${m.name} - ${m.description}</li>`).join('')}
                         </ul>
                     </div>
                     ${this.challenge.timeLimit > 0 ? `
@@ -19172,20 +19738,47 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
         return '';
     }
     
+    // Called BEFORE rendering to apply filters
     render(ctx, canvas) {
-        // Apply visual modifiers
-        if (this.modifierStates.fogActive) {
-            // Draw fog overlay on top rows
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
-        }
-        
+        // Apply visual modifiers that affect rendering
         if (this.modifierStates.monochromeActive) {
-            // Apply grayscale filter
+            // Apply grayscale filter for monochrome mode
             ctx.filter = 'grayscale(100%)';
         }
         
-        // Reset filter
+        // Giant pieces are handled in renderPieceWithModifiers
+        
+        // Apply invisible grid effect
+        if (this.modifierStates.invisible) {
+            // Make placed pieces semi-transparent
+            ctx.globalAlpha = 0.15;
+        }
+    }
+    
+    
+    // Called AFTER rendering to apply overlays and reset filters
+    postRender(ctx) {
+        // Restore alpha if invisible was active
+        if (this.modifierStates.invisible) {
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // Apply overlays that go on top of the rendered game
+        if (this.modifierStates.fogActive) {
+            // Draw fog overlay on top rows (hide top 10 rows)
+            const fogHeight = this.game.canvas.height * 0.5;
+            
+            // Create gradient for fog effect
+            const gradient = ctx.createLinearGradient(0, 0, 0, fogHeight);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+            gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.7)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, this.game.canvas.width, fogHeight);
+        }
+        
+        // Reset any filters that were applied
         ctx.filter = 'none';
     }
     
@@ -19196,7 +19789,66 @@ window.DailyChallengeMode = class DailyChallengeMode extends GameMode {
             else if (action === 'right') action = 'left';
         }
         
+        // Block counter-clockwise rotation if clockwise only is active
+        if (this.modifierStates.clockwiseOnly && action === 'rotateCounterClockwise') {
+            // Convert counter-clockwise to clockwise or block it
+            return null; // Block the action
+        }
+        
         return action;
+    }
+    
+    cleanup() {
+        // Reset all game modifiers to default values
+        this.game.canHold = true;
+        this.game.canRotateCounterClockwise = true;
+        this.game.dropInterval = 1000; // Reset to default speed
+        
+        
+        // Restore hold display
+        const holdContainer = document.querySelector('.hold-container');
+        if (holdContainer) {
+            holdContainer.style.opacity = '1';
+            holdContainer.style.pointerEvents = 'auto';
+        }
+        
+        // Restore original grid dimensions if they were modified
+        if (this.modifierStates.tinyGrid && this.originalGridWidth) {
+            this.game.grid.width = this.originalGridWidth;
+            // Re-initialize grid cells with original width
+            const restoredCells = [];
+            for (let y = 0; y < this.game.grid.height; y++) {
+                restoredCells[y] = [];
+                for (let x = 0; x < this.originalGridWidth; x++) {
+                    restoredCells[y][x] = null;
+                }
+            }
+            this.game.grid.cells = restoredCells;
+        }
+        
+        // Reset visual filters
+        if (this.game.ctx) {
+            this.game.ctx.filter = 'none';
+            this.game.ctx.globalAlpha = 1.0;
+            // Clear any saved states
+            try {
+                this.game.ctx.restore();
+            } catch(e) {
+                // Context might not have a saved state
+            }
+        }
+        
+        // Remove shake effect
+        if (this.game.canvas) {
+            this.game.canvas.style.transform = '';
+        }
+        
+        // Hide Daily Challenge UI
+        const modeUI = document.getElementById('mode-ui');
+        if (modeUI) {
+            modeUI.innerHTML = '';
+            modeUI.style.display = 'none';
+        }
     }
 }
 })();
@@ -23344,8 +23996,10 @@ window.ProgressionManager = class ProgressionManager {
     }
     
     async init() {
+        console.log('[ProgressionManager] Initializing...');
         // Initialize in guest mode first
         this.initGuestMode();
+        console.log('[ProgressionManager] Guest mode initialized');
         
         // Check authentication if token exists
         if (this.authToken) {
@@ -23499,16 +24153,65 @@ window.ProgressionManager = class ProgressionManager {
     }
     
     generateLocalDailyChallenge() {
-        const today = new Date().toDateString();
-        const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        // Use the real daily challenge system
+        const challenge = dailyChallenge.getTodaysChallenge();
+        
+        if (!challenge) {
+            // Fallback if challenge generation fails
+            return {
+                id: Date.now(),
+                date: new Date().toDateString(),
+                goal: 'Score 50,000 points',
+                modifiers: ['Speed Increase'],
+                xp_reward: 500,
+                completed: false
+            };
+        }
+        
+        // Format the challenge for display
+        const objective = challenge.objective;
+        let goalText = '';
+        
+        switch(objective.type) {
+            case 'lines':
+                goalText = `Clear ${objective.target} lines`;
+                break;
+            case 'score':
+                goalText = `Score ${objective.target} points`;
+                break;
+            case 'combo':
+                goalText = `Achieve ${objective.target}x combo`;
+                break;
+            case 'tetris':
+                goalText = `Perform ${objective.target} Tetris${objective.target > 1 ? 'es' : ''}`;
+                break;
+            case 'tspin':
+                goalText = `Perform ${objective.target} T-Spin${objective.target > 1 ? 's' : ''}`;
+                break;
+            case 'perfect':
+                goalText = 'Achieve a perfect clear';
+                break;
+            case 'survival':
+                goalText = `Survive for ${objective.duration} seconds`;
+                break;
+            case 'speed':
+                goalText = `Clear 40 lines quickly`;
+                break;
+            default:
+                goalText = challenge.name;
+        }
+        
+        // Extract modifier names
+        const modifierNames = challenge.modifiers ? 
+            challenge.modifiers.map(mod => mod.name || mod) : [];
         
         return {
-            id: seed,
-            date: today,
-            goal: 'Score 50,000 points',
-            modifiers: ['2x Speed', 'No Hold'],
-            xp_reward: 500,
-            completed: false
+            id: challenge.seed,
+            date: new Date().toDateString(),
+            goal: goalText,
+            modifiers: modifierNames,
+            xp_reward: challenge.baseXP || 500,
+            completed: !dailyChallenge.isAvailable()
         };
     }
     
@@ -23694,7 +24397,11 @@ window.ProgressionManager = class ProgressionManager {
     }
     
     updateProgressionUI() {
-        if (!this.playerData) return;
+        if (!this.playerData) {
+            console.warn('[ProgressionManager] No player data available for UI update');
+            return;
+        }
+        console.log(`[ProgressionManager] Updating UI - Level: ${this.playerData.level}, XP: ${this.playerData.current_xp}, Rank: ${this.playerData.rank}`);
         
         // Update header
         document.getElementById('player-level').textContent = this.playerData.level;
@@ -24486,7 +25193,12 @@ window.ProgressionManager = class ProgressionManager {
     
     // XP and Achievement notifications
     showXPNotification(amount, source = '') {
+        console.log(`[ProgressionManager] Showing XP notification: +${amount} XP from ${source}`);
         const container = document.getElementById('xp-notifications');
+        if (!container) {
+            console.error('[ProgressionManager] XP notifications container not found!');
+            return;
+        }
         const notification = document.createElement('div');
         notification.className = 'xp-notification';
         notification.innerHTML = `+${amount} XP${source ? ` - ${source}` : ''}`;
@@ -24546,11 +25258,15 @@ window.ProgressionManager = class ProgressionManager {
     
     // Game integration methods
     async addXP(amount, source = 'gameplay') {
+        console.log(`[ProgressionManager] Adding ${amount} XP from ${source}`);
+        console.log(`[ProgressionManager] Current state - Guest: ${this.isGuest}, Level: ${this.playerData?.level}, XP: ${this.playerData?.current_xp}`);
+        
         if (this.isGuest) {
             // Handle XP locally for guests
             const oldLevel = this.playerData.level || 1;
             this.playerData.current_xp = (this.playerData.current_xp || 0) + amount;
             this.playerData.total_xp = (this.playerData.total_xp || 0) + amount;
+            console.log(`[ProgressionManager] New XP: ${this.playerData.current_xp}, Total: ${this.playerData.total_xp}`);
             
             // Calculate level locally
             this.playerData.level = this.calculateLevel(this.playerData.total_xp);
@@ -24643,6 +25359,7 @@ window.ProgressionManager = class ProgressionManager {
     
     calculateLevel(totalXP) {
         // XP required per level increases progressively
+        console.log(`[ProgressionManager] Calculating level for ${totalXP} total XP`);
         let level = 1;
         let xpNeeded = 0;
         
@@ -25190,6 +25907,16 @@ window.TetrisGame = class TetrisGame {
             perfectClears: 0
         };
         
+        // Daily Challenge tracking
+        this.tetrisCount = 0;
+        this.tspinCount = 0;
+        this.maxCombo = 0;
+        this.cascadeCount = 0;
+        
+        // Game modifiers
+        this.canHold = true;
+        this.canRotateCounterClockwise = true;
+        
         // Game mechanics
         this.lockDelay = 0;
         this.maxLockDelay = 500;
@@ -25266,12 +25993,6 @@ window.TetrisGame = class TetrisGame {
         this.ctx.imageSmoothingEnabled = false;
         this.cellSize = internalWidth / GRID_WIDTH;
         
-        // Log for debugging
-        console.log('Canvas setup:', {
-            width: this.canvas.width,
-            height: this.canvas.height,
-            cellSize: this.cellSize
-        });
     }
 
     // Game loop
@@ -25426,6 +26147,9 @@ window.TetrisGame = class TetrisGame {
     rotatePiece(direction = 1) {
         if (!this.currentPiece || this.state !== 'playing') return false;
         
+        // Check if counter-clockwise rotation is disabled
+        if (direction === -1 && !this.canRotateCounterClockwise) return false;
+        
         const rotatedPiece = this.grid.testPieceRotation(this.currentPiece, direction);
         
         if (rotatedPiece) {
@@ -25483,7 +26207,7 @@ window.TetrisGame = class TetrisGame {
 
     // Hold piece
     holdPiece() {
-        if (!this.currentPiece || this.heldPieceUsed || this.state !== 'playing') return;
+        if (!this.currentPiece || this.heldPieceUsed || this.state !== 'playing' || !this.canHold) return;
         
         if (this.heldPiece) {
             // Swap current and held pieces
@@ -25525,8 +26249,12 @@ window.TetrisGame = class TetrisGame {
         }
         
         // Notify game mode that a piece was placed
-        if (this.gameMode && this.gameMode.handlePiecePlaced) {
-            this.gameMode.handlePiecePlaced();
+        if (this.gameMode) {
+            if (this.gameMode.onPiecePlaced) {
+                this.gameMode.onPiecePlaced();
+            } else if (this.gameMode.handlePiecePlaced) {
+                this.gameMode.handlePiecePlaced();
+            }
         }
         
         // Play lock sound
@@ -25603,11 +26331,35 @@ window.TetrisGame = class TetrisGame {
                 this.specialAchievements.tspinMinis++;
             } else {
                 this.specialAchievements.tspins++;
+                this.tspinCount++; // Track for Daily Challenge
+                
+                // Check T-Spin achievement immediately
+                achievementSystem.checkAchievement('FIRST_TSPIN', true);
             }
         }
         
         if (clearedLines === 4) {
             this.specialAchievements.tetris++;
+            
+            // Check Tetris achievement immediately
+            achievementSystem.checkAchievement('FIRST_TETRIS', true);
+            console.log('[Game] Tetris achieved! Total Tetris count:', this.specialAchievements.tetris);
+        }
+        
+        // Check for first line achievement
+        if (clearedLines > 0 && this.lines <= clearedLines) {
+            achievementSystem.checkAchievement('FIRST_LINE', true);
+        }
+        
+        // Update combo achievements in real-time
+        if (this.combo >= 5) {
+            achievementSystem.checkAchievement('COMBO_5', true);
+        }
+        if (this.combo >= 10) {
+            achievementSystem.checkAchievement('COMBO_10', true);
+        }
+        if (this.combo >= 20) {
+            achievementSystem.checkAchievement('COMBO_20', true);
         }
     }
 
@@ -25672,11 +26424,16 @@ window.TetrisGame = class TetrisGame {
                 break;
             case 4:
                 baseScore = 800; // Tetris
+                this.tetrisCount++; // Track for Daily Challenge
                 break;
         }
         
         // Combo bonus
         this.combo++;
+        // Track max combo for Daily Challenge
+        if (this.combo > this.maxCombo) {
+            this.maxCombo = this.combo;
+        }
         if (this.combo > 1) {
             baseScore += 50 * this.combo * multiplier;
             this.uiManager.showComboEffect(this.combo);
@@ -25893,17 +26650,45 @@ window.TetrisGame = class TetrisGame {
             isVictory: isVictory
         };
         
-        // Calculate and award XP
-        const xpEarned = playerProgression.calculateGameXP(gameResults);
-        playerProgression.addXP(xpEarned, 'gameplay');
-        playerProgression.updateStats(gameResults);
+        // Calculate and award XP through progressionManager for proper notifications
+        if (window.progressionManager) {
+            const xpEarned = playerProgression.calculateGameXP(gameResults);
+            // Use progressionManager for XP to show notifications
+            window.progressionManager.addXP(xpEarned, 'gameplay').then(() => {
+                console.log(`Awarded ${xpEarned} XP for gameplay`);
+            }).catch(err => {
+                console.error('Error awarding XP:', err);
+            });
+            playerProgression.updateStats(gameResults);
+        } else {
+            // Fallback to direct playerProgression if manager not available
+            const xpEarned = playerProgression.calculateGameXP(gameResults);
+            const xpResult = playerProgression.addXP(xpEarned, 'gameplay');
+            playerProgression.updateStats(gameResults);
+            console.log(`Fallback: Awarded ${xpEarned} XP (no notifications)`);
+        }
         
-        // Check achievements
+        // Check achievements at game over
+        console.log('[Game] Game Over - Checking achievements');
+        console.log('[Game] Stats:', { 
+            lines: this.lines, 
+            score: this.score, 
+            combo: this.combo,
+            tspins: dbAchievements.tspins,
+            tetris: dbAchievements.tetris
+        });
+        
+        // Update cumulative progress
         achievementSystem.updateProgress('totalLines', this.lines, true);
         achievementSystem.updateProgress('highScore', this.score);
         achievementSystem.updateProgress('maxCombo', this.combo);
         achievementSystem.updateProgress('tspins', dbAchievements.tspins, true);
         achievementSystem.updateProgress('perfectClears', dbAchievements.perfectClears, true);
+        
+        // Check score achievements
+        achievementSystem.checkAchievement('SCORE_10K', this.score >= 10000);
+        achievementSystem.checkAchievement('SCORE_100K', this.score >= 100000);
+        achievementSystem.checkAchievement('SCORE_1M', this.score >= 1000000);
         
         // Set game start time for score saver
         this.uiManager.scoreSaver.setGameStartTime(this.gameStartTime);
@@ -25932,6 +26717,11 @@ window.TetrisGame = class TetrisGame {
         this.clearCanvas();
         
         if (this.state === 'playing' || this.state === 'paused') {
+            // Apply mode-specific pre-render effects (like monochrome filter)
+            if (this.gameMode && this.gameMode.render) {
+                this.gameMode.render(this.ctx, this.canvas);
+            }
+            
             this.renderGrid();
             this.renderGhostPiece();
             this.renderCurrentPiece();
@@ -25940,6 +26730,11 @@ window.TetrisGame = class TetrisGame {
             // Render customization effects
             if (customizationManager) {
                 customizationManager.renderEffects(this.ctx);
+            }
+            
+            // Apply mode-specific post-render effects
+            if (this.gameMode && this.gameMode.postRender) {
+                this.gameMode.postRender(this.ctx);
             }
             
             // Update mode-specific UI
@@ -25958,7 +26753,8 @@ window.TetrisGame = class TetrisGame {
         const gridData = this.grid.getRenderData();
         
         gridData.forEach(cell => {
-            this.renderCell(cell.x, cell.y, cell.color, false);
+            // Pass the type directly if available, otherwise use color
+            this.renderCell(cell.x, cell.y, cell.color, false, cell.type);
         });
     }
 
@@ -25968,7 +26764,7 @@ window.TetrisGame = class TetrisGame {
         const blocks = this.currentPiece.getBlocks();
         blocks.forEach(block => {
             if (block.y >= 4) { // Only render visible blocks
-                this.renderCell(block.x, block.y - 4, block.color, false);
+                this.renderCell(block.x, block.y - 4, block.color, false, this.currentPiece.type);
             }
         });
     }
@@ -25979,19 +26775,21 @@ window.TetrisGame = class TetrisGame {
         const blocks = this.ghostPiece.getBlocks();
         blocks.forEach(block => {
             if (block.y >= 4) { // Only render visible blocks
-                this.renderCell(block.x, block.y - 4, block.color, true);
+                this.renderCell(block.x, block.y - 4, block.color, true, this.ghostPiece.type);
             }
         });
     }
 
-    renderCell(x, y, color, isGhost = false) {
+    renderCell(x, y, color, isGhost = false, pieceType = null) {
         const cellX = x * this.cellSize;
         const cellY = y * this.cellSize;
         
         // Use customization manager for piece rendering
         if (customizationManager) {
-            // Get piece type from color (simplified mapping)
-            const pieceType = this.getPieceTypeFromColor(color);
+            // Use the provided pieceType or try to get it from color
+            if (!pieceType) {
+                pieceType = this.getPieceTypeFromColor(color);
+            }
             customizationManager.renderPiece(this.ctx, cellX, cellY, this.cellSize, pieceType, isGhost);
         } else {
             // Fallback to original rendering
@@ -26024,16 +26822,20 @@ window.TetrisGame = class TetrisGame {
     
     getPieceTypeFromColor(color) {
         // Map colors back to piece types for customization
+        // Using the actual PIECE_COLORS from pieces.js
         const colorMap = {
-            '#00FFFF': 'I',
-            '#FFFF00': 'O',
-            '#FF00FF': 'T',
-            '#00FF00': 'S',
-            '#FF0000': 'Z',
-            '#FFA500': 'L',
-            '#0000FF': 'J'
+            '#00d4ff': 'I',  // Cyan
+            '#ffff00': 'O',  // Yellow
+            '#9d4edd': 'T',  // Purple
+            '#39ff14': 'S',  // Green
+            '#ff0040': 'Z',  // Red
+            '#0066ff': 'J',  // Blue
+            '#ff8500': 'L'   // Orange
         };
-        return colorMap[color] || 'I';
+        
+        // Try lowercase version of color
+        const lowerColor = color.toLowerCase();
+        return colorMap[lowerColor] || 'J';  // Default to J if not found
     }
 
     renderGridLines() {
@@ -26120,6 +26922,77 @@ window.TetrisGame = class TetrisGame {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.tetrisGame = new TetrisGame();
+    
+    // Initialize hamburger menu
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (hamburgerMenu && mobileMenu) {
+        hamburgerMenu.addEventListener('click', () => {
+            hamburgerMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!hamburgerMenu.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburgerMenu.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+        });
+        
+        // Sync mobile menu buttons with desktop buttons
+        const syncButtons = [
+            { desktop: 'back-to-menu', mobile: 'mobile-back-to-menu' },
+            { desktop: 'game-help-button', mobile: 'mobile-game-help' },
+            { desktop: 'mute-button', mobile: 'mobile-mute' }
+        ];
+        
+        syncButtons.forEach(pair => {
+            const desktopBtn = document.getElementById(pair.desktop);
+            const mobileBtn = document.getElementById(pair.mobile);
+            
+            if (desktopBtn && mobileBtn) {
+                // Clone event listeners from desktop to mobile
+                mobileBtn.addEventListener('click', () => {
+                    desktopBtn.click();
+                    // Close menu after action
+                    hamburgerMenu.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                });
+            }
+        });
+        
+        // Sync profile name updates
+        const profileNameElements = ['profile-name', 'mobile-profile-name'];
+        const accountStatusElements = ['account-status', 'mobile-account-status'];
+        
+        // Create observer for profile updates
+        const observer = new MutationObserver(() => {
+            const desktopProfile = document.getElementById('profile-name');
+            const mobileProfile = document.getElementById('mobile-profile-name');
+            if (desktopProfile && mobileProfile) {
+                mobileProfile.textContent = desktopProfile.textContent;
+            }
+            
+            const desktopAccount = document.getElementById('account-status');
+            const mobileAccount = document.getElementById('mobile-account-status');
+            if (desktopAccount && mobileAccount) {
+                mobileAccount.textContent = desktopAccount.textContent;
+            }
+        });
+        
+        // Observe changes to desktop profile elements
+        const desktopProfile = document.getElementById('profile-name');
+        const desktopAccount = document.getElementById('account-status');
+        
+        if (desktopProfile) {
+            observer.observe(desktopProfile, { childList: true, characterData: true, subtree: true });
+        }
+        if (desktopAccount) {
+            observer.observe(desktopAccount, { childList: true, characterData: true, subtree: true });
+        }
+    }
 });
 })();
 

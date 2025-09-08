@@ -125,7 +125,7 @@ export class DailyChallenge {
             {
                 id: 'speed_increase',
                 name: 'Accelerating Speed',
-                description: 'Speed increases every 10 seconds',
+                description: 'Speed increases every 45 seconds',
                 effect: 'speed_ramp',
                 difficulty: 2
             },
@@ -156,13 +156,6 @@ export class DailyChallenge {
                 description: 'Only see bottom 10 rows',
                 effect: 'fog',
                 difficulty: 2
-            },
-            {
-                id: 'giant',
-                name: 'Giant Pieces',
-                description: 'All pieces are 2x size',
-                effect: 'giant_pieces',
-                difficulty: 3
             },
             {
                 id: 'tiny',

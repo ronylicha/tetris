@@ -393,8 +393,12 @@ export class TetrisGame {
         }
         
         // Notify game mode that a piece was placed
-        if (this.gameMode && this.gameMode.handlePiecePlaced) {
-            this.gameMode.handlePiecePlaced();
+        if (this.gameMode) {
+            if (this.gameMode.onPiecePlaced) {
+                this.gameMode.onPiecePlaced();
+            } else if (this.gameMode.handlePiecePlaced) {
+                this.gameMode.handlePiecePlaced();
+            }
         }
         
         // Play lock sound
@@ -472,11 +476,34 @@ export class TetrisGame {
             } else {
                 this.specialAchievements.tspins++;
                 this.tspinCount++; // Track for Daily Challenge
+                
+                // Check T-Spin achievement immediately
+                achievementSystem.checkAchievement('FIRST_TSPIN', true);
             }
         }
         
         if (clearedLines === 4) {
             this.specialAchievements.tetris++;
+            
+            // Check Tetris achievement immediately
+            achievementSystem.checkAchievement('FIRST_TETRIS', true);
+            console.log('[Game] Tetris achieved! Total Tetris count:', this.specialAchievements.tetris);
+        }
+        
+        // Check for first line achievement
+        if (clearedLines > 0 && this.lines <= clearedLines) {
+            achievementSystem.checkAchievement('FIRST_LINE', true);
+        }
+        
+        // Update combo achievements in real-time
+        if (this.combo >= 5) {
+            achievementSystem.checkAchievement('COMBO_5', true);
+        }
+        if (this.combo >= 10) {
+            achievementSystem.checkAchievement('COMBO_10', true);
+        }
+        if (this.combo >= 20) {
+            achievementSystem.checkAchievement('COMBO_20', true);
         }
     }
 
@@ -767,17 +794,45 @@ export class TetrisGame {
             isVictory: isVictory
         };
         
-        // Calculate and award XP
-        const xpEarned = playerProgression.calculateGameXP(gameResults);
-        const xpResult = playerProgression.addXP(xpEarned, 'gameplay');
-        playerProgression.updateStats(gameResults);
+        // Calculate and award XP through progressionManager for proper notifications
+        if (window.progressionManager) {
+            const xpEarned = playerProgression.calculateGameXP(gameResults);
+            // Use progressionManager for XP to show notifications
+            window.progressionManager.addXP(xpEarned, 'gameplay').then(() => {
+                console.log(`Awarded ${xpEarned} XP for gameplay`);
+            }).catch(err => {
+                console.error('Error awarding XP:', err);
+            });
+            playerProgression.updateStats(gameResults);
+        } else {
+            // Fallback to direct playerProgression if manager not available
+            const xpEarned = playerProgression.calculateGameXP(gameResults);
+            const xpResult = playerProgression.addXP(xpEarned, 'gameplay');
+            playerProgression.updateStats(gameResults);
+            console.log(`Fallback: Awarded ${xpEarned} XP (no notifications)`);
+        }
         
-        // Check achievements
+        // Check achievements at game over
+        console.log('[Game] Game Over - Checking achievements');
+        console.log('[Game] Stats:', { 
+            lines: this.lines, 
+            score: this.score, 
+            combo: this.combo,
+            tspins: dbAchievements.tspins,
+            tetris: dbAchievements.tetris
+        });
+        
+        // Update cumulative progress
         achievementSystem.updateProgress('totalLines', this.lines, true);
         achievementSystem.updateProgress('highScore', this.score);
         achievementSystem.updateProgress('maxCombo', this.combo);
         achievementSystem.updateProgress('tspins', dbAchievements.tspins, true);
         achievementSystem.updateProgress('perfectClears', dbAchievements.perfectClears, true);
+        
+        // Check score achievements
+        achievementSystem.checkAchievement('SCORE_10K', this.score >= 10000);
+        achievementSystem.checkAchievement('SCORE_100K', this.score >= 100000);
+        achievementSystem.checkAchievement('SCORE_1M', this.score >= 1000000);
         
         // Set game start time for score saver
         this.uiManager.scoreSaver.setGameStartTime(this.gameStartTime);
@@ -1011,4 +1066,75 @@ export class TetrisGame {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.tetrisGame = new TetrisGame();
+    
+    // Initialize hamburger menu
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (hamburgerMenu && mobileMenu) {
+        hamburgerMenu.addEventListener('click', () => {
+            hamburgerMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!hamburgerMenu.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburgerMenu.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+        });
+        
+        // Sync mobile menu buttons with desktop buttons
+        const syncButtons = [
+            { desktop: 'back-to-menu', mobile: 'mobile-back-to-menu' },
+            { desktop: 'game-help-button', mobile: 'mobile-game-help' },
+            { desktop: 'mute-button', mobile: 'mobile-mute' }
+        ];
+        
+        syncButtons.forEach(pair => {
+            const desktopBtn = document.getElementById(pair.desktop);
+            const mobileBtn = document.getElementById(pair.mobile);
+            
+            if (desktopBtn && mobileBtn) {
+                // Clone event listeners from desktop to mobile
+                mobileBtn.addEventListener('click', () => {
+                    desktopBtn.click();
+                    // Close menu after action
+                    hamburgerMenu.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                });
+            }
+        });
+        
+        // Sync profile name updates
+        const profileNameElements = ['profile-name', 'mobile-profile-name'];
+        const accountStatusElements = ['account-status', 'mobile-account-status'];
+        
+        // Create observer for profile updates
+        const observer = new MutationObserver(() => {
+            const desktopProfile = document.getElementById('profile-name');
+            const mobileProfile = document.getElementById('mobile-profile-name');
+            if (desktopProfile && mobileProfile) {
+                mobileProfile.textContent = desktopProfile.textContent;
+            }
+            
+            const desktopAccount = document.getElementById('account-status');
+            const mobileAccount = document.getElementById('mobile-account-status');
+            if (desktopAccount && mobileAccount) {
+                mobileAccount.textContent = desktopAccount.textContent;
+            }
+        });
+        
+        // Observe changes to desktop profile elements
+        const desktopProfile = document.getElementById('profile-name');
+        const desktopAccount = document.getElementById('account-status');
+        
+        if (desktopProfile) {
+            observer.observe(desktopProfile, { childList: true, characterData: true, subtree: true });
+        }
+        if (desktopAccount) {
+            observer.observe(desktopAccount, { childList: true, characterData: true, subtree: true });
+        }
+    }
 });

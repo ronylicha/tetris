@@ -28,8 +28,10 @@ export class ProgressionManager {
     }
     
     async init() {
+        console.log('[ProgressionManager] Initializing...');
         // Initialize in guest mode first
         this.initGuestMode();
+        console.log('[ProgressionManager] Guest mode initialized');
         
         // Check authentication if token exists
         if (this.authToken) {
@@ -427,7 +429,11 @@ export class ProgressionManager {
     }
     
     updateProgressionUI() {
-        if (!this.playerData) return;
+        if (!this.playerData) {
+            console.warn('[ProgressionManager] No player data available for UI update');
+            return;
+        }
+        console.log(`[ProgressionManager] Updating UI - Level: ${this.playerData.level}, XP: ${this.playerData.current_xp}, Rank: ${this.playerData.rank}`);
         
         // Update header
         document.getElementById('player-level').textContent = this.playerData.level;
@@ -1219,7 +1225,12 @@ export class ProgressionManager {
     
     // XP and Achievement notifications
     showXPNotification(amount, source = '') {
+        console.log(`[ProgressionManager] Showing XP notification: +${amount} XP from ${source}`);
         const container = document.getElementById('xp-notifications');
+        if (!container) {
+            console.error('[ProgressionManager] XP notifications container not found!');
+            return;
+        }
         const notification = document.createElement('div');
         notification.className = 'xp-notification';
         notification.innerHTML = `+${amount} XP${source ? ` - ${source}` : ''}`;
@@ -1279,11 +1290,15 @@ export class ProgressionManager {
     
     // Game integration methods
     async addXP(amount, source = 'gameplay') {
+        console.log(`[ProgressionManager] Adding ${amount} XP from ${source}`);
+        console.log(`[ProgressionManager] Current state - Guest: ${this.isGuest}, Level: ${this.playerData?.level}, XP: ${this.playerData?.current_xp}`);
+        
         if (this.isGuest) {
             // Handle XP locally for guests
             const oldLevel = this.playerData.level || 1;
             this.playerData.current_xp = (this.playerData.current_xp || 0) + amount;
             this.playerData.total_xp = (this.playerData.total_xp || 0) + amount;
+            console.log(`[ProgressionManager] New XP: ${this.playerData.current_xp}, Total: ${this.playerData.total_xp}`);
             
             // Calculate level locally
             this.playerData.level = this.calculateLevel(this.playerData.total_xp);
@@ -1376,6 +1391,7 @@ export class ProgressionManager {
     
     calculateLevel(totalXP) {
         // XP required per level increases progressively
+        console.log(`[ProgressionManager] Calculating level for ${totalXP} total XP`);
         let level = 1;
         let xpNeeded = 0;
         

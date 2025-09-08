@@ -486,6 +486,12 @@ export class InputManager {
     executeAction(action) {
         if (!this.game) return;
         
+        // Allow game mode to intercept/modify input
+        if (this.game.gameMode && this.game.gameMode.handleInput) {
+            action = this.game.gameMode.handleInput(action);
+            if (!action) return; // Action was blocked
+        }
+        
         switch (action) {
             case 'moveLeft':
                 this.game.movePiece(-1, 0);

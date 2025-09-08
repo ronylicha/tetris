@@ -364,6 +364,9 @@ export class AchievementSystem {
             this.unlockedAchievements = saved.achievements || [];
             this.unlockedTrophies = saved.trophies || [];
             this.progress = saved.progress || {};
+            console.log(`[AchievementSystem] Loaded ${this.unlockedAchievements.length} achievements, ${this.unlockedTrophies.length} trophies`);
+        } else {
+            console.log('[AchievementSystem] No saved achievements found, starting fresh');
         }
     }
     
@@ -399,11 +402,18 @@ export class AchievementSystem {
             return false;
         }
         
+        console.log(`[AchievementSystem] Unlocking achievement: ${achievement.name}`);
+        
         // Add to unlocked list
         this.unlockedAchievements.push(achievementId);
         
-        // Award XP
-        if (playerProgression) {
+        // Award XP through progressionManager for notifications
+        if (window.progressionManager) {
+            window.progressionManager.addXP(achievement.xp, `Achievement: ${achievement.name}`).catch(err => {
+                console.error('Error awarding achievement XP:', err);
+            });
+        } else if (playerProgression) {
+            // Fallback to direct playerProgression
             playerProgression.addXP(achievement.xp, 'achievement');
         }
         
@@ -502,21 +512,33 @@ export class AchievementSystem {
     }
     
     updateProgress(key, value, increment = false) {
+        const oldValue = this.progress[key] || 0;
+        
         if (increment) {
             this.progress[key] = (this.progress[key] || 0) + value;
         } else {
             this.progress[key] = value;
         }
         
+        console.log(`[AchievementSystem] Progress update - ${key}: ${oldValue} -> ${this.progress[key]}`);
+        
         // Check related achievements
         this.checkProgressAchievements(key);
+        
+        // Save progress after update
+        this.saveProgress().catch(err => console.error('Error saving achievement progress:', err));
     }
     
     checkProgressAchievements(key) {
         const value = this.progress[key];
+        console.log(`[AchievementSystem] Checking progress for ${key}: ${value}`);
         
         switch (key) {
             case 'totalLines':
+                // Check for first line achievement
+                if (value >= 1) {
+                    this.checkAchievement('FIRST_LINE', true);
+                }
                 this.checkAchievement('LINES_100', value >= 100);
                 this.checkAchievement('LINES_1000', value >= 1000);
                 this.checkAchievement('LINES_10000', value >= 10000);
@@ -564,6 +586,8 @@ export class AchievementSystem {
             timestamp: Date.now()
         };
         
+        console.log(`[AchievementSystem] Creating notification for: ${data.name}`);
+        
         this.notifications.push(notification);
         
         // Dispatch event for UI
@@ -571,10 +595,41 @@ export class AchievementSystem {
             detail: notification 
         }));
         
+        // Show achievement unlock notification
+        this.showAchievementNotification(notification);
+        
         // Show UI notification if available
         if (window.game && window.game.uiManager) {
             window.game.uiManager.showAchievement(notification);
         }
+    }
+    
+    showAchievementNotification(notification) {
+        console.log(`[AchievementSystem] Showing achievement notification: ${notification.name}`);
+        
+        const container = document.getElementById('achievement-unlocks');
+        if (!container) {
+            console.error('[AchievementSystem] Achievement notification container not found!');
+            return;
+        }
+        
+        const element = document.createElement('div');
+        element.className = 'achievement-unlock';
+        element.innerHTML = `
+            <div class="achievement-icon">${notification.icon}</div>
+            <div class="achievement-title">${notification.title}</div>
+            <div class="achievement-name">${notification.name}</div>
+            <div class="achievement-description">${notification.description}</div>
+            <div class="achievement-xp">+${notification.xp} XP</div>
+        `;
+        
+        container.appendChild(element);
+        
+        // Remove after animation
+        setTimeout(() => {
+            element.style.animation = 'fade-out 0.5s ease forwards';
+            setTimeout(() => element.remove(), 500);
+        }, 4000);
     }
     
     getProgress() {

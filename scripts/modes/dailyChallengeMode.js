@@ -21,7 +21,10 @@ export class DailyChallengeMode extends GameMode {
             mirrorControls: false,
             shakeIntensity: 0,
             fogActive: false,
-            monochromeActive: false
+            monochromeActive: false,
+            giantPieces: false,
+            clockwiseOnly: false,
+            tinyGrid: false
         };
     }
     
@@ -77,16 +80,25 @@ export class DailyChallengeMode extends GameMode {
         switch(modifier.effect) {
             case 'invisible_grid':
                 this.modifierStates.invisible = true;
+                // Store original render method to make pieces invisible after placement
+                this.originalRenderGrid = this.game.renderGrid;
                 break;
                 
             case 'speed_ramp':
-                // Speed increases every 10 seconds
+                // Speed increases every 45 seconds
                 this.modifierStates.speedRamp = 1.5;
+                this.baseDropInterval = this.game.dropInterval;
                 break;
                 
             case 'no_hold':
                 // Disable hold feature
                 this.game.canHold = false;
+                // Hide hold display
+                const holdContainer = document.querySelector('.hold-container');
+                if (holdContainer) {
+                    holdContainer.style.opacity = '0.3';
+                    holdContainer.style.pointerEvents = 'none';
+                }
                 break;
                 
             case 'mirror_controls':
@@ -95,6 +107,7 @@ export class DailyChallengeMode extends GameMode {
                 
             case 'shake':
                 this.modifierStates.shakeIntensity = 5;
+                this.shakeStartTime = Date.now();
                 break;
                 
             case 'fog':
@@ -102,15 +115,32 @@ export class DailyChallengeMode extends GameMode {
                 break;
                 
             case 'giant_pieces':
-                // Would need special handling in piece generation
+                // Giant pieces modifier removed - skip
                 break;
                 
             case 'tiny_grid':
-                // Would need to modify grid width
+                // Reduce grid width to 6 columns
+                this.modifierStates.tinyGrid = true;
+                if (this.game.grid) {
+                    // Store original grid dimensions
+                    this.originalGridWidth = this.game.grid.width;
+                    // Create a narrower grid
+                    this.game.grid.width = 6;
+                    // Re-initialize grid cells with new width
+                    const newCells = [];
+                    for (let y = 0; y < this.game.grid.height; y++) {
+                        newCells[y] = [];
+                        for (let x = 0; x < 6; x++) {
+                            newCells[y][x] = null;
+                        }
+                    }
+                    this.game.grid.cells = newCells;
+                }
                 break;
                 
             case 'clockwise_only':
-                // Restrict rotation direction
+                // Restrict rotation direction - disable counter-clockwise
+                this.modifierStates.clockwiseOnly = true;
                 this.game.canRotateCounterClockwise = false;
                 break;
                 
@@ -163,9 +193,10 @@ export class DailyChallengeMode extends GameMode {
         
         // Apply speed ramp modifier
         if (this.modifierStates.speedRamp > 1) {
-            const rampTime = Math.floor(this.elapsedTime / 10000); // Every 10 seconds
+            const rampTime = Math.floor(this.elapsedTime / 45000); // Every 45 seconds
             const speedMultiplier = Math.pow(this.modifierStates.speedRamp, rampTime);
-            this.game.dropInterval = Math.max(50, 1000 / speedMultiplier);
+            const baseInterval = this.baseDropInterval || 1000;
+            this.game.dropInterval = Math.max(50, baseInterval / speedMultiplier);
         }
         
         // Apply shake effect
@@ -286,8 +317,15 @@ export class DailyChallengeMode extends GameMode {
     applyShakeEffect() {
         // Apply visual shake to canvas
         if (this.game.canvas) {
-            const shake = Math.sin(Date.now() * 0.01) * this.modifierStates.shakeIntensity;
-            this.game.canvas.style.transform = `translateX(${shake}px)`;
+            const time = (Date.now() - this.shakeStartTime) / 1000;
+            // Shake periodically (every 3 seconds)
+            if (time % 3 < 0.5) {
+                const shakeX = (Math.random() - 0.5) * this.modifierStates.shakeIntensity * 2;
+                const shakeY = (Math.random() - 0.5) * this.modifierStates.shakeIntensity;
+                this.game.canvas.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+            } else {
+                this.game.canvas.style.transform = '';
+            }
         }
     }
     
@@ -445,7 +483,7 @@ export class DailyChallengeMode extends GameMode {
                     <div class="challenge-modifiers">
                         <strong>Modifiers:</strong>
                         <ul>
-                            ${this.modifiersActive.map(m => `<li>${m.name}</li>`).join('')}
+                            ${this.modifiersActive.map(m => `<li>${m.name} - ${m.description}</li>`).join('')}
                         </ul>
                     </div>
                     ${this.challenge.timeLimit > 0 ? `
@@ -517,15 +555,37 @@ export class DailyChallengeMode extends GameMode {
             // Apply grayscale filter for monochrome mode
             ctx.filter = 'grayscale(100%)';
         }
+        
+        // Giant pieces are handled in renderPieceWithModifiers
+        
+        // Apply invisible grid effect
+        if (this.modifierStates.invisible) {
+            // Make placed pieces semi-transparent
+            ctx.globalAlpha = 0.15;
+        }
     }
+    
     
     // Called AFTER rendering to apply overlays and reset filters
     postRender(ctx) {
+        // Restore alpha if invisible was active
+        if (this.modifierStates.invisible) {
+            ctx.globalAlpha = 1.0;
+        }
+        
         // Apply overlays that go on top of the rendered game
         if (this.modifierStates.fogActive) {
-            // Draw fog overlay on top rows
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-            ctx.fillRect(0, 0, this.game.canvas.width, this.game.canvas.height / 2);
+            // Draw fog overlay on top rows (hide top 10 rows)
+            const fogHeight = this.game.canvas.height * 0.5;
+            
+            // Create gradient for fog effect
+            const gradient = ctx.createLinearGradient(0, 0, 0, fogHeight);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+            gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.7)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, this.game.canvas.width, fogHeight);
         }
         
         // Reset any filters that were applied
@@ -539,6 +599,12 @@ export class DailyChallengeMode extends GameMode {
             else if (action === 'right') action = 'left';
         }
         
+        // Block counter-clockwise rotation if clockwise only is active
+        if (this.modifierStates.clockwiseOnly && action === 'rotateCounterClockwise') {
+            // Convert counter-clockwise to clockwise or block it
+            return null; // Block the action
+        }
+        
         return action;
     }
     
@@ -548,9 +614,38 @@ export class DailyChallengeMode extends GameMode {
         this.game.canRotateCounterClockwise = true;
         this.game.dropInterval = 1000; // Reset to default speed
         
+        
+        // Restore hold display
+        const holdContainer = document.querySelector('.hold-container');
+        if (holdContainer) {
+            holdContainer.style.opacity = '1';
+            holdContainer.style.pointerEvents = 'auto';
+        }
+        
+        // Restore original grid dimensions if they were modified
+        if (this.modifierStates.tinyGrid && this.originalGridWidth) {
+            this.game.grid.width = this.originalGridWidth;
+            // Re-initialize grid cells with original width
+            const restoredCells = [];
+            for (let y = 0; y < this.game.grid.height; y++) {
+                restoredCells[y] = [];
+                for (let x = 0; x < this.originalGridWidth; x++) {
+                    restoredCells[y][x] = null;
+                }
+            }
+            this.game.grid.cells = restoredCells;
+        }
+        
         // Reset visual filters
         if (this.game.ctx) {
             this.game.ctx.filter = 'none';
+            this.game.ctx.globalAlpha = 1.0;
+            // Clear any saved states
+            try {
+                this.game.ctx.restore();
+            } catch(e) {
+                // Context might not have a saved state
+            }
         }
         
         // Remove shake effect
