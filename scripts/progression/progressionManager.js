@@ -408,8 +408,10 @@ export class ProgressionManager {
         try {
             const parsed = JSON.parse(guestData);
             
+            console.log('[ProgressionManager] Migrating guest data to authenticated account');
+            
             // Send guest data to server for migration
-            await fetch(`${API_BASE}/progression.php`, {
+            const response = await fetch(`${API_BASE}/progression.php`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -421,10 +423,22 @@ export class ProgressionManager {
                 })
             });
             
-            // Clear guest data after successful migration
-            localStorage.removeItem('tetris_guest_data');
+            if (response.ok) {
+                const result = await response.json();
+                console.log('[ProgressionManager] Guest data migrated successfully:', result.message);
+                
+                // Clear guest data after successful migration
+                localStorage.removeItem('tetris_guest_data');
+                
+                // Reload player data to get updated stats
+                await this.loadPlayer();
+                this.updateProgressionUI();
+            } else {
+                const error = await response.json();
+                console.error('[ProgressionManager] Migration failed:', error.error);
+            }
         } catch (error) {
-            console.log('Could not migrate guest data:', error);
+            console.log('[ProgressionManager] Could not migrate guest data:', error);
         }
     }
     

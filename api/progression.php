@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -655,6 +655,177 @@ switch ($action) {
         $leaderboard = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         echo json_encode($leaderboard);
+        break;
+        
+    // ========================================
+    // GUEST DATA MIGRATION
+    // ========================================
+    
+    case 'migrate_guest_data':
+        // Get authorization header
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? '';
+        
+        if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Authentication required']);
+            exit;
+        }
+        
+        $authToken = $matches[1];
+        
+        // Verify authentication token
+        $stmt = $db->prepare("SELECT id, username FROM players WHERE auth_token = ?");
+        $stmt->execute([$authToken]);
+        $player = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$player) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid authentication token']);
+            exit;
+        }
+        
+        // Get guest data from request
+        $input = json_decode(file_get_contents('php://input'), true);
+        $guestData = $input['guest_data'] ?? null;
+        
+        if (!$guestData) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No guest data provided']);
+            exit;
+        }
+        
+        try {
+            // Extract player data from guest
+            $playerData = $guestData['playerData'] ?? [];
+            
+            // Update player stats if guest had progress
+            if ($playerData) {
+                $stmt = $db->prepare("
+                    UPDATE players 
+                    SET 
+                        total_xp = total_xp + :xp,
+                        games_played = games_played + :games,
+                        total_score = total_score + :score,
+                        total_lines = total_lines + :lines,
+                        total_time = total_time + :time,
+                        total_tspins = total_tspins + :tspins,
+                        total_tetrises = total_tetrises + :tetris
+                    WHERE id = :id
+                ");
+                
+                $stmt->execute([
+                    ':xp' => $playerData['total_xp'] ?? 0,
+                    ':games' => $playerData['games_played'] ?? 0,
+                    ':score' => $playerData['total_score'] ?? 0,
+                    ':lines' => $playerData['total_lines'] ?? 0,
+                    ':time' => $playerData['total_time'] ?? 0,
+                    ':tspins' => $playerData['total_tspins'] ?? 0,
+                    ':tetris' => $playerData['total_tetrises'] ?? $playerData['total_tetris'] ?? 0,
+                    ':id' => $player['id']
+                ]);
+                
+                // Recalculate level based on new total XP
+                $stmt = $db->prepare("SELECT total_xp FROM players WHERE id = ?");
+                $stmt->execute([$player['id']]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $totalXP = $result['total_xp'];
+                
+                // Calculate level (same formula as frontend)
+                $level = 1;
+                $xpNeeded = 0;
+                while ($xpNeeded <= $totalXP && $level < 100) {
+                    $xpNeeded += floor(100 * pow(1.5, $level - 1));
+                    if ($xpNeeded <= $totalXP) {
+                        $level++;
+                    }
+                }
+                
+                // Calculate current XP for this level
+                $xpForCurrentLevel = 0;
+                for ($i = 1; $i < $level; $i++) {
+                    $xpForCurrentLevel += floor(100 * pow(1.5, $i - 1));
+                }
+                $currentXP = $totalXP - $xpForCurrentLevel;
+                
+                // Update level and current XP
+                $stmt = $db->prepare("
+                    UPDATE players 
+                    SET level = :level, current_xp = :current_xp
+                    WHERE id = :id
+                ");
+                $stmt->execute([
+                    ':level' => $level,
+                    ':current_xp' => $currentXP,
+                    ':id' => $player['id']
+                ]);
+            }
+            
+            // Handle achievements if present
+            $achievements = $guestData['achievements'] ?? [];
+            if (!empty($achievements)) {
+                foreach ($achievements as $achievement) {
+                    // Check if achievement exists
+                    $stmt = $db->prepare("SELECT id FROM achievements WHERE code = ?");
+                    $stmt->execute([$achievement['code'] ?? '']);
+                    $achId = $stmt->fetchColumn();
+                    
+                    if ($achId) {
+                        // Insert or update player achievement
+                        $stmt = $db->prepare("
+                            INSERT OR REPLACE INTO player_achievements 
+                            (player_id, achievement_id, progress, unlocked, unlocked_at)
+                            VALUES (?, ?, ?, ?, ?)
+                        ");
+                        $stmt->execute([
+                            $player['id'],
+                            $achId,
+                            $achievement['progress'] ?? 0,
+                            $achievement['unlocked'] ?? 0,
+                            $achievement['unlocked_at'] ?? date('Y-m-d H:i:s')
+                        ]);
+                    }
+                }
+            }
+            
+            // Handle unlockables if present
+            $unlockables = $guestData['unlockables'] ?? [];
+            if (!empty($unlockables)) {
+                foreach ($unlockables as $unlock) {
+                    if ($unlock['unlocked'] ?? false) {
+                        // Check if unlockable exists
+                        $stmt = $db->prepare("SELECT id FROM unlockables WHERE code = ?");
+                        $stmt->execute([$unlock['code'] ?? '']);
+                        $unlockId = $stmt->fetchColumn();
+                        
+                        if ($unlockId) {
+                            // Insert or update player unlock
+                            $stmt = $db->prepare("
+                                INSERT OR IGNORE INTO player_unlocks 
+                                (player_id, unlockable_id, unlocked_at, equipped)
+                                VALUES (?, ?, ?, ?)
+                            ");
+                            $stmt->execute([
+                                $player['id'],
+                                $unlockId,
+                                date('Y-m-d H:i:s'),
+                                $unlock['equipped'] ?? 0
+                            ]);
+                        }
+                    }
+                }
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Guest data migrated successfully',
+                'player_id' => $player['id']
+            ]);
+            
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Migration failed: ' . $e->getMessage()]);
+        }
         break;
         
     default:
