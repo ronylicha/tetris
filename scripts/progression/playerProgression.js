@@ -137,7 +137,7 @@ export class PlayerProgression {
         ];
         
         themeUnlocks.forEach(unlock => {
-            if (this.level === unlock.level && !this.unlocks.themes.includes(unlock.theme)) {
+            if (this.level >= unlock.level && !this.unlocks.themes.includes(unlock.theme)) {
                 this.unlocks.themes.push(unlock.theme);
                 unlocks.push({ type: 'theme', id: unlock.theme, name: unlock.name });
             }
@@ -154,7 +154,7 @@ export class PlayerProgression {
         ];
         
         musicUnlocks.forEach(unlock => {
-            if (this.level === unlock.level && !this.unlocks.music.includes(unlock.track)) {
+            if (this.level >= unlock.level && !this.unlocks.music.includes(unlock.track)) {
                 this.unlocks.music.push(unlock.track);
                 unlocks.push({ type: 'music', id: unlock.track, name: unlock.name });
             }
@@ -170,7 +170,7 @@ export class PlayerProgression {
         ];
         
         pieceUnlocks.forEach(unlock => {
-            if (this.level === unlock.level && !this.unlocks.pieceStyles.includes(unlock.style)) {
+            if (this.level >= unlock.level && !this.unlocks.pieceStyles.includes(unlock.style)) {
                 this.unlocks.pieceStyles.push(unlock.style);
                 unlocks.push({ type: 'pieceStyle', id: unlock.style, name: unlock.name });
             }
@@ -187,7 +187,7 @@ export class PlayerProgression {
         ];
         
         effectUnlocks.forEach(unlock => {
-            if (this.level === unlock.level && !this.unlocks.effects.includes(unlock.effect)) {
+            if (this.level >= unlock.level && !this.unlocks.effects.includes(unlock.effect)) {
                 this.unlocks.effects.push(unlock.effect);
                 unlocks.push({ type: 'effect', id: unlock.effect, name: unlock.name });
             }
@@ -228,8 +228,8 @@ export class PlayerProgression {
         this.stats.totalTSpins += gameResults.tspins || 0;
         this.stats.totalTetris += gameResults.tetris || 0;
         
-        if (gameResults.perfectClear) {
-            this.stats.perfectClears++;
+        if (gameResults.perfectClears && gameResults.perfectClears > 0) {
+            this.stats.perfectClears += gameResults.perfectClears;
         }
         
         // Update favorite mode

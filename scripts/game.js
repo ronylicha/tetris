@@ -590,7 +590,7 @@ export class TetrisGame {
         }
         
         this.score += baseScore * multiplier;
-        this.lines += linesCleared;
+        // Don't increment lines here - let the game mode handle it in handleLineClears()
     }
 
     // Update game level

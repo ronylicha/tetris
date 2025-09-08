@@ -440,13 +440,14 @@ export class ProgressionManager {
         document.getElementById('player-rank').textContent = this.playerData.rank;
         document.getElementById('profile-name').textContent = this.playerData.display_name;
         
-        // Update XP bar
-        const xpPercent = (this.playerData.current_xp / 1000) * 100;
+        // Update XP bar - calculate required XP based on level
+        const requiredXP = this.calculateRequiredXPForLevel(this.playerData.level);
+        const xpPercent = Math.min(100, (this.playerData.current_xp / requiredXP) * 100);
         const xpBar = document.getElementById('xp-bar');
         if (xpBar) {
             xpBar.style.width = xpPercent + '%';
         }
-        document.getElementById('xp-text').textContent = `${this.playerData.current_xp} / 1000 XP`;
+        document.getElementById('xp-text').textContent = `${this.playerData.current_xp} / ${requiredXP} XP`;
     }
     
     async loadDailyChallenge() {
@@ -574,8 +575,42 @@ export class ProgressionManager {
         }
     }
     
+    syncPlayerDataWithProgression() {
+        // Synchronize playerData with playerProgression stats
+        if (window.playerProgression) {
+            const prog = window.playerProgression;
+            
+            // Update stats from playerProgression
+            this.playerData.games_played = prog.stats.gamesPlayed;
+            this.playerData.total_score = prog.stats.totalScore;
+            this.playerData.total_lines = prog.stats.totalLines;
+            this.playerData.total_time = prog.stats.totalTime;
+            this.playerData.best_combo = prog.stats.highestCombo;
+            this.playerData.highest_combo = prog.stats.highestCombo;
+            this.playerData.total_tspins = prog.stats.totalTSpins;
+            this.playerData.total_tetrises = prog.stats.totalTetris;
+            this.playerData.total_tetris = prog.stats.totalTetris;
+            
+            // Update level and XP
+            this.playerData.level = prog.level;
+            this.playerData.current_xp = prog.xp;
+            this.playerData.total_xp = prog.totalXP;
+            this.playerData.rank = prog.rank;
+            
+            console.log('[ProgressionManager] Synced with playerProgression:', {
+                lines: this.playerData.total_lines,
+                score: this.playerData.total_score,
+                tspins: this.playerData.total_tspins,
+                tetris: this.playerData.total_tetrises
+            });
+        }
+    }
+    
     showProfileModal() {
         if (!this.playerData) return;
+        
+        // Sync with playerProgression before showing
+        this.syncPlayerDataWithProgression();
         
         // Update profile modal content
         document.getElementById('profile-display-name').textContent = this.playerData.display_name;
@@ -1401,6 +1436,12 @@ export class ProgressionManager {
         }
         
         return level - 1;
+    }
+    
+    calculateRequiredXPForLevel(level) {
+        // Calculate XP required for next level using same formula as playerProgression
+        // This uses exponential curve: 100 * 1.5^(level-1)
+        return Math.floor(100 * Math.pow(1.5, level - 1));
     }
     
     getRankForLevel(level) {
