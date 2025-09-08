@@ -595,17 +595,17 @@ export class DailyChallengeMode extends GameMode {
     handleInput(action) {
         // Apply mirror controls if active
         if (this.modifierStates.mirrorControls) {
-            if (action === 'left') action = 'right';
-            else if (action === 'right') action = 'left';
+            if (action === 'moveLeft') action = 'moveRight';
+            else if (action === 'moveRight') action = 'moveLeft';
         }
         
         // Block counter-clockwise rotation if clockwise only is active
-        if (this.modifierStates.clockwiseOnly && action === 'rotateCounterClockwise') {
-            // Convert counter-clockwise to clockwise or block it
+        if (this.modifierStates.clockwiseOnly && action === 'rotateCounterclockwise') {
+            // Block counter-clockwise rotation
             return null; // Block the action
         }
         
-        return action;
+        return action; // Always return the (possibly modified) action
     }
     
     cleanup() {

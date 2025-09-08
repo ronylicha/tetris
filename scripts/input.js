@@ -488,8 +488,15 @@ export class InputManager {
         
         // Allow game mode to intercept/modify input
         if (this.game.gameMode && this.game.gameMode.handleInput) {
-            action = this.game.gameMode.handleInput(action);
-            if (!action) return; // Action was blocked
+            const modifiedAction = this.game.gameMode.handleInput(action);
+            // Only modify the action if handleInput returns something
+            // If it returns null, the action is blocked
+            // If it returns undefined, the mode doesn't handle input
+            if (modifiedAction === null) return; // Action was explicitly blocked
+            if (modifiedAction !== undefined) {
+                action = modifiedAction; // Action was modified
+            }
+            // If undefined, continue with original action
         }
         
         switch (action) {
