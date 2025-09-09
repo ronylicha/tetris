@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tetris.modern.rl.game.TetrisEngine
@@ -128,21 +129,6 @@ fun GameScreen(
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    
-                    // Game over overlay
-                    if (gameState.isGameOver) {
-                        GameOverOverlay(
-                            score = gameState.score,
-                            onRestart = { viewModel.startGame(gameMode) },
-                            onQuit = onBackToMenu,
-                            onChangeMode = onBackToModeSelection,
-                            modifier = Modifier.fillMaxSize(),
-                            isVictory = gameState.modeInfo["isVictory"] as? Boolean ?: false,
-                            gameMode = gameMode,
-                            lines = gameState.lines,
-                            level = gameState.level
-                        )
-                    }
                 }
             }
             
@@ -192,6 +178,21 @@ fun GameScreen(
             onBack = onBackToMenu,
             modifier = Modifier.align(Alignment.TopCenter)
         )
+        
+        // Game over overlay - placed at the top level to cover everything
+        if (gameState.isGameOver) {
+            GameOverOverlay(
+                score = gameState.score,
+                onRestart = { viewModel.startGame(gameMode) },
+                onQuit = onBackToMenu,
+                onChangeMode = onBackToModeSelection,
+                modifier = Modifier.fillMaxSize(),
+                isVictory = gameState.modeInfo["isVictory"] as? Boolean ?: false,
+                gameMode = gameMode,
+                lines = gameState.lines,
+                level = gameState.level
+            )
+        }
     }
 }
 
@@ -602,7 +603,7 @@ fun GameOverOverlay(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.95f)
                 .fillMaxHeight(if (isMobile) 0.55f else 0.8f),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF1A1A2E)
@@ -632,9 +633,11 @@ fun GameOverOverlay(
                 
                 Text(
                     text = titleText,
-                    style = if (isMobile) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineLarge,
+                    style = if (isMobile) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineLarge,
                     color = titleColor,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 
                 // Add success animation emoji if victory (smaller on mobile)
@@ -654,9 +657,10 @@ fun GameOverOverlay(
                 
                 Text(
                     text = score.toString(),
-                    style = if (isMobile) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayMedium,
+                    style = if (isMobile) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.displayMedium,
                     color = Color(0xFF00FFFF),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
                 
                 // Additional stats

@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope;
 import androidx.compose.ui.graphics.drawscope.Fill;
 import androidx.compose.ui.graphics.drawscope.Stroke;
 import androidx.compose.ui.text.font.FontWeight;
+import androidx.compose.ui.text.style.TextOverflow;
 import com.tetris.modern.rl.game.TetrisEngine;
 import com.tetris.modern.rl.game.models.Piece;
 import com.tetris.modern.rl.game.models.PieceType;
