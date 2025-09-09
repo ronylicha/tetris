@@ -1,0 +1,218 @@
+[
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_hard_drop.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_hard_drop.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_chiptune.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_chiptune.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_drop.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_drop.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_widget_preview.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/widget_preview.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/font_orbitron_medium.ttf.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/font/orbitron_medium.ttf"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/xml_backup_rules.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_power_up.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_power_up.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_bottom_sheet_background.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/bottom_sheet_background.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_menu.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_menu.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_rotate.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_rotate.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_line_clear.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_line_clear.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_background_gradient.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/background_gradient.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_move.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_move.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_ic_splash_logo.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/ic_splash_logo.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_combo.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_combo.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_tetris.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_tetris.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_neon_glow_background.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/neon_glow_background.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_logo_tetris.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/logo_tetris.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/xml_tetris_widget_info.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/xml/tetris_widget_info.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_tetris_piece_o.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/tetris_piece_o.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_theme.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_theme.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_game_over_music.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_game_over_music.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_game_over.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_game_over.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_theme_a.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_theme_a.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_orchestral.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_orchestral.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/xml_data_extraction_rules.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_button_background.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/button_background.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_victory.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_victory.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_menu_select.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_menu_select.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/font_orbitron_black.ttf.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/font/orbitron_black.ttf"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_pause.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_pause.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/font_orbitron_regular.ttf.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/font/orbitron_regular.ttf"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_jazz.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_jazz.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_t_spin.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_t_spin.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_theme_b.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_theme_b.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_level_up.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_level_up.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/font_orbitron_bold.ttf.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/font/orbitron_bold.ttf"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/xml_file_paths.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_tetris_piece_t.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/tetris_piece_t.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_tetris_piece_i.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/tetris_piece_i.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_dialog_background.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/dialog_background.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_menu_back.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_menu_back.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_synthwave.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_synthwave.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_menu_music.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_menu_music.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_theme_c.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_theme_c.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/layout_widget_tetris.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/layout/widget_tetris.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_music_metal.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/music_metal.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/font_orbitron.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/font/orbitron.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_countdown.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_countdown.mp3"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/drawable_widget_background.xml.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/drawable/widget_background.xml"
+    },
+    {
+        "merged": "com.tetris.modern.rl.app-release-71:/raw_sfx_hold.mp3.flat",
+        "source": "com.tetris.modern.rl.app-main-72:/raw/sfx_hold.mp3"
+    }
+]

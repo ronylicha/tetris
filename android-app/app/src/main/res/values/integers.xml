@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Google Play Services version -->
+    <integer name="google_play_services_version">12451000</integer>
+    
+    <!-- Animation durations -->
+    <integer name="config_navAnimTime">300</integer>
+    <integer name="config_mediumAnimTime">400</integer>
+    <integer name="config_longAnimTime">500</integer>
+    
+    <!-- Game constants -->
+    <integer name="max_level">100</integer>
+    <integer name="max_lines">999999</integer>
+    <integer name="lock_delay_ms">500</integer>
+    <integer name="drop_speed_initial">800</integer>
+</resources>

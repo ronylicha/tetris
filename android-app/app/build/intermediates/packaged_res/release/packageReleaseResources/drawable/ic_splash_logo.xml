@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    
+    <!-- Large T-piece for splash screen -->
+    <group android:translateX="60" android:translateY="60">
+        <!-- Top horizontal bar with glow effect -->
+        <path
+            android:pathData="M0,0h40v40h-40z"
+            android:fillColor="#39FF14"
+            android:strokeWidth="2"
+            android:strokeColor="#7339FF14" />
+        <path
+            android:pathData="M40,0h40v40h-40z"
+            android:fillColor="#39FF14"
+            android:strokeWidth="2"
+            android:strokeColor="#7339FF14" />
+        <path
+            android:pathData="M80,0h40v40h-40z"
+            android:fillColor="#39FF14"
+            android:strokeWidth="2"
+            android:strokeColor="#7339FF14" />
+        <!-- Vertical stem -->
+        <path
+            android:pathData="M40,40h40v40h-40z"
+            android:fillColor="#39FF14"
+            android:strokeWidth="2"
+            android:strokeColor="#7339FF14" />
+        <path
+            android:pathData="M40,80h40v40h-40z"
+            android:fillColor="#39FF14"
+            android:strokeWidth="2"
+            android:strokeColor="#7339FF14" />
+    </group>
+    
+    <!-- Animated accent blocks -->
+    <group android:alpha="0.6">
+        <!-- Top left corner -->
+        <path
+            android:pathData="M20,20h15v15h-15z"
+            android:fillColor="#00FFFF" />
+        <!-- Top right corner -->
+        <path
+            android:pathData="M205,20h15v15h-15z"
+            android:fillColor="#FF1493" />
+        <!-- Bottom left corner -->
+        <path
+            android:pathData="M20,205h15v15h-15z"
+            android:fillColor="#FFD700" />
+        <!-- Bottom right corner -->
+        <path
+            android:pathData="M205,205h15v15h-15z"
+            android:fillColor="#9D00FF" />
+    </group>
+    
+    <!-- Small floating Tetris pieces -->
+    <group android:alpha="0.4">
+        <!-- L-piece -->
+        <path android:pathData="M30,100h10v10h-10z" android:fillColor="#FF6B00" />
+        <path android:pathData="M30,110h10v10h-10z" android:fillColor="#FF6B00" />
+        <path android:pathData="M30,120h10v10h-10z" android:fillColor="#FF6B00" />
+        <path android:pathData="M40,120h10v10h-10z" android:fillColor="#FF6B00" />
+        
+        <!-- Z-piece -->
+        <path android:pathData="M190,100h10v10h-10z" android:fillColor="#00FFFF" />
+        <path android:pathData="M200,100h10v10h-10z" android:fillColor="#00FFFF" />
+        <path android:pathData="M200,110h10v10h-10z" android:fillColor="#00FFFF" />
+        <path android:pathData="M210,110h10v10h-10z" android:fillColor="#00FFFF" />
+        
+        <!-- Square piece -->
+        <path android:pathData="M110,190h10v10h-10z" android:fillColor="#FFFF00" />
+        <path android:pathData="M120,190h10v10h-10z" android:fillColor="#FFFF00" />
+        <path android:pathData="M110,200h10v10h-10z" android:fillColor="#FFFF00" />
+        <path android:pathData="M120,200h10v10h-10z" android:fillColor="#FFFF00" />
+    </group>
+    
+</vector>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Info -->
+    <string name="app_name">Tetris</string>
+    <string name="app_description">Tetris moderne avec graphismes néon et fonctionnalités avancées</string>
+    
+    <!-- Navigation -->
+    <string name="back">Retour</string>
+    <string name="menu">Menu</string>
+    <string name="close">Fermer</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
+    <string name="confirm">Confirmer</string>
+    
+    <!-- Main Menu -->
+    <string name="play">JOUER</string>
+    <string name="leaderboard">Classement</string>
+    <string name="achievements">Succès</string>
+    <string name="settings">Paramètres</string>
+    <string name="stats">Statistiques</string>
+    <string name="about">À propos</string>
+    <string name="quit">Quitter</string>
+    <string name="share">Partager</string>
+    <string name="rate">Noter</string>
+    
+    <!-- Game Modes -->
+    <string name="select_mode">CHOISIR UN MODE</string>
+    <string name="mode_classic">Classique</string>
+    <string name="mode_classic_desc">Tetris infini - L\'expérience originale</string>
+    <string name="mode_sprint">Sprint</string>
+    <string name="mode_sprint_desc">Effacez 40 lignes le plus vite possible</string>
+    <string name="mode_marathon">Marathon</string>
+    <string name="mode_marathon_desc">Survivez 150 lignes avec difficulté croissante</string>
+    <string name="mode_zen">Zen</string>
+    <string name="mode_zen_desc">Mode infini relaxant avec statistiques</string>
+    <string name="mode_puzzle">Puzzle</string>
+    <string name="mode_puzzle_desc">150 puzzles stimulants à résoudre</string>
+    <string name="mode_battle">Bataille</string>
+    <string name="mode_battle_desc">Affrontez des adversaires IA</string>
+    <string name="mode_powerup">Power-Up</string>
+    <string name="mode_powerup_desc">Classique avec 8 power-ups uniques</string>
+    <string name="mode_battle2p">Bataille 2J</string>
+    <string name="mode_battle2p_desc">Bataille locale à 2 joueurs (PC uniquement)</string>
+    <string name="mode_daily">Défi du jour</string>
+    <string name="mode_daily_desc">Nouveau défi chaque jour</string>
+    <string name="daily_challenge">DÉFI DU JOUR</string>
+    <string name="new_challenge_available">Nouveau défi disponible !</string>
+    
+    <!-- Game UI -->
+    <string name="score">Score</string>
+    <string name="lines">Lignes</string>
+    <string name="level">Niveau</string>
+    <string name="time">Temps</string>
+    <string name="hold">Réserve</string>
+    <string name="next">Suivant</string>
+    <string name="combo">Combo</string>
+    <string name="speed">Vitesse</string>
+    
+    <!-- Game States -->
+    <string name="paused">EN PAUSE</string>
+    <string name="game_over">PARTIE TERMINÉE</string>
+    <string name="victory">VICTOIRE !</string>
+    <string name="challenge_complete">DÉFI RÉUSSI !</string>
+    <string name="sprint_complete">SPRINT TERMINÉ !</string>
+    <string name="marathon_complete">MARATHON TERMINÉ !</string>
+    <string name="puzzle_solved">PUZZLE RÉSOLU !</string>
+    <string name="new_record">NOUVEAU RECORD !</string>
+    <string name="final_score">Score final</string>
+    <string name="new_high_score">NOUVEAU MEILLEUR SCORE !</string>
+    
+    <!-- Game Actions -->
+    <string name="resume">REPRENDRE</string>
+    <string name="restart">RECOMMENCER</string>
+    <string name="play_again">REJOUER</string>
+    <string name="change_mode">CHANGER DE MODE</string>
+    <string name="main_menu">MENU PRINCIPAL</string>
+    <string name="quit_to_menu">RETOUR AU MENU</string>
+    
+    <!-- Settings -->
+    <string name="audio_settings">Paramètres audio</string>
+    <string name="game_settings">Paramètres de jeu</string>
+    <string name="video_settings">Paramètres vidéo</string>
+    <string name="controls_settings">Paramètres de contrôles</string>
+    <string name="master_volume">Volume principal</string>
+    <string name="music_volume">Volume musique</string>
+    <string name="sfx_volume">Volume effets</string>
+    <string name="music_enabled">Musique activée</string>
+    <string name="sfx_enabled">Effets activés</string>
+    <string name="vibration">Vibration</string>
+    <string name="show_grid">Afficher la grille</string>
+    <string name="show_ghost">Afficher le fantôme</string>
+    <string name="theme">Thème</string>
+    <string name="language">Langue</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="control_type">Type de contrôle</string>
+    <string name="touch">Tactile</string>
+    <string name="pad">Manette</string>
+    <string name="touch_sensitivity">Sensibilité tactile</string>
+    <string name="das_delay">DAS (Délai auto-décalage)</string>
+    <string name="arr_rate">ARR (Taux auto-répétition)</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="account_sync">Compte et synchronisation</string>
+    <string name="version">Version</string>
+    <string name="choose_control_style">Choisissez votre style de contrôle</string>
+    <string name="select_play_preference">Sélectionnez votre préférence de jeu</string>
+    <string name="touch_controls_desc">Glissez et tapez pour contrôler\nIdéal pour mobile</string>
+    <string name="virtual_pad_desc">Boutons à l\'écran\nSensation arcade classique</string>
+    <string name="change_later_settings">Modifiable dans les paramètres</string>
+    <string name="locked">Verrouillé</string>
+    <string name="new_mode">NOUVEAU</string>
+    <string name="toggle_controls">Basculer contrôles</string>
+    <string name="completion_format">%1$.0f%% Complété</string>
+    <string name="general">Général</string>
+    <string name="audio">Audio</string>
+    <string name="controls">Contrôles</string>
+    <string name="graphics">Graphiques</string>
+    <string name="account">Compte</string>
+    <string name="dark_mode">Mode sombre</string>
+    <string name="dynamic_colors">Couleurs dynamiques</string>
+    <string name="show_fps">Afficher FPS</string>
+    <string name="ghost_piece">Pièce fantôme</string>
+    <string name="swipe_sensitivity">Sensibilité glissement</string>
+    <string name="tap_to_rotate">Tap pour tourner</string>
+    <string name="virtual_buttons">Boutons virtuels</string>
+    <string name="show_ghost_piece">Afficher pièce fantôme</string>
+    <string name="next_pieces">Pièces suivantes</string>
+    <string name="auto_hold">Réserve auto</string>
+    <string name="google_play_games">Google Play Games</string>
+    <string name="connected">Connecté</string>
+    <string name="not_connected">Non connecté</string>
+    <string name="connect">Se connecter</string>
+    <string name="connect_description">Connectez-vous pour sauvegarder votre progression et participer aux classements</string>
+    <string name="developer">Développeur</string>
+    
+    <!-- Achievements -->
+    <string name="achievement_unlocked">Succès débloqué !</string>
+    <string name="trophy_earned">Trophée gagné !</string>
+    <string name="first_line">Première ligne</string>
+    <string name="first_line_desc">Effacez votre première ligne</string>
+    <string name="tetris_achievement">Tetris !</string>
+    <string name="tetris_achievement_desc">Effacez 4 lignes en même temps</string>
+    <string name="spin_master">Maître de la rotation</string>
+    <string name="spin_master_desc">Effectuez votre premier T-Spin</string>
+    <string name="century">Centenaire</string>
+    <string name="century_desc">Effacez 100 lignes au total</string>
+    <string name="millennium">Millénaire</string>
+    <string name="millennium_desc">Effacez 1000 lignes au total</string>
+    <string name="high_scorer">Gros score</string>
+    <string name="high_scorer_desc">Marquez 100 000 points en une partie</string>
+    <string name="perfectionist">Perfectionniste</string>
+    <string name="perfectionist_desc">Videz entièrement le plateau</string>
+    <string name="speed_demon">Démon de vitesse</string>
+    <string name="speed_demon_desc">Terminez le Sprint en moins de 60 secondes</string>
+    <string name="marathon_runner">Marathonien</string>
+    <string name="marathon_runner_desc">Terminez le mode Marathon (150 lignes)</string>
+    <string name="puzzle_solver">Résolveur de puzzles</string>
+    <string name="puzzle_solver_desc">Complétez 50 puzzles</string>
+    <string name="consistent">Régulier</string>
+    <string name="consistent_desc">3 jours de suite au défi quotidien</string>
+    <string name="dedicated">Dévoué</string>
+    <string name="dedicated_desc">7 jours de suite au défi quotidien</string>
+    
+    <!-- Stats -->
+    <string name="total_score">Score total</string>
+    <string name="total_lines">Lignes totales</string>
+    <string name="games_played">Parties jouées</string>
+    <string name="time_played">Temps de jeu</string>
+    <string name="best_score">Meilleur score</string>
+    <string name="avg_score">Score moyen</string>
+    <string name="completion_rate">Taux de complétion</string>
+    <string name="total_games">Parties totales</string>
+    <string name="highest_score">Meilleur score</string>
+    <string name="total_play_time">Temps de jeu</string>
+    <string name="pieces_placed">Pièces placées</string>
+    <string name="tetrises">Tetrises</string>
+    <string name="t_spins">T-Spins</string>
+    <string name="perfect_clears">Clears parfaits</string>
+    <string name="longest_combo">Plus long combo</string>
+    <string name="favorite_mode">Mode favori</string>
+    <string name="win_rate">Taux de victoire</string>
+    <string name="overall_performance">Performance générale</string>
+    <string name="best_records">Meilleurs records</string>
+    <string name="high_score">Meilleur score</string>
+    <string name="best_combo">Meilleur combo</string>
+    <string name="highest_level">Niveau max</string>
+    <string name="sprint_40l">Sprint 40L</string>
+    <string name="gameplay_statistics">Statistiques de jeu</string>
+    <string name="statistics">Statistiques</string>
+    <string name="level_requirement">Niveau %1$d</string>
+    <string name="lines_format">%1$d lignes</string>
+    
+    <!-- Leaderboard -->
+    <string name="rank">Rang</string>
+    <string name="player">Joueur</string>
+    <string name="global">Mondial</string>
+    <string name="friends">Amis</string>
+    <string name="weekly">Hebdomadaire</string>
+    <string name="monthly">Mensuel</string>
+    <string name="all_time">Tous les temps</string>
+    
+    <!-- Progression -->
+    <string name="xp">XP</string>
+    <string name="level_up">Niveau supérieur !</string>
+    <string name="unlocked">Débloqué</string>
+    <string name="new_theme">Nouveau thème</string>
+    <string name="new_music">Nouvelle musique</string>
+    <string name="new_effect">Nouvel effet</string>
+    
+    <!-- Errors and Messages -->
+    <string name="loading">Chargement…</string>
+    <string name="saving">Sauvegarde…</string>
+    <string name="error">Erreur</string>
+    <string name="no_internet">Pas de connexion Internet</string>
+    <string name="retry">Réessayer</string>
+    <string name="success">Succès</string>
+    <string name="failed">Échec</string>
+    
+    <!-- Social -->
+    <string name="sign_in">Se connecter</string>
+    <string name="sign_out">Se déconnecter</string>
+    <string name="guest">Invité</string>
+    <string name="offline">Hors ligne</string>
+    <string name="online">En ligne</string>
+    
+    <!-- Tutorial -->
+    <string name="welcome_to_tetris">BIENVENUE DANS TETRIS !</string>
+    <string name="lets_learn_controls">Apprenons les contrôles tactiles</string>
+    <string name="move_pieces">DÉPLACER LES PIÈCES</string>
+    <string name="move_pieces_desc">Glissez GAUCHE ou DROITE pour déplacer les pièces horizontalement</string>
+    <string name="rotate">ROTATION</string>
+    <string name="rotate_desc">TAPEZ n\'importe où sur l\'écran pour tourner la pièce</string>
+    <string name="drop_pieces">FAIRE TOMBER LES PIÈCES</string>
+    <string name="drop_pieces_desc">Glissez vers le BAS pour descente douce\nGlissez vers le HAUT pour descente instantanée</string>
+    <string name="hold_piece_title">RÉSERVER UNE PIÈCE</string>
+    <string name="hold_piece_desc">APPUI LONG pour réserver la pièce actuelle pour plus tard</string>
+    <string name="pro_tips">CONSEILS DE PRO</string>
+    <string name="tip_clear_lines">• Effacez plusieurs lignes pour des points bonus</string>
+    <string name="tip_use_hold">• Utilisez la réserve stratégiquement</string>
+    <string name="tip_watch_preview">• Regardez l\'aperçu des prochaines pièces</string>
+    <string name="tip_achievements">• Complétez les succès pour gagner de l\'XP !</string>
+    <string name="skip">PASSER</string>
+    <string name="next_step">SUIVANT</string>
+    <string name="start_playing">COMMENCER À JOUER</string>
+    
+    <!-- Touch Controls -->
+    <string name="touch_controls">CONTRÔLES TACTILES</string>
+    <string name="touch_controls_help">AIDE CONTRÔLES TACTILES</string>
+    <string name="tap">TAP</string>
+    <string name="swipe_left_right">GLISSER GAUCHE/DROITE</string>
+    <string name="swipe_down">GLISSER BAS</string>
+    <string name="double_tap_down">DOUBLE TAP BAS</string>
+    <string name="long_press">APPUI LONG</string>
+    <string name="rotate_piece">Tourner la pièce</string>
+    <string name="move_piece">Déplacer la pièce</string>
+    <string name="soft_drop">Descente douce</string>
+    <string name="hard_drop">Descente rapide</string>
+    <string name="hold_piece">Réserver la pièce</string>
+    <string name="got_it">COMPRIS !</string>
+</resources>
