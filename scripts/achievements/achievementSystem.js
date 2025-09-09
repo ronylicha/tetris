@@ -604,30 +604,58 @@ export class AchievementSystem {
         }
     }
     
+    ensureContainerExists() {
+        if (!document.getElementById('achievement-unlocks')) {
+            console.log('[AchievementSystem] Creating achievement container');
+            const container = document.createElement('div');
+            container.id = 'achievement-unlocks';
+            container.style.cssText = 'position: fixed; top: 200px; right: 20px; z-index: 9999;';
+            document.body.appendChild(container);
+        }
+    }
+    
     showAchievementNotification(notification) {
         console.log(`[AchievementSystem] Showing achievement notification: ${notification.name}`);
         
+        // Ensure container exists
+        this.ensureContainerExists();
+        
         const container = document.getElementById('achievement-unlocks');
         if (!container) {
-            console.error('[AchievementSystem] Achievement notification container not found!');
+            console.error('[AchievementSystem] Achievement notification container not found even after creation!');
             return;
         }
         
         const element = document.createElement('div');
         element.className = 'achievement-unlock';
+        element.style.cssText = `
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #000;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            animation: slideInRight 0.5s ease-out;
+            font-family: 'Orbitron', sans-serif;
+            max-width: 350px;
+        `;
         element.innerHTML = `
-            <div class="achievement-icon">${notification.icon}</div>
-            <div class="achievement-title">${notification.title}</div>
-            <div class="achievement-name">${notification.name}</div>
-            <div class="achievement-description">${notification.description}</div>
-            <div class="achievement-xp">+${notification.xp} XP</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="font-size: 2em;">${notification.icon}</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 0.9em; opacity: 0.8; text-transform: uppercase;">${notification.title}</div>
+                    <div style="font-weight: bold; font-size: 1.1em; margin: 2px 0;">${notification.name}</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">${notification.description}</div>
+                    <div style="font-size: 0.85em; margin-top: 5px; font-weight: bold;">+${notification.xp} XP</div>
+                </div>
+            </div>
         `;
         
         container.appendChild(element);
         
         // Remove after animation
         setTimeout(() => {
-            element.style.animation = 'fade-out 0.5s ease forwards';
+            element.style.animation = 'slideOutRight 0.5s ease-out';
             setTimeout(() => element.remove(), 500);
         }, 4000);
     }

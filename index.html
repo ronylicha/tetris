@@ -742,6 +742,53 @@
 
     <!-- Level Up Celebration Container -->
     <div id="level-up-celebration"></div>
+    
+    <!-- Dynamic CSS for notifications -->
+    <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes zoomIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes particle-float {
+            to {
+                transform: translateY(-200px);
+                opacity: 0;
+            }
+        }
+        
+        .xp-notification, .achievement-unlock {
+            pointer-events: none;
+        }
+    </style>
 
     <script type="module" src="scripts/game.js"></script>
     
