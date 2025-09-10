@@ -74,15 +74,15 @@ function validatePassword($password) {
 // Handle different actions
 switch ($action) {
     case 'register':
-        $username = $data['username'] ?? '';
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
-        $displayName = $data['display_name'] ?? $data['displayName'] ?? $username; // Support both snake_case and camelCase
+        $username = trim($data['username'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? ''; // Don't trim password
+        $displayName = trim($data['display_name'] ?? $data['displayName'] ?? $username); // Support both snake_case and camelCase
         
         // Validation
         if (!validateUsername($username)) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid username. Use 3-20 alphanumeric characters']);
+            echo json_encode(['error' => 'Invalid username. Use 3-20 alphanumeric characters and underscores']);
             exit;
         }
         
@@ -162,8 +162,8 @@ switch ($action) {
         break;
         
     case 'login':
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? ''; // Don't trim password
         
         if (!$email || !$password) {
             http_response_code(400);
@@ -227,8 +227,8 @@ switch ($action) {
         
     case 'check':
         // Check if username or email is available
-        $username = $data['username'] ?? '';
-        $email = $data['email'] ?? '';
+        $username = trim($data['username'] ?? '');
+        $email = trim($data['email'] ?? '');
         
         $response = [
             'success' => true,
