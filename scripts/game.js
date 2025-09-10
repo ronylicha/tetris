@@ -794,17 +794,47 @@ export class TetrisGame {
             isVictory: isVictory
         };
         
-        // Calculate and award XP through progressionManager for proper notifications
+        // Unified progression handling through progressionManager
         if (window.progressionManager) {
+            // Calculate XP using consistent formula
             const xpEarned = playerProgression.calculateGameXP(gameResults);
-            // Use progressionManager for XP to show notifications
+            console.log(`[Game] Calculated ${xpEarned} XP for game completion`);
+            
+            // Add XP through progressionManager (handles notifications, unlocks, etc)
             window.progressionManager.addXP(xpEarned, 'gameplay').then(() => {
-                console.log(`Awarded ${xpEarned} XP for gameplay`);
+                console.log('[Game] XP and progression updated successfully');
             }).catch(err => {
-                console.error('Error awarding XP:', err);
+                console.error('[Game] Error updating progression:', err);
             });
+            
+            // Update stats in progressionManager
+            if (window.progressionManager.playerData) {
+                const data = window.progressionManager.playerData;
+                data.games_played = (data.games_played || 0) + 1;
+                data.total_score = (data.total_score || 0) + this.score;
+                data.total_lines = (data.total_lines || 0) + this.lines;
+                data.total_time = (data.total_time || 0) + Math.floor((Date.now() - this.gameStartTime) / 1000);
+                
+                // Update best scores
+                if (this.score > (data.best_score || 0)) {
+                    data.best_score = this.score;
+                }
+                if (this.combo > (data.best_combo || 0)) {
+                    data.best_combo = this.combo;
+                }
+                
+                // Update special move counts
+                data.total_tspins = (data.total_tspins || 0) + this.tspinCount;
+                data.total_tetrises = (data.total_tetrises || 0) + this.tetrisCount;
+                
+                // Save updated stats
+                window.progressionManager.saveGuestData();
+            }
+            
+            // Also sync with playerProgression for compatibility
             playerProgression.updateStats(gameResults);
         } else {
+            console.warn('[Game] ProgressionManager not available, using fallback');
             // Fallback to direct playerProgression if manager not available
             const xpEarned = playerProgression.calculateGameXP(gameResults);
             const xpResult = playerProgression.addXP(xpEarned, 'gameplay');
@@ -812,27 +842,43 @@ export class TetrisGame {
             console.log(`Fallback: Awarded ${xpEarned} XP (no notifications)`);
         }
         
-        // Check achievements at game over
-        console.log('[Game] Game Over - Checking achievements');
-        console.log('[Game] Stats:', { 
-            lines: this.lines, 
-            score: this.score, 
-            combo: this.combo,
-            tspins: dbAchievements.tspins,
-            tetris: dbAchievements.tetris
-        });
-        
-        // Update cumulative progress
-        achievementSystem.updateProgress('totalLines', this.lines, true);
-        achievementSystem.updateProgress('highScore', this.score);
-        achievementSystem.updateProgress('maxCombo', this.combo);
-        achievementSystem.updateProgress('tspins', dbAchievements.tspins, true);
-        achievementSystem.updateProgress('perfectClears', dbAchievements.perfectClears, true);
-        
-        // Check score achievements
-        achievementSystem.checkAchievement('SCORE_10K', this.score >= 10000);
-        achievementSystem.checkAchievement('SCORE_100K', this.score >= 100000);
-        achievementSystem.checkAchievement('SCORE_1M', this.score >= 1000000);
+        // Check achievements through unified system
+        if (window.progressionManager) {
+            console.log('[Game] Checking achievements through progressionManager');
+            
+            // Let progressionManager handle achievement checking
+            this.checkAllGameAchievements({
+                lines: this.lines,
+                score: this.score,
+                combo: this.combo,
+                tspins: this.tspinCount,
+                tetris: this.tetrisCount,
+                perfectClears: dbAchievements.perfectClears,
+                mode: this.currentModeName
+            });
+        } else {
+            // Fallback to direct achievement system
+            console.log('[Game] Checking achievements directly');
+            console.log('[Game] Stats:', { 
+                lines: this.lines, 
+                score: this.score, 
+                combo: this.combo,
+                tspins: dbAchievements.tspins,
+                tetris: dbAchievements.tetris
+            });
+            
+            // Update cumulative progress
+            achievementSystem.updateProgress('totalLines', this.lines, true);
+            achievementSystem.updateProgress('highScore', this.score);
+            achievementSystem.updateProgress('maxCombo', this.combo);
+            achievementSystem.updateProgress('tspins', dbAchievements.tspins, true);
+            achievementSystem.updateProgress('perfectClears', dbAchievements.perfectClears, true);
+            
+            // Check score achievements
+            achievementSystem.checkAchievement('SCORE_10K', this.score >= 10000);
+            achievementSystem.checkAchievement('SCORE_100K', this.score >= 100000);
+            achievementSystem.checkAchievement('SCORE_1M', this.score >= 1000000);
+        }
         
         // Set game start time for score saver
         this.uiManager.scoreSaver.setGameStartTime(this.gameStartTime);
@@ -1135,6 +1181,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (desktopAccount) {
             observer.observe(desktopAccount, { childList: true, characterData: true, subtree: true });
+        }
+    }
+    
+    checkAllGameAchievements(stats) {
+        console.log('[Game] Checking all achievements with stats:', stats);
+        
+        // Update achievement progress
+        if (achievementSystem) {
+            // Update cumulative stats
+            achievementSystem.updateProgress('totalLines', stats.lines, true);
+            achievementSystem.updateProgress('highScore', stats.score);
+            achievementSystem.updateProgress('maxCombo', stats.combo);
+            achievementSystem.updateProgress('tspins', stats.tspins, true);
+            achievementSystem.updateProgress('perfectClears', stats.perfectClears, true);
+            
+            // Check specific achievements
+            achievementSystem.checkAchievement('SCORE_10K', stats.score >= 10000);
+            achievementSystem.checkAchievement('SCORE_100K', stats.score >= 100000);
+            achievementSystem.checkAchievement('SCORE_1M', stats.score >= 1000000);
+            
+            // Check line achievements
+            const totalLines = achievementSystem.progress.totalLines || 0;
+            achievementSystem.checkAchievement('LINES_100', totalLines >= 100);
+            achievementSystem.checkAchievement('LINES_1000', totalLines >= 1000);
+            achievementSystem.checkAchievement('LINES_10000', totalLines >= 10000);
+            
+            // Check combo achievements
+            achievementSystem.checkAchievement('COMBO_5', stats.combo >= 5);
+            achievementSystem.checkAchievement('COMBO_10', stats.combo >= 10);
+            achievementSystem.checkAchievement('COMBO_20', stats.combo >= 20);
+            
+            // Check T-spin achievements
+            const totalTspins = achievementSystem.progress.tspins || 0;
+            achievementSystem.checkAchievement('FIRST_TSPIN', totalTspins >= 1);
+            achievementSystem.checkAchievement('TSPIN_MASTER', totalTspins >= 100);
+            
+            // Check perfect clear achievements
+            const totalPerfectClears = achievementSystem.progress.perfectClears || 0;
+            achievementSystem.checkAchievement('PERFECT_CLEAR', totalPerfectClears >= 1);
+            achievementSystem.checkAchievement('PERFECT_CLEAR_5', totalPerfectClears >= 5);
+            
+            // Check Tetris achievements
+            achievementSystem.checkAchievement('FIRST_TETRIS', stats.tetris >= 1);
+            
+            // Check mode-specific achievements
+            if (stats.mode === 'sprint' && this.gameMode && this.gameMode.elapsedTime) {
+                achievementSystem.checkAchievement('SPRINT_SUB60', this.gameMode.elapsedTime < 60);
+            }
+            
+            if (stats.mode === 'marathon' && stats.lines >= 150) {
+                achievementSystem.checkAchievement('MARATHON_COMPLETE', true);
+            }
         }
     }
 });

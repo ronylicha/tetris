@@ -416,35 +416,80 @@ export class ProgressionManager {
     
     async askMergePreference(guestData) {
         return new Promise((resolve) => {
+            // Extract guest stats
+            const guestStats = this.extractStatsFromCapturedData(guestData);
+            
             // Create merge modal
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
-            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000;';
             
             const content = document.createElement('div');
             content.className = 'merge-modal';
-            content.style.cssText = 'background: #1a1a2e; border: 2px solid #00ff88; border-radius: 10px; padding: 30px; max-width: 500px; color: #fff; font-family: "Orbitron", sans-serif;';
+            content.style.cssText = 'background: #1a1a2e; border: 2px solid #00ff88; border-radius: 10px; padding: 30px; max-width: 600px; color: #fff; font-family: "Orbitron", sans-serif; max-height: 80vh; overflow-y: auto;';
             
             content.innerHTML = `
-                <h2 style="color: #00ff88; margin-bottom: 20px;">Guest Progress Detected</h2>
-                <p style="margin-bottom: 20px;">You have progress saved as a guest. How would you like to proceed?</p>
+                <h2 style="color: #00ff88; margin-bottom: 20px; text-align: center;">🎮 Guest Progress Detected</h2>
+                <p style="margin-bottom: 20px; text-align: center;">You have progress saved as a guest. How would you like to proceed?</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div style="background: #0f0f23; padding: 15px; border-radius: 5px; border: 1px solid #444;">
-                        <h4 style="color: #ffaa00; margin-bottom: 10px;">Guest Progress</h4>
-                        <div style="font-size: 0.9em; line-height: 1.6;">
-                            <div>Level: ${Math.floor(guestData.totalXp / 1000) + 1}</div>
-                            <div>XP: ${guestData.xp || 0}</div>
-                            <div>Games: ${guestData.gamesPlayed || 0}</div>
+                    <div style="background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%); padding: 20px; border-radius: 10px; border: 2px solid #ffaa00;">
+                        <h4 style="color: #ffaa00; margin-bottom: 15px; text-align: center;">📱 Guest Progress</h4>
+                        <div style="font-size: 0.9em; line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Level:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.level}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total XP:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.totalXP.toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Games:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.gamesPlayed}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Best Score:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.bestScore.toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Achievements:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.achievements}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Unlocks:</span>
+                                <span style="color: #ffaa00; font-weight: bold;">${guestStats.unlocks}</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div style="background: #0f0f23; padding: 15px; border-radius: 5px; border: 1px solid #444;">
-                        <h4 style="color: #00aaff; margin-bottom: 10px;">Account Progress</h4>
-                        <div style="font-size: 0.9em; line-height: 1.6;">
-                            <div>Level: ${this.playerData.level || 1}</div>
-                            <div>XP: ${this.playerData.current_xp || 0}</div>
-                            <div>Games: ${this.playerData.games_played || 0}</div>
+                    <div style="background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%); padding: 20px; border-radius: 10px; border: 2px solid #00aaff;">
+                        <h4 style="color: #00aaff; margin-bottom: 15px; text-align: center;">☁️ Cloud Account</h4>
+                        <div style="font-size: 0.9em; line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Level:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${this.playerData.level || 1}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total XP:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${(this.playerData.total_xp || 0).toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Games:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${this.playerData.games_played || 0}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Best Score:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${(this.playerData.best_score || 0).toLocaleString()}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Achievements:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${this.achievements.filter(a => a.unlocked).length || 0}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Unlocks:</span>
+                                <span style="color: #00aaff; font-weight: bold;">${this.unlockables.filter(u => u.unlocked).length || 0}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -607,21 +652,38 @@ export class ProgressionManager {
             console.warn('[ProgressionManager] No player data available for UI update');
             return;
         }
-        console.log(`[ProgressionManager] Updating UI - Level: ${this.playerData.level}, XP: ${this.playerData.current_xp}, Rank: ${this.playerData.rank}`);
+        
+        // Ensure current_xp is correctly calculated from total_xp
+        if (this.playerData.total_xp !== undefined && this.playerData.total_xp > 0) {
+            this.playerData.current_xp = this.calculateCurrentXPForLevel(this.playerData.total_xp);
+            this.playerData.level = this.calculateLevel(this.playerData.total_xp);
+        }
+        
+        console.log(`[ProgressionManager] Updating UI - Level: ${this.playerData.level}, Current XP: ${this.playerData.current_xp}, Total XP: ${this.playerData.total_xp}, Rank: ${this.playerData.rank}`);
         
         // Update header
-        document.getElementById('player-level').textContent = this.playerData.level;
-        document.getElementById('player-rank').textContent = this.playerData.rank;
-        document.getElementById('profile-name').textContent = this.playerData.display_name;
+        const levelElement = document.getElementById('player-level');
+        const rankElement = document.getElementById('player-rank');
+        const nameElement = document.getElementById('profile-name');
+        
+        if (levelElement) levelElement.textContent = this.playerData.level;
+        if (rankElement) rankElement.textContent = this.playerData.rank;
+        if (nameElement) nameElement.textContent = this.playerData.display_name || 'Guest';
         
         // Update XP bar - calculate required XP based on level
         const requiredXP = this.calculateRequiredXPForLevel(this.playerData.level);
-        const xpPercent = Math.min(100, (this.playerData.current_xp / requiredXP) * 100);
+        const currentXP = this.playerData.current_xp || 0;
+        const xpPercent = Math.min(100, (currentXP / requiredXP) * 100);
+        
         const xpBar = document.getElementById('xp-bar');
         if (xpBar) {
             xpBar.style.width = xpPercent + '%';
         }
-        document.getElementById('xp-text').textContent = `${this.playerData.current_xp} / ${requiredXP} XP`;
+        
+        const xpText = document.getElementById('xp-text');
+        if (xpText) {
+            xpText.textContent = `${currentXP} / ${requiredXP} XP`;
+        }
     }
     
     async loadDailyChallenge() {
@@ -1432,62 +1494,153 @@ export class ProgressionManager {
     }
     
     // XP and Achievement notifications
+    ensureNotificationContainers() {
+        // Create notification containers if they don't exist
+        const containers = [
+            { id: 'xp-notifications', styles: 'position: fixed; top: 100px; right: 20px; z-index: 9999;' },
+            { id: 'achievement-unlocks', styles: 'position: fixed; top: 200px; right: 20px; z-index: 9999;' },
+            { id: 'level-up-celebration', styles: 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000;' }
+        ];
+        
+        containers.forEach(({ id, styles }) => {
+            if (!document.getElementById(id)) {
+                console.log(`[ProgressionManager] Creating missing container: ${id}`);
+                const container = document.createElement('div');
+                container.id = id;
+                container.style.cssText = styles;
+                document.body.appendChild(container);
+            }
+        });
+    }
+    
     showXPNotification(amount, source = '') {
         console.log(`[ProgressionManager] Showing XP notification: +${amount} XP from ${source}`);
+        
+        // Ensure container exists
+        this.ensureNotificationContainers();
+        
         const container = document.getElementById('xp-notifications');
         if (!container) {
-            console.error('[ProgressionManager] XP notifications container not found!');
+            console.error('[ProgressionManager] XP notifications container still not found after creation!');
             return;
         }
+        
         const notification = document.createElement('div');
         notification.className = 'xp-notification';
+        notification.style.cssText = `
+            background: linear-gradient(135deg, #00ff88 0%, #00aa55 100%);
+            color: #000;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            animation: slideInRight 0.5s ease-out;
+            box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
+        `;
         notification.innerHTML = `+${amount} XP${source ? ` - ${source}` : ''}`;
         
         container.appendChild(notification);
         
         // Remove after animation
         setTimeout(() => {
-            notification.remove();
+            notification.style.animation = 'slideOutRight 0.5s ease-out';
+            setTimeout(() => notification.remove(), 500);
         }, 3000);
     }
     
     showAchievementUnlock(achievement) {
+        // Ensure container exists
+        this.ensureNotificationContainers();
+        
         const container = document.getElementById('achievement-unlocks');
+        if (!container) {
+            console.error('[ProgressionManager] Achievement container not found after creation!');
+            return;
+        }
+        
         const unlock = document.createElement('div');
         unlock.className = 'achievement-unlock';
+        unlock.style.cssText = `
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #000;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            animation: slideInRight 0.5s ease-out;
+            font-family: 'Orbitron', sans-serif;
+        `;
         
         unlock.innerHTML = `
-            <div class="achievement-icon">🏆</div>
-            <div class="achievement-title">${achievement.name}</div>
-            <div class="achievement-description">${achievement.description}</div>
-            <div class="achievement-xp">+${achievement.xp_reward} XP</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="font-size: 2em;">🏆</div>
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1em;">${achievement.name}</div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">${achievement.description}</div>
+                    <div style="font-size: 0.85em; margin-top: 5px;">+${achievement.xp_reward} XP</div>
+                </div>
+            </div>
         `;
         
         container.appendChild(unlock);
         
         // Remove after animation
         setTimeout(() => {
-            unlock.remove();
+            unlock.style.animation = 'slideOutRight 0.5s ease-out';
+            setTimeout(() => unlock.remove(), 500);
         }, 5000);
     }
     
     showLevelUp(newLevel) {
+        // Ensure container exists
+        this.ensureNotificationContainers();
+        
         const container = document.getElementById('level-up-celebration');
+        if (!container) {
+            console.error('[ProgressionManager] Level up container not found after creation!');
+            return;
+        }
+        
         container.innerHTML = `
-            <div class="level-up-celebration">
-                <div class="level-up-text">LEVEL ${newLevel}!</div>
-                <div class="level-up-particles"></div>
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                text-align: center;
+                animation: zoomIn 0.5s ease-out;
+                font-family: 'Orbitron', sans-serif;
+            ">
+                <div style="font-size: 3em; font-weight: bold; margin-bottom: 10px;">
+                    LEVEL ${newLevel}!
+                </div>
+                <div style="font-size: 1.2em; opacity: 0.9;">
+                    ${this.getRankForLevel(newLevel)}
+                </div>
+                <div class="level-up-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
             </div>
         `;
         
         // Create particles
         const particlesContainer = container.querySelector('.level-up-particles');
-        for (let i = 0; i < 50; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 2 + 's';
-            particlesContainer.appendChild(particle);
+        if (particlesContainer) {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 10px;
+                    height: 10px;
+                    background: white;
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: particle-float ${2 + Math.random() * 2}s ease-out forwards;
+                    opacity: 0.8;
+                `;
+                particlesContainer.appendChild(particle);
+            }
         }
         
         // Remove after animation
@@ -1499,20 +1652,34 @@ export class ProgressionManager {
     // Game integration methods
     async addXP(amount, source = 'gameplay') {
         console.log(`[ProgressionManager] Adding ${amount} XP from ${source}`);
-        console.log(`[ProgressionManager] Current state - Guest: ${this.isGuest}, Level: ${this.playerData?.level}, XP: ${this.playerData?.current_xp}`);
+        console.log(`[ProgressionManager] Current state - Guest: ${this.isGuest}, Level: ${this.playerData?.level}, Total XP: ${this.playerData?.total_xp}`);
         
         if (this.isGuest) {
             // Handle XP locally for guests
             const oldLevel = this.playerData.level || 1;
-            this.playerData.current_xp = (this.playerData.current_xp || 0) + amount;
-            this.playerData.total_xp = (this.playerData.total_xp || 0) + amount;
-            console.log(`[ProgressionManager] New XP: ${this.playerData.current_xp}, Total: ${this.playerData.total_xp}`);
+            const oldTotalXP = this.playerData.total_xp || 0;
             
-            // Calculate level locally
-            this.playerData.level = this.calculateLevel(this.playerData.total_xp);
+            // Add XP to total
+            this.playerData.total_xp = oldTotalXP + amount;
+            
+            // Recalculate level from total XP
+            const newLevel = this.calculateLevel(this.playerData.total_xp);
+            this.playerData.level = newLevel;
+            
+            // Calculate current XP within level
+            this.playerData.current_xp = this.calculateCurrentXPForLevel(this.playerData.total_xp);
+            
+            console.log(`[ProgressionManager] After XP: Level ${this.playerData.level}, Current: ${this.playerData.current_xp}, Total: ${this.playerData.total_xp}`);
             
             // Update rank
             this.playerData.rank = this.getRankForLevel(this.playerData.level);
+            
+            // Check for level up
+            if (newLevel > oldLevel) {
+                this.showLevelUp(newLevel);
+                // Check for unlocks
+                this.checkAndApplyUnlocks(newLevel);
+            }
             
             // Save guest data
             this.saveGuestData();
@@ -1520,12 +1687,17 @@ export class ProgressionManager {
             // Show XP notification
             this.showXPNotification(amount, source);
             
-            if (this.playerData.level > oldLevel) {
-                this.showLevelUp(this.playerData.level);
-            }
-            
             // Update UI
             this.updateProgressionUI();
+            
+            // Sync with playerProgression if it exists
+            if (window.playerProgression) {
+                window.playerProgression.level = this.playerData.level;
+                window.playerProgression.xp = this.playerData.current_xp;
+                window.playerProgression.totalXP = this.playerData.total_xp;
+                window.playerProgression.rank = this.playerData.rank;
+            }
+            
             return;
         }
         
@@ -1597,23 +1769,48 @@ export class ProgressionManager {
     }
     
     calculateLevel(totalXP) {
-        // XP required per level increases progressively
+        // Calculate level from total XP using consistent exponential formula
         console.log(`[ProgressionManager] Calculating level for ${totalXP} total XP`);
         let level = 1;
-        let xpNeeded = 0;
+        let xpUsed = 0;
         
-        while (xpNeeded <= totalXP && level < 100) {
+        while (level < 100) {
+            const requiredForNext = this.calculateRequiredXPForLevel(level);
+            if (xpUsed + requiredForNext > totalXP) {
+                break;
+            }
+            xpUsed += requiredForNext;
             level++;
-            xpNeeded += 1000 + (level - 1) * 100;
         }
         
-        return level - 1;
+        // Return level and current XP progress
+        const currentLevelXP = totalXP - xpUsed;
+        console.log(`[ProgressionManager] Level ${level}, Current XP: ${currentLevelXP}/${this.calculateRequiredXPForLevel(level)}`);
+        
+        return level;
     }
     
     calculateRequiredXPForLevel(level) {
         // Calculate XP required for next level using same formula as playerProgression
         // This uses exponential curve: 100 * 1.5^(level-1)
         return Math.floor(100 * Math.pow(1.5, level - 1));
+    }
+    
+    calculateCurrentXPForLevel(totalXP) {
+        // Calculate current XP within current level
+        let level = 1;
+        let xpUsed = 0;
+        
+        while (level < 100) {
+            const requiredForNext = this.calculateRequiredXPForLevel(level);
+            if (xpUsed + requiredForNext > totalXP) {
+                break;
+            }
+            xpUsed += requiredForNext;
+            level++;
+        }
+        
+        return totalXP - xpUsed;
     }
     
     getRankForLevel(level) {
@@ -1637,6 +1834,82 @@ export class ProgressionManager {
         }
         
         return 'Novice';
+    }
+    
+    checkAndApplyUnlocks(level) {
+        console.log(`[ProgressionManager] Checking unlocks for level ${level}`);
+        const newUnlocks = [];
+        
+        // Check each unlockable
+        this.unlockables.forEach(item => {
+            if (!item.unlocked && item.unlock_value && item.unlock_value.startsWith('level:')) {
+                const requiredLevel = parseInt(item.unlock_value.split(':')[1]);
+                if (level >= requiredLevel) {
+                    console.log(`[ProgressionManager] Unlocking ${item.name} at level ${level}`);
+                    item.unlocked = true;
+                    newUnlocks.push(item);
+                }
+            }
+        });
+        
+        // Save if any new unlocks
+        if (newUnlocks.length > 0) {
+            this.saveGuestData();
+            
+            // Show unlock notifications
+            newUnlocks.forEach(unlock => {
+                this.showUnlockNotification(unlock);
+            });
+            
+            // Sync with playerProgression unlocks
+            if (window.playerProgression) {
+                newUnlocks.forEach(unlock => {
+                    const type = unlock.type.replace('_', '');
+                    const id = unlock.code.replace(`${unlock.type}_`, '');
+                    
+                    if (!window.playerProgression.unlocks[type]) {
+                        window.playerProgression.unlocks[type] = [];
+                    }
+                    if (!window.playerProgression.unlocks[type].includes(id)) {
+                        window.playerProgression.unlocks[type].push(id);
+                    }
+                });
+            }
+        }
+        
+        return newUnlocks;
+    }
+    
+    showUnlockNotification(unlock) {
+        const notification = document.createElement('div');
+        notification.className = 'unlock-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideIn 0.5s ease-out;
+            font-family: 'Orbitron', sans-serif;
+        `;
+        
+        notification.innerHTML = `
+            <div style="font-size: 0.9em; opacity: 0.8;">🎁 NEW UNLOCK!</div>
+            <div style="font-size: 1.1em; font-weight: bold; margin: 5px 0;">${unlock.name}</div>
+            <div style="font-size: 0.85em; opacity: 0.9;">${unlock.description || unlock.type}</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after animation
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.5s ease-out';
+            setTimeout(() => notification.remove(), 500);
+        }, 4000);
     }
     
     updateRank(level) {
@@ -1805,6 +2078,101 @@ export class ProgressionManager {
         }
     }
     
+    extractStatsFromCapturedData(capturedData) {
+        const stats = {
+            level: 1,
+            totalXP: 0,
+            gamesPlayed: 0,
+            bestScore: 0,
+            achievements: 0,
+            unlocks: 0
+        };
+        
+        // Extract from playerData
+        if (capturedData.playerData) {
+            stats.level = capturedData.playerData.level || 1;
+            stats.totalXP = capturedData.playerData.total_xp || 0;
+            stats.gamesPlayed = capturedData.playerData.games_played || 0;
+            stats.bestScore = capturedData.playerData.best_score || 0;
+        }
+        
+        // Override with playerProgression if available (more reliable)
+        if (capturedData.playerProgression) {
+            stats.level = capturedData.playerProgression.level || stats.level;
+            stats.totalXP = capturedData.playerProgression.totalXP || stats.totalXP;
+            if (capturedData.playerProgression.stats) {
+                stats.gamesPlayed = capturedData.playerProgression.stats.gamesPlayed || stats.gamesPlayed;
+            }
+        }
+        
+        // Count achievements
+        if (capturedData.achievementProgress) {
+            stats.achievements = capturedData.achievementProgress.unlockedAchievements.length;
+        } else if (capturedData.achievements) {
+            stats.achievements = capturedData.achievements.filter(a => a.unlocked).length;
+        }
+        
+        // Count unlocks
+        if (capturedData.unlockables) {
+            stats.unlocks = capturedData.unlockables.filter(u => u.unlocked).length;
+        }
+        
+        return stats;
+    }
+    
+    captureCurrentProgressData() {
+        // Capture complete current state from all sources
+        const capturedData = {
+            // From progressionManager
+            playerData: this.playerData ? { ...this.playerData } : null,
+            achievements: [...this.achievements],
+            unlockables: [...this.unlockables],
+            
+            // From playerProgression if available
+            playerProgression: null,
+            
+            // From achievementSystem if available
+            achievementProgress: null,
+            
+            // From localStorage
+            localStorageData: {}
+        };
+        
+        // Capture from playerProgression
+        if (window.playerProgression) {
+            capturedData.playerProgression = {
+                level: window.playerProgression.level,
+                xp: window.playerProgression.xp,
+                totalXP: window.playerProgression.totalXP,
+                rank: window.playerProgression.rank,
+                stats: { ...window.playerProgression.stats },
+                unlocks: { ...window.playerProgression.unlocks }
+            };
+        }
+        
+        // Capture from achievementSystem
+        if (window.achievementSystem) {
+            capturedData.achievementProgress = {
+                unlockedAchievements: [...window.achievementSystem.unlockedAchievements],
+                unlockedTrophies: [...window.achievementSystem.unlockedTrophies],
+                progress: { ...window.achievementSystem.progress }
+            };
+        }
+        
+        // Capture from localStorage
+        const guestDataStr = localStorage.getItem('tetris_guest_data');
+        if (guestDataStr) {
+            try {
+                capturedData.localStorageData = JSON.parse(guestDataStr);
+            } catch (e) {
+                console.error('Error parsing guest data from localStorage:', e);
+            }
+        }
+        
+        console.log('[ProgressionManager] Captured complete progress data:', capturedData);
+        return capturedData;
+    }
+    
     async login() {
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
@@ -1815,17 +2183,11 @@ export class ProgressionManager {
         }
         
         try {
-            // Save guest data before login if in guest mode
+            // Capture ALL current data before login
             let guestDataToMerge = null;
-            if (this.isGuest && this.playerData) {
-                guestDataToMerge = {
-                    xp: this.playerData.current_xp || 0,
-                    totalXp: this.playerData.total_xp || 0,
-                    gamesPlayed: this.playerData.games_played || 0,
-                    achievements: [...this.achievements],
-                    unlockables: [...this.unlockables]
-                };
-                console.log('[ProgressionManager] Saving guest data before login:', guestDataToMerge);
+            if (this.isGuest) {
+                guestDataToMerge = this.captureCurrentProgressData();
+                console.log('[ProgressionManager] Complete guest data captured before login');
             }
             
             const response = await fetch(`${API_BASE}/auth.php`, {
@@ -1851,10 +2213,25 @@ export class ProgressionManager {
                 this.playerData = data.player;
                 this.playerId = data.player.id;
                 
-                // Handle guest data if exists
-                if (guestDataToMerge && (guestDataToMerge.xp > 0 || guestDataToMerge.gamesPlayed > 0)) {
-                    console.log('[ProgressionManager] Guest data found, asking user for merge preference');
+                // Check if guest data has meaningful progress
+                const hasGuestProgress = guestDataToMerge && (
+                    (guestDataToMerge.playerData && (
+                        guestDataToMerge.playerData.total_xp > 0 ||
+                        guestDataToMerge.playerData.games_played > 0
+                    )) ||
+                    (guestDataToMerge.playerProgression && (
+                        guestDataToMerge.playerProgression.totalXP > 0 ||
+                        guestDataToMerge.playerProgression.stats.gamesPlayed > 0
+                    )) ||
+                    (guestDataToMerge.achievementProgress && 
+                        guestDataToMerge.achievementProgress.unlockedAchievements.length > 0)
+                );
+                
+                if (hasGuestProgress) {
+                    console.log('[ProgressionManager] Guest progress detected, showing merge options');
                     await this.askMergePreference(guestDataToMerge);
+                } else {
+                    console.log('[ProgressionManager] No significant guest progress to merge');
                 }
                 
                 // Reload progression data

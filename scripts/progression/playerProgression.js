@@ -80,6 +80,7 @@ export class PlayerProgression {
     
     getRequiredXP() {
         // XP required for next level (exponential curve)
+        // Using consistent formula across all systems
         return Math.floor(100 * Math.pow(1.5, this.level - 1));
     }
     
