@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr format="color" name="backgroundTint"/>
+    <attr format="reference" name="bottomSheetStyle"/>
+    <attr format="color" name="cardBackgroundColor"/>
+    <attr format="dimension" name="cardCornerRadius"/>
+    <attr format="dimension" name="cardElevation"/>
+    <attr format="color" name="colorError"/>
+    <attr format="color" name="colorOnBackground"/>
+    <attr format="color" name="colorOnError"/>
+    <attr format="color" name="colorOnPrimary"/>
+    <attr format="color" name="colorOnSecondary"/>
+    <attr format="color" name="colorOnSurface"/>
+    <attr format="color" name="colorPrimary"/>
+    <attr format="color" name="colorPrimaryVariant"/>
+    <attr format="color" name="colorSecondary"/>
+    <attr format="color" name="colorSecondaryVariant"/>
+    <attr format="color" name="colorSurface"/>
+    <attr format="dimension" name="contentPadding"/>
+    <attr format="enum" name="cornerFamily">
+        <enum name="rounded" value="0"/>
+        <enum name="cut" value="1"/>
+    </attr>
+    <attr format="dimension" name="cornerRadius"/>
+    <attr format="dimension|fraction" name="cornerSize"/>
+    <attr format="dimension|fraction" name="cornerSizeBottomLeft"/>
+    <attr format="dimension|fraction" name="cornerSizeBottomRight"/>
+    <attr format="dimension|fraction" name="cornerSizeTopLeft"/>
+    <attr format="dimension|fraction" name="cornerSizeTopRight"/>
+    <attr format="dimension" name="dialogCornerRadius"/>
+    <attr format="reference" name="postSplashScreenTheme"/>
+    <attr format="reference" name="shapeAppearance"/>
+    <attr format="color" name="strokeColor"/>
+    <attr format="reference" name="windowSplashScreenAnimatedIcon"/>
+    <attr format="integer" name="windowSplashScreenAnimationDuration"/>
+    <attr format="color|reference" name="windowSplashScreenBackground"/>
+    <color name="accent_blue">#0000FF</color>
+    <color name="accent_cyan">#00FFFF</color>
+    <color name="accent_green">#00FF00</color>
+    <color name="accent_magenta">#FF00FF</color>
+    <color name="accent_orange">#FF8800</color>
+    <color name="accent_purple">#9C27B0</color>
+    <color name="accent_red">#FF0000</color>
+    <color name="accent_yellow">#FFFF00</color>
+    <color name="background_dark">#0A0A0A</color>
+    <color name="background_light">#2A2A3E</color>
+    <color name="background_medium">#1A1A2E</color>
+    <color name="button_disabled">#1A1A2E</color>
+    <color name="button_normal">#2A2A3E</color>
+    <color name="button_pressed">#3A3A4E</color>
+    <color name="difficulty_easy">#4CAF50</color>
+    <color name="difficulty_expert">#F44336</color>
+    <color name="difficulty_hard">#FF9800</color>
+    <color name="difficulty_master">#9C27B0</color>
+    <color name="difficulty_medium">#FFC107</color>
+    <color name="error">#F44336</color>
+    <color name="ghost_piece">#40FFFFFF</color>
+    <color name="grid_background">#0A0A0A</color>
+    <color name="grid_line">#1A1A2E</color>
+    <color name="ic_launcher_background">#0A0A0A</color>
+    <color name="info">#2196F3</color>
+    <color name="md_theme_background">#0A0A0A</color>
+    <color name="md_theme_error">#FF0000</color>
+    <color name="md_theme_on_background">#FFFFFF</color>
+    <color name="md_theme_on_error">#FFFFFF</color>
+    <color name="md_theme_on_primary">#000000</color>
+    <color name="md_theme_on_primary_container">#00FFFF</color>
+    <color name="md_theme_on_secondary">#000000</color>
+    <color name="md_theme_on_secondary_container">#FF00FF</color>
+    <color name="md_theme_on_surface">#FFFFFF</color>
+    <color name="md_theme_on_surface_variant">#B0B0B0</color>
+    <color name="md_theme_outline">#606060</color>
+    <color name="md_theme_outline_variant">#404040</color>
+    <color name="md_theme_primary">#00FFFF</color>
+    <color name="md_theme_primary_container">#004A4A</color>
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_secondary">#FF00FF</color>
+    <color name="md_theme_secondary_container">#4A004A</color>
+    <color name="md_theme_surface">#1A1A2E</color>
+    <color name="md_theme_surface_variant">#2A2A3E</color>
+    <color name="mode_battle">#FF0000</color>
+    <color name="mode_classic">#00FFFF</color>
+    <color name="mode_daily">#FFD700</color>
+    <color name="mode_marathon">#FF9800</color>
+    <color name="mode_powerup">#9C27B0</color>
+    <color name="mode_puzzle">#FF00FF</color>
+    <color name="mode_sprint">#FFFF00</color>
+    <color name="mode_zen">#4CAF50</color>
+    <color name="navigation_bar">#000000</color>
+    <color name="neon_glow">#00FFFF</color>
+    <color name="overlay">#40000000</color>
+    <color name="piece_i">#00FFFF</color>
+    <color name="piece_j">#0000FF</color>
+    <color name="piece_l">#FF8800</color>
+    <color name="piece_o">#FFFF00</color>
+    <color name="piece_s">#00FF00</color>
+    <color name="piece_t">#FF00FF</color>
+    <color name="piece_z">#FF0000</color>
+    <color name="primary">#00FFFF</color>
+    <color name="primary_variant">#00CCCC</color>
+    <color name="rank_adept">#C0C0C0</color>
+    <color name="rank_apprentice">#CD7F32</color>
+    <color name="rank_divine">#00FFFF</color>
+    <color name="rank_eternal">#FFD700</color>
+    <color name="rank_expert">#FFD700</color>
+    <color name="rank_grandmaster">#50C878</color>
+    <color name="rank_legend">#FF4500</color>
+    <color name="rank_master">#E5E4E2</color>
+    <color name="rank_mythic">#9966CC</color>
+    <color name="rank_novice">#808080</color>
+    <color name="secondary">#FF00FF</color>
+    <color name="secondary_variant">#CC00CC</color>
+    <color name="shadow">#80000000</color>
+    <color name="status_bar">#000000</color>
+    <color name="success">#4CAF50</color>
+    <color name="surface">#16213E</color>
+    <color name="surface_variant">#0F3460</color>
+    <color name="text_disabled">#707070</color>
+    <color name="text_hint">#606060</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="transparent">#00000000</color>
+    <color name="trophy_bronze">#CD7F32</color>
+    <color name="trophy_gold">#FFD700</color>
+    <color name="trophy_platinum">#E5E4E2</color>
+    <color name="trophy_silver">#C0C0C0</color>
+    <color name="warning">#FFC107</color>
+    <integer name="config_longAnimTime">500</integer>
+    <integer name="config_mediumAnimTime">400</integer>
+    <integer name="config_navAnimTime">300</integer>
+    <integer name="drop_speed_initial">800</integer>
+    <integer name="google_play_services_version">12451000</integer>
+    <integer name="lock_delay_ms">500</integer>
+    <integer name="max_level">100</integer>
+    <integer name="max_lines">999999</integer>
+    <string name="about">About</string>
+    <string name="account">Account</string>
+    <string name="account_sync">Account &amp; Sync</string>
+    <string name="achievement_unlocked">Achievement Unlocked!</string>
+    <string name="achievements">Achievements</string>
+    <string name="ai_difficulty">AI: %1$s</string>
+    <string name="ai_easy">Easy</string>
+    <string name="ai_expert">Expert</string>
+    <string name="ai_hard">Hard</string>
+    <string name="ai_master">Master</string>
+    <string name="ai_normal">Normal</string>
+    <string name="app_description">Modern Tetris with neon graphics and advanced features</string>
+    <string name="app_id" translatable="false">YOUR_GOOGLE_PLAY_GAMES_APP_ID</string>
+    <string name="app_name">Tetris</string>
+    <string name="arr_rate">ARR (Auto-repeat rate)</string>
+    <string name="audio">Audio</string>
+    <string name="auto_hold">Auto Hold</string>
+    <string name="back">Back</string>
+    <string name="best_combo">Best Combo</string>
+    <string name="best_records">Best Records</string>
+    <string name="cancel">Cancel</string>
+    <string name="cd_hard_drop">Hard drop</string>
+    <string name="cd_hold_piece">Hold piece</string>
+    <string name="cd_move_left">Move left</string>
+    <string name="cd_move_right">Move right</string>
+    <string name="cd_pause_game">Pause game</string>
+    <string name="cd_rotate_clockwise">Rotate clockwise</string>
+    <string name="cd_rotate_counter_clockwise">Rotate counter-clockwise</string>
+    <string name="cd_show_help">Show help</string>
+    <string name="cd_soft_drop">Soft drop</string>
+    <string name="cd_toggle_sound">Toggle sound</string>
+    <string name="challenge_complete">CHALLENGE COMPLETE!</string>
+    <string name="challenge_completed">Challenge Completed!</string>
+    <string name="challenge_failed">Challenge Failed</string>
+    <string name="change_later_settings">You can change this later in Settings</string>
+    <string name="change_mode">CHANGE MODE</string>
+    <string name="choose_control_style">Choose Your Control Style</string>
+    <string name="close">Close</string>
+    <string name="combo">Combo</string>
+    <string name="completion_format">%1$.0f%% Complete</string>
+    <string name="completion_percentage">%1$.1f%% Complete</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="connect">Connect</string>
+    <string name="connect_description">Connect to save your progress and compete on leaderboards</string>
+    <string name="connected">Connected</string>
+    <string name="control_type">Control Type</string>
+    <string name="controls">Controls</string>
+    <string name="daily_challenge">DAILY CHALLENGE</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="das_delay">DAS (Auto-shift delay)</string>
+    <string name="defeat">DEFEAT</string>
+    <string name="developer">Developer</string>
+    <string name="developer_name" translatable="false">Rony Licha</string>
+    <string name="double_tap_down">DOUBLE TAP DOWN</string>
+    <string name="drop_pieces">DROP PIECES</string>
+    <string name="drop_pieces_desc">Swipe DOWN for soft drop\nSwipe UP for instant drop</string>
+    <string name="dynamic_colors">Dynamic Colors</string>
+    <string name="email">Email</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="failed">Failed</string>
+    <string name="favorite_mode">Favorite Mode</string>
+    <string name="game_over">GAME OVER</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="gameplay_statistics">Gameplay Statistics</string>
+    <string name="garbage_received">Garbage Received: %1$d</string>
+    <string name="garbage_sent">Garbage Sent: %1$d</string>
+    <string name="general">General</string>
+    <string name="ghost_piece">Ghost Piece</string>
+    <string name="google_play_games">Google Play Games</string>
+    <string name="google_play_sign_in">Sign in with Google Play</string>
+    <string name="google_play_sign_in_failed">Google Play sign-in failed</string>
+    <string name="google_play_signed_in">Connected to Google Play Games</string>
+    <string name="got_it">GOT IT!</string>
+    <string name="graphics">Graphics</string>
+    <string name="guest_mode">Continue as Guest</string>
+    <string name="hard_drop">Hard drop</string>
+    <string name="high_score">High Score</string>
+    <string name="highest_level">Highest Level</string>
+    <string name="highest_score">Highest Score</string>
+    <string name="hints_available">Hints: %1$d/3</string>
+    <string name="hold">Hold</string>
+    <string name="hold_piece">Hold piece</string>
+    <string name="hold_piece_desc">LONG PRESS to hold the current piece for later use</string>
+    <string name="hold_piece_title">HOLD PIECE</string>
+    <string name="language">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="lets_learn_controls">Let\'s learn the touch controls</string>
+    <string name="level">Level</string>
+    <string name="level_format">Level %1$d</string>
+    <string name="level_requirement">Level %1$d</string>
+    <string name="level_up">LEVEL UP!</string>
+    <string name="lines">Lines</string>
+    <string name="lines_format">%1$d lines</string>
+    <string name="loading">Loading…</string>
+    <string name="locked">Locked</string>
+    <string name="long_press">LONG PRESS</string>
+    <string name="longest_combo">Longest Combo</string>
+    <string name="main_menu">MAIN MENU</string>
+    <string name="marathon_complete">MARATHON COMPLETE!</string>
+    <string name="master_volume">Master Volume</string>
+    <string name="menu">Menu</string>
+    <string name="merge_accounts">Merge Accounts</string>
+    <string name="mode_battle">Battle</string>
+    <string name="mode_battle2p">Battle 2P</string>
+    <string name="mode_battle2p_desc">Local 2-player battle (Desktop only)</string>
+    <string name="mode_battle_desc">Face off against AI opponents</string>
+    <string name="mode_classic">Classic</string>
+    <string name="mode_classic_desc">Endless Tetris - The original experience</string>
+    <string name="mode_daily">Daily Challenge</string>
+    <string name="mode_daily_desc">New challenge every day</string>
+    <string name="mode_marathon">Marathon</string>
+    <string name="mode_marathon_desc">Survive 150 lines with increasing difficulty</string>
+    <string name="mode_powerup">Power-Up</string>
+    <string name="mode_powerup_desc">Classic with 8 unique power-ups</string>
+    <string name="mode_puzzle">Puzzle</string>
+    <string name="mode_puzzle_desc">150 challenging puzzles to solve</string>
+    <string name="mode_sprint">Sprint</string>
+    <string name="mode_sprint_desc">Clear 40 lines as fast as possible</string>
+    <string name="mode_zen">Zen</string>
+    <string name="mode_zen_desc">Relaxing endless mode with statistics</string>
+    <string name="modifiers">Modifiers</string>
+    <string name="move_piece">Move piece</string>
+    <string name="move_pieces">MOVE PIECES</string>
+    <string name="move_pieces_desc">Swipe LEFT or RIGHT to move pieces horizontally</string>
+    <string name="moves_remaining">Moves: %1$d/%2$d</string>
+    <string name="music_volume">Music Volume</string>
+    <string name="new_challenge_available">New challenge available!</string>
+    <string name="new_high_score">NEW HIGH SCORE!</string>
+    <string name="new_mode">NEW</string>
+    <string name="new_unlock">NEW UNLOCK!</string>
+    <string name="next">Next</string>
+    <string name="next_pieces">Next Pieces</string>
+    <string name="next_step">NEXT</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="not_connected">Not connected</string>
+    <string name="objective">Objective</string>
+    <string name="offline_mode">Offline Mode</string>
+    <string name="ok">OK</string>
+    <string name="overall_performance">Overall Performance</string>
+    <string name="pad">Pad</string>
+    <string name="password">Password</string>
+    <string name="pause">Pause</string>
+    <string name="paused">PAUSED</string>
+    <string name="perfect_clears">Perfect Clears</string>
+    <string name="pieces_placed">Pieces Placed</string>
+    <string name="play">PLAY</string>
+    <string name="play_again">PLAY AGAIN</string>
+    <string name="powerup_double_score">2x Score</string>
+    <string name="powerup_ghost_mode">Ghost Mode</string>
+    <string name="powerup_lightning">Lightning</string>
+    <string name="powerup_line_bomb">Line Bomb</string>
+    <string name="powerup_magnet">Magnet</string>
+    <string name="powerup_precision">Precision</string>
+    <string name="powerup_shuffle">Shuffle</string>
+    <string name="powerup_slow_time">Slow Time</string>
+    <string name="pro_tips">PRO TIPS</string>
+    <string name="puzzle_complete">Puzzle Complete!</string>
+    <string name="puzzle_number">Puzzle #%1$d</string>
+    <string name="puzzle_solved">PUZZLE SOLVED!</string>
+    <string name="quit">Quit</string>
+    <string name="quit_to_menu">QUIT TO MENU</string>
+    <string name="rank_adept">Adept</string>
+    <string name="rank_apprentice">Apprentice</string>
+    <string name="rank_divine">Divine</string>
+    <string name="rank_eternal">Eternal</string>
+    <string name="rank_expert">Expert</string>
+    <string name="rank_grandmaster">Grandmaster</string>
+    <string name="rank_legend">Legend</string>
+    <string name="rank_master">Master</string>
+    <string name="rank_mythic">Mythic</string>
+    <string name="rank_novice">Novice</string>
+    <string name="rate">Rate</string>
+    <string name="register">Register</string>
+    <string name="restart">Restart</string>
+    <string name="resume">Resume</string>
+    <string name="rotate">ROTATE</string>
+    <string name="rotate_desc">TAP anywhere on the screen to rotate the current piece</string>
+    <string name="rotate_piece">Rotate piece</string>
+    <string name="round_format">Round %1$d/%2$d</string>
+    <string name="saving">Saving…</string>
+    <string name="score">Score</string>
+    <string name="select_mode">SELECT MODE</string>
+    <string name="select_play_preference">Select how you prefer to play</string>
+    <string name="settings">Settings</string>
+    <string name="sfx_volume">Sound Effects</string>
+    <string name="share">Share</string>
+    <string name="show_fps">Show FPS</string>
+    <string name="show_ghost_piece">Show Ghost Piece</string>
+    <string name="show_grid">Show Grid</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="skip">SKIP</string>
+    <string name="soft_drop">Soft drop</string>
+    <string name="sprint_40l">Sprint 40L</string>
+    <string name="sprint_complete">SPRINT COMPLETE!</string>
+    <string name="stars_earned">%1$d Stars</string>
+    <string name="start_playing">START PLAYING</string>
+    <string name="statistics">Statistics</string>
+    <string name="stats">Stats</string>
+    <string name="streak_days">%1$d day streak</string>
+    <string name="success">Success!</string>
+    <string name="swipe_down">SWIPE DOWN</string>
+    <string name="swipe_left_right">SWIPE LEFT/RIGHT</string>
+    <string name="swipe_sensitivity">Swipe Sensitivity</string>
+    <string name="sync_data">Sync Data</string>
+    <string name="syncing">Syncing…</string>
+    <string name="t_spins">T-Spins</string>
+    <string name="tap">TAP</string>
+    <string name="tap_to_rotate">Tap to Rotate</string>
+    <string name="target_lines">Target Lines: %1$d</string>
+    <string name="target_score">Target Score: %1$d</string>
+    <string name="tetrises">Tetrises</string>
+    <string name="time">Time</string>
+    <string name="time_limit">Time Limit: %1$s</string>
+    <string name="tip_achievements">• Complete achievements for XP!</string>
+    <string name="tip_clear_lines">• Clear multiple lines for bonus points</string>
+    <string name="tip_use_hold">• Use the hold feature strategically</string>
+    <string name="tip_watch_preview">• Watch the next pieces preview</string>
+    <string name="toggle_controls">Toggle Controls</string>
+    <string name="total_games">Total Games</string>
+    <string name="total_lines">Total Lines</string>
+    <string name="total_play_time">Play Time</string>
+    <string name="total_score">Total Score</string>
+    <string name="touch">Touch</string>
+    <string name="touch_controls">TOUCH CONTROLS</string>
+    <string name="touch_controls_desc">Swipe and tap to control pieces\nBest for mobile play</string>
+    <string name="touch_controls_help">TOUCH CONTROLS HELP</string>
+    <string name="touch_sensitivity">Touch Sensitivity</string>
+    <string name="trophy_bronze">Bronze</string>
+    <string name="trophy_earned">Trophy Earned!</string>
+    <string name="trophy_gold">Gold</string>
+    <string name="trophy_platinum">Platinum</string>
+    <string name="trophy_silver">Silver</string>
+    <string name="try_again">Try Again</string>
+    <string name="use_hint">Use Hint</string>
+    <string name="username">Username</string>
+    <string name="version">Version</string>
+    <string name="vibration">Vibration</string>
+    <string name="victory">VICTORY!</string>
+    <string name="virtual_buttons">Virtual Buttons</string>
+    <string name="virtual_pad_desc">On-screen buttons\nClassic arcade feel</string>
+    <string name="welcome_to_tetris">WELCOME TO TETRIS!</string>
+    <string name="win_rate">Win Rate</string>
+    <string name="wins_format">Wins: %1$d - %2$d</string>
+    <string name="xp_format">%1$d / %2$d XP</string>
+    <style name="BottomSheetStyle" parent="Widget.Material3.BottomSheet">
+        <item name="android:background">@drawable/bottom_sheet_background</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.ModernTetris.BottomSheet</item>
+    </style>
+    <style name="ShapeAppearance"/>
+    <style name="ShapeAppearance.Material3" parent="ShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
+    </style>
+    <style name="ShapeAppearance.Material3.LargeComponent" parent="ShapeAppearance.Material3">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="ShapeAppearance.Material3.MediumComponent" parent="ShapeAppearance.Material3">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="ShapeAppearance.Material3.SmallComponent" parent="ShapeAppearance.Material3">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+    <style name="ShapeAppearance.ModernTetris.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+    <style name="ShapeAppearance.ModernTetris.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearance.ModernTetris.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="ShapeAppearance.ModernTetris.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="TextAppearance">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.Material3" parent="TextAppearance">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.Material3.BodyLarge" parent="TextAppearance.Material3">
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.5</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+    <style name="TextAppearance.Material3.DisplayLarge" parent="TextAppearance.Material3">
+        <item name="android:textSize">57sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:lineHeight">64sp</item>
+    </style>
+    <style name="TextAppearance.Material3.HeadlineLarge" parent="TextAppearance.Material3">
+        <item name="android:textSize">32sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:lineHeight">40sp</item>
+    </style>
+    <style name="TextAppearance.Material3.TitleLarge" parent="TextAppearance.Material3">
+        <item name="android:textSize">22sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:lineHeight">28sp</item>
+    </style>
+    <style name="TextAppearance.ModernTetris" parent="TextAppearance">
+        <item name="android:fontFamily">@font/orbitron</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/orbitron</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.NeonGlow">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:shadowColor">@color/primary</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+        <item name="android:shadowRadius">20</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.Score">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textColor">@color/accent_cyan</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:shadowColor">@color/accent_cyan</item>
+        <item name="android:shadowRadius">10</item>
+    </style>
+    <style name="TextAppearance.ModernTetris.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/orbitron_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="Theme"/>
+    <style name="Theme.Material3" parent="Theme">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/text_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+    </style>
+    <style name="Theme.Material3.DayNight" parent="Theme.Material3">
+        <item name="android:windowBackground">@color/background_dark</item>
+    </style>
+    <style name="Theme.Material3.DayNight.BottomSheetDialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+    <style name="Theme.Material3.DayNight.Dialog" parent="Theme.Material3.DayNight">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="Theme.Material3.DayNight.NoActionBar" parent="Theme.Material3.DayNight">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+    </style>
+    <style name="Theme.ModernTetris" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        
+        
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondary_variant</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        
+        
+        <item name="android:colorBackground">@color/background_dark</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        
+        
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/text_primary</item>
+        
+        
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <item name="android:navigationBarColor">@color/navigation_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        
+        
+        <item name="android:windowBackground">@color/background_dark</item>
+        
+        
+        <item name="android:fontFamily">@font/orbitron</item>
+        <item name="fontFamily">@font/orbitron</item>
+        
+        
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+        
+        
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+    </style>
+    <style name="Theme.ModernTetris.BottomSheet" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+    <style name="Theme.ModernTetris.Dialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="dialogCornerRadius">16dp</item>
+    </style>
+    <style name="Theme.ModernTetris.Fullscreen" parent="Theme.ModernTetris.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <style name="Theme.ModernTetris.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.ModernTetris.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/background_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.ModernTetris</item>
+    </style>
+    <style name="Theme.SplashScreen" parent="Theme">
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+    <style name="Widget"/>
+    <style name="Widget.Material3" parent="Widget"/>
+    <style name="Widget.Material3.BottomSheet" parent="Widget.Material3">
+        <item name="android:background">@drawable/bottom_sheet_background</item>
+        <item name="android:paddingTop">8dp</item>
+    </style>
+    <style name="Widget.Material3.Button" parent="Widget.Material3">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Widget.Material3.Button.OutlinedButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:background">@drawable/button_background</item>
+    </style>
+    <style name="Widget.Material3.Button.TextButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="Widget.Material3.CardView" parent="Widget.Material3"/>
+    <style name="Widget.Material3.CardView.Elevated" parent="Widget.Material3.CardView">
+        <item name="android:elevation">1dp</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+    </style>
+    <style name="Widget.ModernTetris.Button" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/background_dark</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:minHeight">56dp</item>
+    </style>
+    <style name="Widget.ModernTetris.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:fontFamily">@font/orbitron_bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:minHeight">56dp</item>
+    </style>
+    <style name="Widget.ModernTetris.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:fontFamily">@font/orbitron_medium</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+    <style name="Widget.ModernTetris.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include shared preferences -->
+    <include domain="sharedpref" path="."/>
+    
+    <!-- Include databases -->
+    <include domain="database" path="tetris_scores.db"/>
+    <include domain="database" path="tetris_progress.db"/>
+    <include domain="database" path="tetris_achievements.db"/>
+    
+    <!-- Include game save files -->
+    <include domain="file" path="game_saves/"/>
+    <include domain="file" path="puzzles/"/>
+</full-backup-content>

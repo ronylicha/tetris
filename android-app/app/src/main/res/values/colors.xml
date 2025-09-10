@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#00FFFF</color> <!-- Cyan -->
+    <color name="primary_variant">#00CCCC</color>
+    <color name="secondary">#FF00FF</color> <!-- Magenta -->
+    <color name="secondary_variant">#CC00CC</color>
+    
+    <!-- Background Colors -->
+    <color name="background_dark">#0A0A0A</color>
+    <color name="background_medium">#1A1A2E</color>
+    <color name="background_light">#2A2A3E</color>
+    <color name="surface">#16213E</color>
+    <color name="surface_variant">#0F3460</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="text_disabled">#707070</color>
+    <color name="text_hint">#606060</color>
+    
+    <!-- Tetromino Colors (Neon Theme) -->
+    <color name="piece_i">#00FFFF</color> <!-- Cyan -->
+    <color name="piece_o">#FFFF00</color> <!-- Yellow -->
+    <color name="piece_t">#FF00FF</color> <!-- Magenta -->
+    <color name="piece_s">#00FF00</color> <!-- Green -->
+    <color name="piece_z">#FF0000</color> <!-- Red -->
+    <color name="piece_j">#0000FF</color> <!-- Blue -->
+    <color name="piece_l">#FF8800</color> <!-- Orange -->
+    
+    <!-- UI Element Colors -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FFC107</color>
+    <color name="error">#F44336</color>
+    <color name="info">#2196F3</color>
+    
+    <!-- Rank Colors -->
+    <color name="rank_novice">#808080</color>
+    <color name="rank_apprentice">#CD7F32</color> <!-- Bronze -->
+    <color name="rank_adept">#C0C0C0</color> <!-- Silver -->
+    <color name="rank_expert">#FFD700</color> <!-- Gold -->
+    <color name="rank_master">#E5E4E2</color> <!-- Platinum -->
+    <color name="rank_grandmaster">#50C878</color> <!-- Emerald -->
+    <color name="rank_legend">#FF4500</color> <!-- Orange Red -->
+    <color name="rank_mythic">#9966CC</color> <!-- Amethyst -->
+    <color name="rank_divine">#00FFFF</color> <!-- Cyan -->
+    <color name="rank_eternal">#FFD700</color> <!-- Gold -->
+    
+    <!-- Trophy Colors -->
+    <color name="trophy_bronze">#CD7F32</color>
+    <color name="trophy_silver">#C0C0C0</color>
+    <color name="trophy_gold">#FFD700</color>
+    <color name="trophy_platinum">#E5E4E2</color>
+    
+    <!-- Game Mode Colors -->
+    <color name="mode_classic">#00FFFF</color>
+    <color name="mode_sprint">#FFFF00</color>
+    <color name="mode_marathon">#FF9800</color>
+    <color name="mode_zen">#4CAF50</color>
+    <color name="mode_puzzle">#FF00FF</color>
+    <color name="mode_battle">#FF0000</color>
+    <color name="mode_powerup">#9C27B0</color>
+    <color name="mode_daily">#FFD700</color>
+    
+    <!-- Difficulty Colors -->
+    <color name="difficulty_easy">#4CAF50</color>
+    <color name="difficulty_medium">#FFC107</color>
+    <color name="difficulty_hard">#FF9800</color>
+    <color name="difficulty_expert">#F44336</color>
+    <color name="difficulty_master">#9C27B0</color>
+    
+    <!-- Special Effects -->
+    <color name="neon_glow">#00FFFF</color>
+    <color name="shadow">#80000000</color>
+    <color name="overlay">#40000000</color>
+    <color name="transparent">#00000000</color>
+    
+    <!-- Grid Colors -->
+    <color name="grid_line">#1A1A2E</color>
+    <color name="grid_background">#0A0A0A</color>
+    <color name="ghost_piece">#40FFFFFF</color>
+    
+    <!-- Button States -->
+    <color name="button_normal">#2A2A3E</color>
+    <color name="button_pressed">#3A3A4E</color>
+    <color name="button_disabled">#1A1A2E</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_cyan">#00FFFF</color>
+    <color name="accent_magenta">#FF00FF</color>
+    <color name="accent_yellow">#FFFF00</color>
+    <color name="accent_green">#00FF00</color>
+    <color name="accent_red">#FF0000</color>
+    <color name="accent_blue">#0000FF</color>
+    <color name="accent_orange">#FF8800</color>
+    <color name="accent_purple">#9C27B0</color>
+    
+    <!-- System UI -->
+    <color name="status_bar">#000000</color>
+    <color name="navigation_bar">#000000</color>
+    
+    <!-- Material Design 3 Colors -->
+    <color name="md_theme_primary">#00FFFF</color>
+    <color name="md_theme_on_primary">#000000</color>
+    <color name="md_theme_primary_container">#004A4A</color>
+    <color name="md_theme_on_primary_container">#00FFFF</color>
+    <color name="md_theme_secondary">#FF00FF</color>
+    <color name="md_theme_on_secondary">#000000</color>
+    <color name="md_theme_secondary_container">#4A004A</color>
+    <color name="md_theme_on_secondary_container">#FF00FF</color>
+    <color name="md_theme_background">#0A0A0A</color>
+    <color name="md_theme_on_background">#FFFFFF</color>
+    <color name="md_theme_surface">#1A1A2E</color>
+    <color name="md_theme_on_surface">#FFFFFF</color>
+    <color name="md_theme_surface_variant">#2A2A3E</color>
+    <color name="md_theme_on_surface_variant">#B0B0B0</color>
+    <color name="md_theme_error">#FF0000</color>
+    <color name="md_theme_on_error">#FFFFFF</color>
+    <color name="md_theme_outline">#606060</color>
+    <color name="md_theme_outline_variant">#404040</color>
+    <color name="md_theme_scrim">#000000</color>
+</resources>
