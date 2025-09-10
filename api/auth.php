@@ -77,6 +77,7 @@ switch ($action) {
         $username = $data['username'] ?? '';
         $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
+        $displayName = $data['display_name'] ?? $data['displayName'] ?? $username; // Support both snake_case and camelCase
         
         // Validation
         if (!validateUsername($username)) {
@@ -122,7 +123,7 @@ switch ($action) {
                 ) VALUES (?, ?, ?, ?, ?, 1, 0, 0, "Novice", datetime("now"), datetime("now"))
             ');
             
-            $stmt->execute([$username, $username, $email, $hashedPassword, $authToken]);
+            $stmt->execute([$username, $displayName, $email, $hashedPassword, $authToken]);
             $playerId = $db->lastInsertId();
             
             // Set session
@@ -137,10 +138,20 @@ switch ($action) {
             // Remove sensitive data
             unset($player['password_hash']);
             
+            // Return response compatible with both web and Android app
             echo json_encode([
                 'success' => true,
+                // For web compatibility
                 'player' => $player,
                 'auth_token' => $authToken,
+                // For Android compatibility
+                'token' => $authToken,
+                'refresh_token' => generateToken(), // Generate a refresh token
+                'userId' => (string)$playerId,
+                'username' => $username,
+                'displayName' => $displayName,
+                'email' => $email,
+                'isGuest' => false,
                 'message' => 'Account created successfully!'
             ]);
             
@@ -191,16 +202,61 @@ switch ($action) {
             unset($player['password_hash']);
             $player['auth_token'] = $authToken;
             
+            // Return response compatible with both web and Android app
             echo json_encode([
                 'success' => true,
+                // For web compatibility
                 'player' => $player,
                 'auth_token' => $authToken,
+                // For Android compatibility
+                'token' => $authToken,
+                'refresh_token' => generateToken(),
+                'userId' => (string)$player['id'],
+                'username' => $player['username'],
+                'displayName' => $player['display_name'],
+                'email' => $player['email'],
+                'isGuest' => false,
                 'message' => 'Login successful!'
             ]);
             
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Login failed: ' . $e->getMessage()]);
+        }
+        break;
+        
+    case 'check':
+        // Check if username or email is available
+        $username = $data['username'] ?? '';
+        $email = $data['email'] ?? '';
+        
+        $response = [
+            'success' => true,
+            'usernameAvailable' => true,
+            'emailAvailable' => true
+        ];
+        
+        try {
+            if ($username) {
+                $stmt = $db->prepare('SELECT id FROM players WHERE username = ?');
+                $stmt->execute([$username]);
+                if ($stmt->fetch()) {
+                    $response['usernameAvailable'] = false;
+                }
+            }
+            
+            if ($email) {
+                $stmt = $db->prepare('SELECT id FROM players WHERE email = ?');
+                $stmt->execute([$email]);
+                if ($stmt->fetch()) {
+                    $response['emailAvailable'] = false;
+                }
+            }
+            
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Check failed: ' . $e->getMessage()]);
         }
         break;
         
