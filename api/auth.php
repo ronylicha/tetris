@@ -204,6 +204,72 @@ switch ($action) {
         }
         break;
         
+    case 'guest':
+        $deviceId = $data['deviceId'] ?? '';
+        
+        if (!$deviceId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Device ID is required']);
+            exit;
+        }
+        
+        try {
+            // Check if guest already exists for this device
+            $stmt = $db->prepare('SELECT * FROM players WHERE username LIKE ? AND is_guest = 1');
+            $stmt->execute(['guest_' . substr($deviceId, 0, 8) . '%']);
+            $existingGuest = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($existingGuest) {
+                // Use existing guest account
+                $playerId = $existingGuest['id'];
+                $username = $existingGuest['username'];
+                $authToken = $existingGuest['auth_token'];
+                
+                // Update last login
+                $stmt = $db->prepare('UPDATE players SET last_login = datetime("now") WHERE id = ?');
+                $stmt->execute([$playerId]);
+            } else {
+                // Create new guest account
+                $guestNumber = rand(1000, 9999);
+                $username = 'Guest_' . $guestNumber;
+                $guestId = 'guest_' . substr($deviceId, 0, 8);
+                $authToken = generateToken();
+                
+                // Insert guest player
+                $stmt = $db->prepare('
+                    INSERT INTO players (
+                        username, display_name, auth_token, is_guest,
+                        level, current_xp, total_xp, rank, created_at, last_login
+                    ) VALUES (?, ?, ?, 1, 1, 0, 0, "Novice", datetime("now"), datetime("now"))
+                ');
+                
+                $stmt->execute([$guestId, $username, $authToken]);
+                $playerId = $db->lastInsertId();
+            }
+            
+            // Set session
+            $_SESSION['player_id'] = $playerId;
+            $_SESSION['auth_token'] = $authToken;
+            $_SESSION['is_guest'] = true;
+            
+            // Return guest data
+            echo json_encode([
+                'success' => true,
+                'token' => $authToken,
+                'userId' => (string)$playerId,
+                'username' => $username,
+                'displayName' => $username,
+                'email' => null,
+                'isGuest' => true,
+                'message' => 'Guest login successful'
+            ]);
+            
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Guest login failed: ' . $e->getMessage()]);
+        }
+        break;
+        
     case 'logout':
         // Clear session
         session_destroy();
