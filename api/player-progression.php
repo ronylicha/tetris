@@ -51,6 +51,271 @@ if (isset($_GET['debug'])) {
 
 switch ($action) {
     // ========================================
+    // ANDROID COMPATIBILITY ENDPOINTS
+    // ========================================
+    
+    case 'get_progression':
+        // Android app uses this endpoint to get player progression
+        $playerId = $_GET['player_id'] ?? $inputData['player_id'] ?? null;
+        
+        if (!$playerId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Player ID required']);
+            exit;
+        }
+        
+        try {
+            // Get player data
+            $stmt = $db->prepare("SELECT * FROM players WHERE id = ? OR username = ?");
+            $stmt->execute([$playerId, $playerId]);
+            $player = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$player) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Player not found']);
+                exit;
+            }
+            
+            // Get progression data
+            $stmt = $db->prepare("SELECT * FROM player_progression WHERE player_id = ?");
+            $stmt->execute([$player['id']]);
+            $progression = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$progression) {
+                // Create default progression if not exists
+                $stmt = $db->prepare("
+                    INSERT INTO player_progression (player_id) VALUES (?)
+                ");
+                $stmt->execute([$player['id']]);
+                
+                $progression = [
+                    'player_id' => $player['id'],
+                    'level' => 1,
+                    'current_xp' => 0,
+                    'total_xp' => 0,
+                    'rank' => 'Novice',
+                    'unlocked_themes' => '["default"]',
+                    'unlocked_music' => '["classic"]',
+                    'unlocked_piece_styles' => '["neon"]',
+                    'unlocked_effects' => '["basic"]'
+                ];
+            }
+            
+            // Get statistics
+            $stmt = $db->prepare("
+                SELECT game_mode, games_played, total_score, highest_score, total_lines, 
+                       total_tspins, total_tetrises, perfect_clears, longest_combo
+                FROM player_statistics 
+                WHERE player_id = ?
+            ");
+            $stmt->execute([$player['id']]);
+            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Get achievements
+            $stmt = $db->prepare("
+                SELECT a.code, a.name, pa.unlocked, pa.progress
+                FROM achievements a
+                LEFT JOIN player_achievements pa ON a.id = pa.achievement_id AND pa.player_id = ?
+                WHERE pa.unlocked = 1
+            ");
+            $stmt->execute([$player['id']]);
+            $achievements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Build response
+            $response = [
+                'success' => true,
+                'level' => (int)($progression['level'] ?? $player['level']),
+                'current_xp' => (int)($progression['current_xp'] ?? $player['current_xp']),
+                'total_xp' => (int)($progression['total_xp'] ?? $player['total_xp']),
+                'rank' => $progression['rank'] ?? $player['rank'],
+                'statistics' => [
+                    'total_games_played' => (int)$player['games_played'],
+                    'total_score' => (int)$player['total_score'],
+                    'total_lines' => (int)$player['total_lines'],
+                    'highest_score' => (int)$player['highest_score'],
+                    'total_tspins' => (int)$player['total_tspins'],
+                    'total_tetrises' => (int)$player['total_tetris'],
+                    'perfect_clears' => (int)$player['perfect_clears'],
+                    'longest_combo' => (int)$player['highest_combo'],
+                    'total_play_time' => (int)$player['total_time'],
+                    'favorite_mode' => $player['favorite_mode'] ?? 'Classic',
+                    'mode_stats' => $stats
+                ],
+                'unlocks' => [
+                    'themes' => json_decode($progression['unlocked_themes'] ?? '["default"]'),
+                    'music' => json_decode($progression['unlocked_music'] ?? '["classic"]'),
+                    'piece_styles' => json_decode($progression['unlocked_piece_styles'] ?? '["neon"]'),
+                    'effects' => json_decode($progression['unlocked_effects'] ?? '["basic"]')
+                ],
+                'achievements' => $achievements,
+                'last_sync' => $progression['last_sync'] ?? null
+            ];
+            
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        }
+        break;
+        
+    case 'sync_progression':
+        // Android app uses this to sync progression data
+        $data = $inputData ?? [];
+        $playerId = $data['player_id'] ?? null;
+        
+        if (!$playerId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Player ID required']);
+            exit;
+        }
+        
+        try {
+            $db->beginTransaction();
+            
+            // Get player
+            $stmt = $db->prepare("SELECT id FROM players WHERE id = ? OR username = ?");
+            $stmt->execute([$playerId, $playerId]);
+            $player = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$player) {
+                $db->rollBack();
+                http_response_code(404);
+                echo json_encode(['error' => 'Player not found']);
+                exit;
+            }
+            
+            $playerIdNum = $player['id'];
+            
+            // Update player table
+            if (isset($data['level']) || isset($data['current_xp']) || isset($data['total_xp'])) {
+                $updates = [];
+                $params = [];
+                
+                if (isset($data['level'])) {
+                    $updates[] = "level = ?";
+                    $params[] = $data['level'];
+                }
+                if (isset($data['current_xp'])) {
+                    $updates[] = "current_xp = ?";
+                    $params[] = $data['current_xp'];
+                }
+                if (isset($data['total_xp'])) {
+                    $updates[] = "total_xp = ?";
+                    $params[] = $data['total_xp'];
+                }
+                if (isset($data['rank'])) {
+                    $updates[] = "rank = ?";
+                    $params[] = $data['rank'];
+                }
+                
+                if (!empty($updates)) {
+                    $params[] = $playerIdNum;
+                    $stmt = $db->prepare("UPDATE players SET " . implode(', ', $updates) . " WHERE id = ?");
+                    $stmt->execute($params);
+                }
+            }
+            
+            // Update or create progression record
+            $stmt = $db->prepare("SELECT player_id FROM player_progression WHERE player_id = ?");
+            $stmt->execute([$playerIdNum]);
+            $exists = $stmt->fetch();
+            
+            if ($exists) {
+                // Update existing
+                $stmt = $db->prepare("
+                    UPDATE player_progression SET
+                        level = ?, current_xp = ?, total_xp = ?, rank = ?,
+                        unlocked_themes = ?, unlocked_music = ?, 
+                        unlocked_piece_styles = ?, unlocked_effects = ?,
+                        achievement_progress = ?, total_games_played = ?,
+                        total_play_time = ?, favorite_mode = ?,
+                        daily_streak = ?, daily_challenges_completed = ?,
+                        last_sync = CURRENT_TIMESTAMP
+                    WHERE player_id = ?
+                ");
+            } else {
+                // Insert new
+                $stmt = $db->prepare("
+                    INSERT INTO player_progression (
+                        level, current_xp, total_xp, rank,
+                        unlocked_themes, unlocked_music, 
+                        unlocked_piece_styles, unlocked_effects,
+                        achievement_progress, total_games_played,
+                        total_play_time, favorite_mode,
+                        daily_streak, daily_challenges_completed,
+                        last_sync, player_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+                ");
+            }
+            
+            $stmt->execute([
+                $data['level'] ?? 1,
+                $data['current_xp'] ?? 0,
+                $data['total_xp'] ?? 0,
+                $data['rank'] ?? 'Novice',
+                json_encode($data['unlocked_themes'] ?? ['default']),
+                json_encode($data['unlocked_music'] ?? ['classic']),
+                json_encode($data['unlocked_piece_styles'] ?? ['neon']),
+                json_encode($data['unlocked_effects'] ?? ['basic']),
+                json_encode($data['achievement_progress'] ?? []),
+                $data['total_games_played'] ?? 0,
+                $data['total_play_time'] ?? 0,
+                $data['favorite_mode'] ?? 'Classic',
+                $data['daily_streak'] ?? 0,
+                $data['daily_challenges_completed'] ?? 0,
+                $playerIdNum
+            ]);
+            
+            // Update statistics if provided
+            if (isset($data['statistics']) && is_array($data['statistics'])) {
+                $stats = $data['statistics'];
+                
+                // Update overall stats in players table
+                $stmt = $db->prepare("
+                    UPDATE players SET
+                        games_played = ?, total_score = ?, total_lines = ?,
+                        total_time = ?, highest_score = ?, highest_combo = ?,
+                        total_tspins = ?, total_tetris = ?, perfect_clears = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([
+                    $stats['total_games_played'] ?? 0,
+                    $stats['total_score'] ?? 0,
+                    $stats['total_lines'] ?? 0,
+                    $stats['total_play_time'] ?? 0,
+                    $stats['highest_score'] ?? 0,
+                    $stats['longest_combo'] ?? 0,
+                    $stats['total_tspins'] ?? 0,
+                    $stats['total_tetrises'] ?? 0,
+                    $stats['perfect_clears'] ?? 0,
+                    $playerIdNum
+                ]);
+            }
+            
+            // Log the sync
+            $stmt = $db->prepare("
+                INSERT INTO player_sync_log 
+                (player_id, sync_type, sync_direction, sync_status, data_synced, completed_at)
+                VALUES (?, 'progression', 'upload', 'success', ?, CURRENT_TIMESTAMP)
+            ");
+            $stmt->execute([$playerIdNum, json_encode($data)]);
+            
+            $db->commit();
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Progression synced successfully',
+                'player_id' => $playerIdNum
+            ]);
+            
+        } catch (PDOException $e) {
+            $db->rollBack();
+            http_response_code(500);
+            echo json_encode(['error' => 'Sync failed: ' . $e->getMessage()]);
+        }
+        break;
+        
+    // ========================================
     // PLAYER ENDPOINTS
     // ========================================
     
