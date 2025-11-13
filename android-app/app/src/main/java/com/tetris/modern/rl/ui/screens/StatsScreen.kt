@@ -70,7 +70,7 @@ fun StatsScreen(
             StatsCard(
                 title = "Overall Performance",
                 icon = Icons.Default.Stars,
-                color = NeonColors.Yellow
+                color = NeonColors.yellow
             ) {
                 val totalGames = statistics?.totalGamesPlayed ?: 0
                 val totalScore = statistics?.totalScore ?: 0L
@@ -89,7 +89,7 @@ fun StatsScreen(
             StatsCard(
                 title = "Best Records",
                 icon = Icons.Default.EmojiEvents,
-                color = NeonColors.Cyan
+                color = NeonColors.cyan
             ) {
                 val highScore = statistics?.highScore ?: 0
                 val bestCombo = statistics?.bestCombo ?: 0
@@ -108,7 +108,7 @@ fun StatsScreen(
             StatsCard(
                 title = "Gameplay Statistics",
                 icon = Icons.Default.Analytics,
-                color = NeonColors.Magenta
+                color = NeonColors.magenta
             ) {
                 val totalPieces = statistics?.totalPiecesPlaced ?: 0
                 val totalTSpins = statistics?.totalTSpins ?: 0
@@ -129,7 +129,7 @@ fun StatsScreen(
             StatsCard(
                 title = "Achievements",
                 icon = Icons.Default.WorkspacePremium,
-                color = NeonColors.Green
+                color = NeonColors.green
             ) {
                 val achievementProgressMap = viewModel.achievementSystem.achievementProgress.collectAsState().value
                 val unlockedCount = achievementProgressMap.values.count { it.isUnlocked }

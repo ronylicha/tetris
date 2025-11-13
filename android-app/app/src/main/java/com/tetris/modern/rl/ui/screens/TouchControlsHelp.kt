@@ -49,7 +49,7 @@ fun TouchControlsHelpDialog(
                 ControlHelpRow(emoji = "👆", action = stringResource(R.string.tap), description = stringResource(R.string.rotate_piece))
                 ControlHelpRow(emoji = "👈👉", action = stringResource(R.string.swipe_left_right), description = stringResource(R.string.move_piece))
                 ControlHelpRow(emoji = "👇", action = stringResource(R.string.swipe_down), description = stringResource(R.string.soft_drop))
-                ControlHelpRow(emoji = "⬇️⬇️", action = stringResource(R.string.double_tap_down), description = stringResource(R.string.hard_drop))
+                ControlHelpRow(emoji = "⬆️", action = stringResource(R.string.swipe_up), description = stringResource(R.string.hard_drop))
                 ControlHelpRow(emoji = "🤏", action = stringResource(R.string.long_press), description = stringResource(R.string.hold_piece))
                 
                 Spacer(modifier = Modifier.height(8.dp))

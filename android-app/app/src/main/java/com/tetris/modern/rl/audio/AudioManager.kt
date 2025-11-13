@@ -10,9 +10,9 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import com.tetris.modern.rl.R
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,7 +20,10 @@ import javax.inject.Singleton
 @Singleton
 class AudioManager @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : DefaultLifecycleObserver {
+    
+    private val audioScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var musicJob: Job? = null
     
     companion object {
         // Sound effect IDs
@@ -78,6 +81,7 @@ class AudioManager @Inject constructor(
         initializeSoundPool()
         // Delay sound loading to ensure sound pool is ready
         loadSoundEffects()
+        // Note: ProcessLifecycleOwner should be registered in Application class
     }
     
     private fun initializeSoundPool() {
@@ -149,10 +153,15 @@ class AudioManager @Inject constructor(
     fun playMusic(musicTrack: String, loop: Boolean = true) {
         if (isMuted || currentMusic == musicTrack) return
         
-        CoroutineScope(Dispatchers.Main).launch {
+        // Cancel previous music job
+        musicJob?.cancel()
+        
+        musicJob = audioScope.launch {
             try {
                 // Stop current music
-                stopMusic()
+                withContext(Dispatchers.IO) {
+                    stopMusic()
+                }
                 
                 // Load and play new music
                 val resourceId = getMusicResourceId(musicTrack)
@@ -160,6 +169,20 @@ class AudioManager @Inject constructor(
                     mediaPlayer = MediaPlayer.create(context, resourceId)?.apply {
                         isLooping = loop
                         setVolume(musicVolume, musicVolume)
+                        setOnCompletionListener {
+                            if (!loop) {
+                                release()
+                                mediaPlayer = null
+                                currentMusic = null
+                            }
+                        }
+                        setOnErrorListener { mp, what, extra ->
+                            Timber.e("MediaPlayer error: what=$what, extra=$extra")
+                            release()
+                            mediaPlayer = null
+                            currentMusic = null
+                            false
+                        }
                         start()
                     }
                     currentMusic = musicTrack
@@ -167,16 +190,27 @@ class AudioManager @Inject constructor(
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error playing music: $musicTrack")
+                mediaPlayer?.release()
+                mediaPlayer = null
+                currentMusic = null
             }
         }
     }
     
     fun stopMusic() {
+        musicJob?.cancel()
+        musicJob = null
+        
         mediaPlayer?.apply {
-            if (isPlaying) {
-                stop()
+            try {
+                if (isPlaying) {
+                    stop()
+                }
+                reset()
+                release()
+            } catch (e: Exception) {
+                Timber.e(e, "Error stopping music")
             }
-            release()
         }
         mediaPlayer = null
         currentMusic = null
@@ -322,5 +356,23 @@ class AudioManager @Inject constructor(
         soundPool?.release()
         soundPool = null
         soundMap.clear()
+        audioScope.cancel()
+    }
+    
+    override fun onDestroy(owner: LifecycleOwner) {
+        release()
+        super.onDestroy(owner)
+    }
+    
+    override fun onStop(owner: LifecycleOwner) {
+        pauseMusic()
+        super.onStop(owner)
+    }
+    
+    override fun onStart(owner: LifecycleOwner) {
+        if (!isMuted) {
+            resumeMusic()
+        }
+        super.onStart(owner)
     }
 }

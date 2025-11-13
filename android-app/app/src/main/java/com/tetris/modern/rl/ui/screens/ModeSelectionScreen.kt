@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import com.tetris.modern.rl.R
 import com.tetris.modern.rl.ui.theme.NeonColors
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel
+import com.tetris.modern.rl.utils.DeviceUtils
 
 data class GameModeInfo(
     val id: String,
@@ -53,14 +54,9 @@ fun ModeSelectionScreen(
     val progressionState by viewModel.playerProgression.progressionState.collectAsState()
     val playerLevel = progressionState.level
     
-    // Determine number of columns based on screen width
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val columns = when {
-        screenWidthDp < 600 -> 1  // Phone portrait
-        screenWidthDp < 840 -> 2  // Tablet or phone landscape
-        else -> 3  // Large tablet
-    }
+    // Use DeviceUtils for responsive column count
+    val deviceInfo = DeviceUtils.getDeviceInfo()
+    val columns = DeviceUtils.getGridColumns(deviceInfo, forModeSelection = true)
     
     val gameModes = remember {
         listOf(
@@ -69,21 +65,21 @@ fun ModeSelectionScreen(
                 R.string.mode_classic,
                 R.string.mode_classic_desc,
                 Icons.Default.AllInclusive,
-                NeonColors.Cyan
+                NeonColors.cyan
             ),
             GameModeInfo(
                 "sprint",
                 R.string.mode_sprint,
                 R.string.mode_sprint_desc,
                 Icons.Default.Speed,
-                NeonColors.Yellow
+                NeonColors.yellow
             ),
             GameModeInfo(
                 "marathon",
                 R.string.mode_marathon,
                 R.string.mode_marathon_desc,
                 Icons.AutoMirrored.Filled.DirectionsRun,
-                NeonColors.Orange,
+                NeonColors.orange,
                 requiredLevel = 3
             ),
             GameModeInfo(
@@ -91,7 +87,7 @@ fun ModeSelectionScreen(
                 R.string.mode_zen,
                 R.string.mode_zen_desc,
                 Icons.Default.Spa,
-                NeonColors.Purple,
+                NeonColors.purple,
                 requiredLevel = 2
             ),
             GameModeInfo(
@@ -99,7 +95,7 @@ fun ModeSelectionScreen(
                 R.string.mode_puzzle,
                 R.string.mode_puzzle_desc,
                 Icons.Default.Extension,
-                NeonColors.Green,
+                NeonColors.green,
                 requiredLevel = 5
             ),
             GameModeInfo(
@@ -107,7 +103,7 @@ fun ModeSelectionScreen(
                 R.string.mode_battle,
                 R.string.mode_battle_desc,
                 Icons.Default.SportsEsports,
-                NeonColors.Red,
+                NeonColors.red,
                 requiredLevel = 8
             ),
             GameModeInfo(
@@ -115,7 +111,7 @@ fun ModeSelectionScreen(
                 R.string.mode_powerup,
                 R.string.mode_powerup_desc,
                 Icons.Default.FlashOn,
-                NeonColors.Magenta,
+                NeonColors.magenta,
                 requiredLevel = 10
             ),
             GameModeInfo(
@@ -132,7 +128,7 @@ fun ModeSelectionScreen(
                 R.string.mode_daily,
                 R.string.mode_daily_desc,
                 Icons.Default.CalendarToday,
-                NeonColors.Cyan,
+                NeonColors.cyan,
                 requiredLevel = 1
             )
         )
@@ -181,7 +177,14 @@ fun ModeSelectionScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(gameModes.filter { it.isAvailableOnMobile }) { mode ->
+                items(gameModes.filter { 
+                    // Filter out battle2p on small phones (not tablets)
+                    if (!it.isAvailableOnMobile && !deviceInfo.isTablet) {
+                        false
+                    } else {
+                        true
+                    }
+                }) { mode ->
                     val isLocked = playerLevel < mode.requiredLevel
                     
                     GameModeCard(
@@ -212,9 +215,12 @@ fun GameModeCard(
         targetValue = if (isLocked) 0.7f else 1f
     )
     
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val cardHeight = if (screenWidthDp < 600) 160.dp else 180.dp
+    val deviceInfo = DeviceUtils.getDeviceInfo()
+    val cardHeight = when (deviceInfo.type) {
+        DeviceUtils.DeviceType.PHONE -> 160.dp
+        DeviceUtils.DeviceType.TABLET_7 -> 180.dp
+        DeviceUtils.DeviceType.TABLET_10 -> 200.dp
+    }
     
     Card(
         modifier = Modifier
@@ -247,7 +253,7 @@ fun GameModeCard(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .background(
-                            NeonColors.Yellow,
+                            NeonColors.yellow,
                             RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)

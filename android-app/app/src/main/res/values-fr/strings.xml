@@ -250,6 +250,7 @@
     <string name="swipe_left_right">GLISSER GAUCHE/DROITE</string>
     <string name="swipe_down">GLISSER BAS</string>
     <string name="double_tap_down">DOUBLE TAP BAS</string>
+    <string name="swipe_up">GLISSER HAUT</string>
     <string name="long_press">APPUI LONG</string>
     <string name="rotate_piece">Tourner la pièce</string>
     <string name="move_piece">Déplacer la pièce</string>
@@ -257,4 +258,31 @@
     <string name="hard_drop">Descente rapide</string>
     <string name="hold_piece">Réserver la pièce</string>
     <string name="got_it">COMPRIS !</string>
+    
+    <!-- Account / Compte -->
+    <string name="register">S\'inscrire</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="display_name">Nom d\'affichage</string>
+    <string name="email">Email</string>
+    <string name="password">Mot de passe</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="guest_mode">Continuer en tant qu\'invité</string>
+    <string name="upgrade_account">Mettre à niveau votre compte</string>
+    <string name="signed_in_as">Connecté en tant que %1$s</string>
+    <string name="currently_playing_as">Actuellement connecté en tant que</string>
+    <string name="save_progress_message">Connectez-vous ou créez un compte pour sauvegarder votre progression !</string>
+    <string name="sync_data">Synchroniser les données</string>
+    <string name="merge_accounts">Fusionner les comptes</string>
+    <string name="username_available">Nom d\'utilisateur disponible</string>
+    <string name="username_taken">Nom d\'utilisateur non disponible</string>
+    <string name="email_available">Email disponible</string>
+    <string name="email_already_used">Email déjà utilisé</string>
+    <string name="passwords_dont_match">Les mots de passe ne correspondent pas</string>
+    <string name="registration_failed">Échec de l\'inscription</string>
+    <string name="login_successful">Connexion réussie</string>
+    <string name="login_failed">Échec de la connexion</string>
+    <string name="account_created">Compte créé avec succès !</string>
+    <string name="sign_in_with_google">Se connecter avec Google</string>
+    <string name="or">OU</string>
 </resources>

@@ -8,7 +8,9 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.tetris.modern.rl.MainActivity
 import com.tetris.modern.rl.R
+import com.tetris.modern.rl.data.database.TetrisDatabase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -130,21 +132,41 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         }
         
         private suspend fun getHighScore(context: Context): Int {
-            // TODO: Load from database
-            return context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
-                .getInt("high_score", 0)
+            return try {
+                val database = TetrisDatabase.getDatabase(context)
+                val scores = database.scoreDao().getTopScores(limit = 1).first()
+                scores.firstOrNull()?.score ?: context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("high_score", 0)
+            } catch (e: Exception) {
+                context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("high_score", 0)
+            }
         }
         
         private suspend fun getTotalLines(context: Context): Int {
-            // TODO: Load from database
-            return context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
-                .getInt("total_lines", 0)
+            return try {
+                val database = TetrisDatabase.getDatabase(context)
+                val scores = database.scoreDao().getAllScores().first()
+                val dbLines = scores.sumOf { score -> score.lines }
+                if (dbLines > 0) dbLines else context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("total_lines", 0)
+            } catch (e: Exception) {
+                context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("total_lines", 0)
+            }
         }
         
         private suspend fun getGamesPlayed(context: Context): Int {
-            // TODO: Load from database
-            return context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
-                .getInt("games_played", 0)
+            return try {
+                val database = TetrisDatabase.getDatabase(context)
+                val scores = database.scoreDao().getAllScores().first()
+                val dbGames = scores.size
+                if (dbGames > 0) dbGames else context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("games_played", 0)
+            } catch (e: Exception) {
+                context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
+                    .getInt("games_played", 0)
+            }
         }
     }
 }

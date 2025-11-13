@@ -34,6 +34,7 @@
     <attr format="reference" name="lottieAnimationViewStyle"/>
     <attr format="reference" name="nestedScrollViewStyle"/>
     <attr format="reference" name="postSplashScreenTheme"/>
+    <attr format="reference" name="recyclerViewStyle"/>
     <attr format="reference" name="shapeAppearance"/>
     <attr format="dimension" name="splashScreenIconSize"/>
     <attr format="color" name="strokeColor"/>
@@ -295,6 +296,10 @@
     <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
     <dimen name="abc_text_size_title_material">20sp</dimen>
     <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_min_width">120dp</dimen>
+    <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
     <dimen name="compat_button_inset_horizontal_material">4dp</dimen>
     <dimen name="compat_button_inset_vertical_material">6dp</dimen>
     <dimen name="compat_button_padding_horizontal_material">8dp</dimen>
@@ -302,8 +307,18 @@
     <dimen name="compat_control_corner_material">2dp</dimen>
     <dimen name="compat_notification_large_icon_max_height">320dp</dimen>
     <dimen name="compat_notification_large_icon_max_width">320dp</dimen>
+    <dimen name="control_button_size">60dp</dimen>
+    <dimen name="dialog_max_width">90%</dimen>
+    <dimen name="dialog_padding">24dp</dimen>
     <item format="float" name="disabled_alpha_material_dark" type="dimen">0.30</item>
     <item format="float" name="disabled_alpha_material_light" type="dimen">0.26</item>
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fastscroll_default_thickness">8dp</dimen>
+    <dimen name="fastscroll_margin">0dp</dimen>
+    <dimen name="fastscroll_minimum_range">50dp</dimen>
+    <dimen name="game_grid_cell_size">18dp</dimen>
+    <dimen name="game_grid_max_height">720dp</dimen>
+    <dimen name="game_grid_max_width">360dp</dimen>
     <item format="float" name="highlight_alpha_material_colored" type="dimen">0.26</item>
     <item format="float" name="highlight_alpha_material_dark" type="dimen">0.20</item>
     <item format="float" name="highlight_alpha_material_light" type="dimen">0.12</item>
@@ -311,6 +326,13 @@
     <item format="float" name="hint_alpha_material_light" type="dimen">0.38</item>
     <item format="float" name="hint_pressed_alpha_material_dark" type="dimen">0.70</item>
     <item format="float" name="hint_pressed_alpha_material_light" type="dimen">0.54</item>
+    <dimen name="hold_piece_size">70dp</dimen>
+    <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
+    <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
+    <dimen name="item_touch_helper_swipe_escape_velocity">120dp</dimen>
+    <dimen name="mode_card_height">160dp</dimen>
+    <dimen name="mode_card_min_width">240dp</dimen>
+    <dimen name="next_piece_size">70dp</dimen>
     <dimen name="notification_action_icon_size">32dp</dimen>
     <dimen name="notification_action_text_size">13sp</dimen>
     <dimen name="notification_big_circle_margin">12dp</dimen>
@@ -326,6 +348,11 @@
     <dimen name="notification_subtext_size">13sp</dimen>
     <dimen name="notification_top_pad">10dp</dimen>
     <dimen name="notification_top_pad_large_text">5dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
     <dimen name="splashscreen_icon_mask_size_no_background">410dp</dimen>
     <dimen name="splashscreen_icon_mask_size_with_background">342dp</dimen>
     <dimen name="splashscreen_icon_mask_stroke_no_background">109dp</dimen>
@@ -333,6 +360,12 @@
     <dimen name="splashscreen_icon_size">?splashScreenIconSize</dimen>
     <dimen name="splashscreen_icon_size_no_background">288dp</dimen>
     <dimen name="splashscreen_icon_size_with_background">240dp</dimen>
+    <dimen name="text_size_large">20sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_tiny">12sp</dimen>
+    <dimen name="text_size_title">32sp</dimen>
+    <dimen name="text_size_xlarge">24sp</dimen>
     <dimen name="tooltip_corner_radius">2dp</dimen>
     <dimen name="tooltip_horizontal_padding">16dp</dimen>
     <dimen name="tooltip_margin">8dp</dimen>
@@ -381,6 +414,7 @@
     <item name="action_menu_divider" type="id"/>
     <item name="action_menu_presenter" type="id"/>
     <item name="androidx_compose_ui_view_composition_context" type="id"/>
+    <item name="coil_request_manager" type="id"/>
     <item name="compose_view_saveable_id_tag" type="id"/>
     <item name="consume_window_insets_tag" type="id"/>
     <item name="fragment_container_view_tag" type="id"/>
@@ -388,6 +422,7 @@
     <item name="home" type="id"/>
     <item name="inspection_slot_table_set" type="id"/>
     <item name="is_pooling_container_tag" type="id"/>
+    <item name="item_touch_helper_previous_elevation" type="id"/>
     <item name="line1" type="id"/>
     <item name="line3" type="id"/>
     <item name="lottie_layer_name" type="id"/>
@@ -464,6 +499,7 @@
     <string name="abc_toolbar_collapse_description">Collapse</string>
     <string name="about">About</string>
     <string name="account">Account</string>
+    <string name="account_created">Account created successfully!</string>
     <string name="account_sync">Account &amp; Sync</string>
     <string name="achievement_unlocked">Achievement Unlocked!</string>
     <string name="achievements">Achievements</string>
@@ -473,9 +509,10 @@
     <string name="ai_hard">Hard</string>
     <string name="ai_master">Master</string>
     <string name="ai_normal">Normal</string>
+    <string name="all_time">All</string>
     <string name="androidx_startup" translatable="false">androidx.startup</string>
     <string name="app_description">Modern Tetris with neon graphics and advanced features</string>
-    <string name="app_id" translatable="false">YOUR_GOOGLE_PLAY_GAMES_APP_ID</string>
+    <string name="app_id" translatable="false">123456789012</string>
     <string name="app_name">Tetris</string>
     <string name="arr_rate">ARR (Auto-repeat rate)</string>
     <string name="audio">Audio</string>
@@ -538,6 +575,8 @@
     <string name="connected">Connected</string>
     <string name="control_type">Control Type</string>
     <string name="controls">Controls</string>
+    <string name="create_account">Create Account</string>
+    <string name="currently_playing_as">Currently playing as</string>
     <string name="daily_challenge">DAILY CHALLENGE</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="das_delay">DAS (Auto-shift delay)</string>
@@ -546,15 +585,19 @@
     <string name="defeat">DEFEAT</string>
     <string name="developer">Developer</string>
     <string name="developer_name" translatable="false">Rony Licha</string>
+    <string name="display_name">Display Name</string>
     <string name="double_tap_down">DOUBLE TAP DOWN</string>
     <string name="drop_pieces">DROP PIECES</string>
     <string name="drop_pieces_desc">Swipe DOWN for soft drop\nSwipe UP for instant drop</string>
     <string name="dropdown_menu">"Dropdown menu"</string>
     <string name="dynamic_colors">Dynamic Colors</string>
     <string name="email">Email</string>
+    <string name="email_already_used">Email already in use</string>
+    <string name="email_available">Email available</string>
     <string name="error_occurred">An error occurred</string>
     <string name="failed">Failed</string>
     <string name="favorite_mode">Favorite Mode</string>
+    <string name="fcm_fallback_notification_channel_label">Miscellaneous</string>
     <string name="game_over">GAME OVER</string>
     <string name="gameplay">Gameplay</string>
     <string name="gameplay_statistics">Gameplay Statistics</string>
@@ -593,6 +636,8 @@
     <string name="lines_format">%1$d lines</string>
     <string name="loading">Loading…</string>
     <string name="locked">Locked</string>
+    <string name="login_failed">Login failed</string>
+    <string name="login_successful">Login successful</string>
     <string name="long_press">LONG PRESS</string>
     <string name="longest_combo">Longest Combo</string>
     <string name="m3c_bottom_sheet_collapse_description">Collapse bottom sheet</string>
@@ -700,9 +745,11 @@
     <string name="offline_mode">Offline Mode</string>
     <string name="ok">OK</string>
     <string name="on">On</string>
+    <string name="or">OR</string>
     <string name="overall_performance">Overall Performance</string>
     <string name="pad">Pad</string>
     <string name="password">Password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
     <string name="pause">Pause</string>
     <string name="paused">PAUSED</string>
     <string name="perfect_clears">Perfect Clears</string>
@@ -738,12 +785,14 @@
     <string name="rank_novice">Novice</string>
     <string name="rate">Rate</string>
     <string name="register">Register</string>
+    <string name="registration_failed">Registration failed</string>
     <string name="restart">Restart</string>
     <string name="resume">Resume</string>
     <string name="rotate">ROTATE</string>
     <string name="rotate_desc">TAP anywhere on the screen to rotate the current piece</string>
     <string name="rotate_piece">Rotate piece</string>
     <string name="round_format">Round %1$d/%2$d</string>
+    <string name="save_progress_message">Sign in or create an account to save your progress!</string>
     <string name="saving">Saving…</string>
     <string name="score">Score</string>
     <string name="search_menu_title">Search</string>
@@ -757,6 +806,7 @@
     <string name="show_ghost_piece">Show Ghost Piece</string>
     <string name="show_grid">Show Grid</string>
     <string name="sign_in">Sign In</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
     <string name="sign_out">Sign Out</string>
     <string name="signed_in_as">Signed in as %1$s</string>
     <string name="skip">SKIP</string>
@@ -773,6 +823,7 @@
     <string name="swipe_down">SWIPE DOWN</string>
     <string name="swipe_left_right">SWIPE LEFT/RIGHT</string>
     <string name="swipe_sensitivity">Swipe Sensitivity</string>
+    <string name="swipe_up">SWIPE UP</string>
     <string name="switch_role">Switch</string>
     <string name="sync_data">Sync Data</string>
     <string name="syncing">Syncing…</string>
@@ -808,8 +859,11 @@
     <string name="trophy_platinum">Platinum</string>
     <string name="trophy_silver">Silver</string>
     <string name="try_again">Try Again</string>
+    <string name="upgrade_account">Upgrade Your Account</string>
     <string name="use_hint">Use Hint</string>
     <string name="username">Username</string>
+    <string name="username_available">Username available</string>
+    <string name="username_taken">Username not available</string>
     <string name="version">Version</string>
     <string name="vibration">Vibration</string>
     <string name="victory">VICTORY!</string>
@@ -3813,6 +3867,27 @@
         <attr format="dimension" name="paddingBottomNoButtons"/>
         
         <attr format="dimension" name="paddingTopNoTitle"/>
+    </declare-styleable>
+    <declare-styleable name="RecyclerView">
+        
+        <attr format="string" name="layoutManager"/>
+
+        
+        
+        
+        <eat-comment/>
+
+        <attr name="android:orientation"/>
+        <attr name="android:descendantFocusability"/>
+        <attr name="android:clipToPadding"/>
+        <attr format="integer" name="spanCount"/>
+        <attr format="boolean" name="reverseLayout"/>
+        <attr format="boolean" name="stackFromEnd"/>
+        <attr format="boolean" name="fastScrollEnabled"/>
+        <attr format="reference" name="fastScrollVerticalThumbDrawable"/>
+        <attr format="reference" name="fastScrollVerticalTrackDrawable"/>
+        <attr format="reference" name="fastScrollHorizontalThumbDrawable"/>
+        <attr format="reference" name="fastScrollHorizontalTrackDrawable"/>
     </declare-styleable>
     <declare-styleable name="SearchView">
         

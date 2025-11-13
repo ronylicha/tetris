@@ -12,36 +12,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Neon color palette
-object NeonColors {
-    val Cyan = Color(0xFF00FFFF)
-    val Magenta = Color(0xFFFF00FF)
-    val Yellow = Color(0xFFFFFF00)
-    val Green = Color(0xFF00FF00)
-    val Red = Color(0xFFFF0000)
-    val Blue = Color(0xFF0000FF)
-    val Orange = Color(0xFFFF8800)
-    val Purple = Color(0xFF9C27B0)
-    val Gold = Color(0xFFFFD700)
-    
-    val pieceColors = listOf(Cyan, Yellow, Magenta, Green, Red, Blue, Orange)
-}
-
 private val DarkColorScheme = darkColorScheme(
-    primary = NeonColors.Cyan,
+    primary = NeonColors.cyan,
     onPrimary = Color.Black,
     primaryContainer = Color(0xFF004A4A),
-    onPrimaryContainer = NeonColors.Cyan,
+    onPrimaryContainer = NeonColors.cyan,
     
-    secondary = NeonColors.Magenta,
+    secondary = NeonColors.magenta,
     onSecondary = Color.Black,
     secondaryContainer = Color(0xFF4A004A),
-    onSecondaryContainer = NeonColors.Magenta,
+    onSecondaryContainer = NeonColors.magenta,
     
-    tertiary = NeonColors.Yellow,
+    tertiary = NeonColors.yellow,
     onTertiary = Color.Black,
     tertiaryContainer = Color(0xFF4A4A00),
-    onTertiaryContainer = NeonColors.Yellow,
+    onTertiaryContainer = NeonColors.yellow,
     
     background = Color(0xFF0A0A0A),
     onBackground = Color.White,
@@ -65,17 +50,17 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF006666),
     onPrimary = Color.White,
-    primaryContainer = NeonColors.Cyan.copy(alpha = 0.2f),
+    primaryContainer = NeonColors.cyan.copy(alpha = 0.2f),
     onPrimaryContainer = Color(0xFF003333),
     
     secondary = Color(0xFF660066),
     onSecondary = Color.White,
-    secondaryContainer = NeonColors.Magenta.copy(alpha = 0.2f),
+    secondaryContainer = NeonColors.magenta.copy(alpha = 0.2f),
     onSecondaryContainer = Color(0xFF330033),
     
     tertiary = Color(0xFF666600),
     onTertiary = Color.White,
-    tertiaryContainer = NeonColors.Yellow.copy(alpha = 0.2f),
+    tertiaryContainer = NeonColors.yellow.copy(alpha = 0.2f),
     onTertiaryContainer = Color(0xFF333300),
     
     background = Color(0xFFF5F5F5),

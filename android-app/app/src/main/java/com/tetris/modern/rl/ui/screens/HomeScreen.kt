@@ -29,6 +29,10 @@ import androidx.compose.ui.res.stringResource
 import com.tetris.modern.rl.R
 import com.tetris.modern.rl.ui.components.AchievementsDialog
 import com.tetris.modern.rl.ui.components.ProgressionDialog
+import com.tetris.modern.rl.ui.components.ProfileButton
+import com.tetris.modern.rl.ui.components.ProfileButtonCompact
+import com.tetris.modern.rl.playgames.PlayGamesManager
+import javax.inject.Inject
 import com.tetris.modern.rl.ui.theme.NeonColors
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel
 import kotlinx.coroutines.delay
@@ -41,10 +45,13 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToLeaderboard: () -> Unit,
     onNavigateToStats: () -> Unit,
+    onNavigateToAuth: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val progressionState by viewModel.playerProgression.progressionState.collectAsState()
     val achievementSystem by viewModel.achievementSystem.achievementProgress.collectAsState()
+    val playGamesState by viewModel.playGamesManager.state.collectAsState()
+    val authState by viewModel.authManager.authState.collectAsState()
     
     var showProgressionDialog by remember { mutableStateOf(false) }
     var showAchievementsDialog by remember { mutableStateOf(false) }
@@ -65,6 +72,19 @@ fun HomeScreen(
     ) {
         // Animated background effect
         AnimatedBackground()
+        
+        // Profile button in top right corner (absolute position)
+        ProfileButtonCompact(
+            playGamesState = playGamesState,
+            isAuthenticated = authState is com.tetris.modern.rl.auth.AuthManager.AuthState.Authenticated,
+            onClick = {
+                android.util.Log.d("HomeScreen", "ProfileButton clicked, navigating to auth")
+                onNavigateToAuth()
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+        )
         
         Column(
             modifier = Modifier
@@ -96,7 +116,7 @@ fun HomeScreen(
                     text = stringResource(R.string.play),
                     icon = Icons.Default.PlayArrow,
                     gradient = Brush.horizontalGradient(
-                        colors = listOf(NeonColors.Cyan, NeonColors.Blue)
+                        colors = listOf(NeonColors.cyan, NeonColors.blue)
                     ),
                     onClick = onNavigateToModeSelection
                 )
@@ -231,9 +251,9 @@ fun TitleSection() {
             style = MaterialTheme.typography.displayLarge.copy(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        NeonColors.Cyan,
-                        NeonColors.Magenta,
-                        NeonColors.Yellow
+                        NeonColors.cyan,
+                        NeonColors.magenta,
+                        NeonColors.yellow
                     )
                 )
             )
@@ -279,7 +299,7 @@ fun PlayerInfoCard(
                     Text(
                         text = rank,
                         fontSize = 16.sp,
-                        color = NeonColors.Cyan
+                        color = NeonColors.cyan
                     )
                 }
                 
@@ -302,7 +322,7 @@ fun PlayerInfoCard(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp)),
-                color = NeonColors.Cyan,
+                color = NeonColors.cyan,
                 trackColor = Color(0xFF0A0A0A)
             )
         }
@@ -395,7 +415,7 @@ fun SecondaryMenuButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = NeonColors.Cyan,
+                tint = NeonColors.cyan,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -413,8 +433,8 @@ fun SecondaryMenuButton(
 fun DailyChallengeCard(onClick: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition()
     val animatedColor by infiniteTransition.animateColor(
-        initialValue = NeonColors.Cyan,
-        targetValue = NeonColors.Magenta,
+        initialValue = NeonColors.cyan,
+        targetValue = NeonColors.magenta,
         animationSpec = infiniteRepeatable(
             animation = tween(3000),
             repeatMode = RepeatMode.Reverse

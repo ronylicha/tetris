@@ -29,6 +29,7 @@
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Réduire"</string>
     <string name="about">À propos</string>
     <string name="account">Compte</string>
+    <string name="account_created">Compte créé avec succès !</string>
     <string name="account_sync">Compte et synchronisation</string>
     <string name="achievement_unlocked">Succès débloqué !</string>
     <string name="achievements">Succès</string>
@@ -83,6 +84,7 @@
     <string name="completion_format">%1$.0f%% Complété</string>
     <string name="completion_rate">Taux de complétion</string>
     <string name="confirm">Confirmer</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
     <string name="connect">Se connecter</string>
     <string name="connect_description">Connectez-vous pour sauvegarder votre progression et participer aux classements</string>
     <string name="connected">Connecté</string>
@@ -91,6 +93,8 @@
     <string name="control_type">Type de contrôle</string>
     <string name="controls">Contrôles</string>
     <string name="controls_settings">Paramètres de contrôles</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="currently_playing_as">Actuellement connecté en tant que</string>
     <string name="daily_challenge">DÉFI DU JOUR</string>
     <string name="dark_mode">Mode sombre</string>
     <string name="das_delay">DAS (Délai auto-décalage)</string>
@@ -99,11 +103,15 @@
     <string msgid="8038256446254964252" name="default_error_message">"Données incorrectes"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Fenêtre pop-up"</string>
     <string name="developer">Développeur</string>
+    <string name="display_name">Nom d\'affichage</string>
     <string name="double_tap_down">DOUBLE TAP BAS</string>
     <string name="drop_pieces">FAIRE TOMBER LES PIÈCES</string>
     <string name="drop_pieces_desc">Glissez vers le BAS pour descente douce\nGlissez vers le HAUT pour descente instantanée</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Menu déroulant"</string>
     <string name="dynamic_colors">Couleurs dynamiques</string>
+    <string name="email">Email</string>
+    <string name="email_already_used">Email déjà utilisé</string>
+    <string name="email_available">Email disponible</string>
     <string name="error">Erreur</string>
     <string name="failed">Échec</string>
     <string name="favorite_mode">Mode favori</string>
@@ -123,6 +131,7 @@
     <string name="got_it">COMPRIS !</string>
     <string name="graphics">Graphiques</string>
     <string name="guest">Invité</string>
+    <string name="guest_mode">Continuer en tant qu\'invité</string>
     <string name="hard_drop">Descente rapide</string>
     <string name="high_score">Meilleur score</string>
     <string name="high_scorer">Gros score</string>
@@ -147,6 +156,8 @@
     <string name="lines_format">%1$d lignes</string>
     <string name="loading">Chargement…</string>
     <string name="locked">Verrouillé</string>
+    <string name="login_failed">Échec de la connexion</string>
+    <string name="login_successful">Connexion réussie</string>
     <string name="long_press">APPUI LONG</string>
     <string name="longest_combo">Plus long combo</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Réduire la bottom sheet"</string>
@@ -211,6 +222,7 @@
     <string name="marathon_runner_desc">Terminez le mode Marathon (150 lignes)</string>
     <string name="master_volume">Volume principal</string>
     <string name="menu">Menu</string>
+    <string name="merge_accounts">Fusionner les comptes</string>
     <string name="millennium">Millénaire</string>
     <string name="millennium_desc">Effacez 1000 lignes au total</string>
     <string name="mode_battle">Bataille</string>
@@ -256,8 +268,11 @@
     <string name="ok">OK</string>
     <string msgid="8655164131929253426" name="on">"Activé"</string>
     <string name="online">En ligne</string>
+    <string name="or">OU</string>
     <string name="overall_performance">Performance générale</string>
     <string name="pad">Manette</string>
+    <string name="password">Mot de passe</string>
+    <string name="passwords_dont_match">Les mots de passe ne correspondent pas</string>
     <string name="paused">EN PAUSE</string>
     <string name="perfect_clears">Clears parfaits</string>
     <string name="perfectionist">Perfectionniste</string>
@@ -276,12 +291,15 @@
     <string msgid="7097486360902471446" name="range_start">"Début de plage"</string>
     <string name="rank">Rang</string>
     <string name="rate">Noter</string>
+    <string name="register">S\'inscrire</string>
+    <string name="registration_failed">Échec de l\'inscription</string>
     <string name="restart">RECOMMENCER</string>
     <string name="resume">REPRENDRE</string>
     <string name="retry">Réessayer</string>
     <string name="rotate">ROTATION</string>
     <string name="rotate_desc">TAPEZ n\'importe où sur l\'écran pour tourner la pièce</string>
     <string name="rotate_piece">Tourner la pièce</string>
+    <string name="save_progress_message">Connectez-vous ou créez un compte pour sauvegarder votre progression !</string>
     <string name="saving">Sauvegarde…</string>
     <string name="score">Score</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Rechercher"</string>
@@ -297,7 +315,9 @@
     <string name="show_ghost_piece">Afficher pièce fantôme</string>
     <string name="show_grid">Afficher la grille</string>
     <string name="sign_in">Se connecter</string>
+    <string name="sign_in_with_google">Se connecter avec Google</string>
     <string name="sign_out">Se déconnecter</string>
+    <string name="signed_in_as">Connecté en tant que %1$s</string>
     <string name="skip">PASSER</string>
     <string name="soft_drop">Descente douce</string>
     <string name="speed">Vitesse</string>
@@ -315,7 +335,9 @@
     <string name="swipe_down">GLISSER BAS</string>
     <string name="swipe_left_right">GLISSER GAUCHE/DROITE</string>
     <string name="swipe_sensitivity">Sensibilité glissement</string>
+    <string name="swipe_up">GLISSER HAUT</string>
     <string msgid="2561197295334830845" name="switch_role">"Changer"</string>
+    <string name="sync_data">Synchroniser les données</string>
     <string name="t_spins">T-Spins</string>
     <string msgid="1672349317127674378" name="tab">"Onglet"</string>
     <string name="tap">TAP</string>
@@ -345,6 +367,10 @@
     <string name="touch_sensitivity">Sensibilité tactile</string>
     <string name="trophy_earned">Trophée gagné !</string>
     <string name="unlocked">Débloqué</string>
+    <string name="upgrade_account">Mettre à niveau votre compte</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="username_available">Nom d\'utilisateur disponible</string>
+    <string name="username_taken">Nom d\'utilisateur non disponible</string>
     <string name="version">Version</string>
     <string name="vibration">Vibration</string>
     <string name="victory">VICTOIRE !</string>

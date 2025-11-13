@@ -27,7 +27,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.games.GamesSignInClient
 import com.google.android.gms.games.PlayGames
-import com.tetris.modern.rl.ui.screens.GameScreen
+import com.tetris.modern.rl.ui.screens.AuthScreen
+import com.tetris.modern.rl.ui.screens.TestAuthScreen
+import com.tetris.modern.rl.ui.screens.AdaptiveGameScreen
 import com.tetris.modern.rl.ui.screens.HomeScreen
 import com.tetris.modern.rl.ui.screens.LeaderboardScreen
 import com.tetris.modern.rl.ui.screens.ModeSelectionScreen
@@ -124,11 +126,17 @@ class MainActivity : ComponentActivity() {
                 if (isAuthenticated) {
                     Timber.d("Already signed in to Google Play Games")
                     viewModel.setGooglePlaySignedIn(true)
+                    // Initialize Play Games clients after sign-in
+                    viewModel.playGamesManager.initializeClients(this@MainActivity)
                 } else {
                     gamesSignInClient.signIn().addOnCompleteListener { signInTask ->
                         val success = signInTask.isSuccessful && signInTask.result.isAuthenticated
                         Timber.d("Google Play Games sign-in: $success")
                         viewModel.setGooglePlaySignedIn(success)
+                        if (success) {
+                            // Initialize Play Games clients after sign-in
+                            viewModel.playGamesManager.initializeClients(this@MainActivity)
+                        }
                     }
                 }
             }
@@ -138,11 +146,29 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
+        
+        // Trigger sync when app comes to foreground
+        lifecycleScope.launch {
+            try {
+                viewModel.syncOnResume()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to sync on resume")
+            }
+        }
     }
     
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+        
+        // Auto-save progression when app goes to background
+        lifecycleScope.launch {
+            try {
+                viewModel.saveProgressionIfNeeded()
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to auto-save progression")
+            }
+        }
     }
 }
 
@@ -154,30 +180,13 @@ fun TetrisNavigation(viewModel: MainViewModel) {
     val prefs = context.getSharedPreferences("tetris_prefs", Context.MODE_PRIVATE)
     val hasSeenTutorial = remember { mutableStateOf(prefs.getBoolean("has_seen_tutorial", false)) }
     
-    // Show tutorial on first launch
-    val startDestination = if (hasSeenTutorial.value) "home" else "tutorial"
+    // Always go to home, tutorial is handled inside HomeScreen
+    val startDestination = "home"
     
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable("tutorial") {
-            TutorialScreen(
-                onComplete = {
-                    prefs.edit().putBoolean("has_seen_tutorial", true).apply()
-                    navController.navigate("home") {
-                        popUpTo("tutorial") { inclusive = true }
-                    }
-                },
-                onSkip = {
-                    prefs.edit().putBoolean("has_seen_tutorial", true).apply()
-                    navController.navigate("home") {
-                        popUpTo("tutorial") { inclusive = true }
-                    }
-                }
-            )
-        }
-        
         composable("home") {
             HomeScreen(
                 viewModel = viewModel,
@@ -192,6 +201,15 @@ fun TetrisNavigation(viewModel: MainViewModel) {
                 },
                 onNavigateToStats = {
                     navController.navigate("stats")
+                },
+                onNavigateToAuth = {
+                    android.util.Log.d("MainActivity", "Navigating to auth screen")
+                    try {
+                        navController.navigate("auth")
+                        android.util.Log.d("MainActivity", "Navigation to auth successful")
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "Navigation to auth failed", e)
+                    }
                 }
             )
         }
@@ -210,7 +228,7 @@ fun TetrisNavigation(viewModel: MainViewModel) {
         }
         
         composable("game") {
-            GameScreen(
+            AdaptiveGameScreen(
                 viewModel = viewModel,
                 gameMode = currentGameMode,
                 onBackToMenu = {
@@ -244,6 +262,21 @@ fun TetrisNavigation(viewModel: MainViewModel) {
             StatsScreen(
                 navController = navController,
                 viewModel = viewModel
+            )
+        }
+        
+        composable("auth") {
+            AuthScreen(
+                onAuthSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("auth") { inclusive = true }
+                    }
+                },
+                onGuestMode = {
+                    navController.navigate("home") {
+                        popUpTo("auth") { inclusive = true }
+                    }
+                }
             )
         }
     }

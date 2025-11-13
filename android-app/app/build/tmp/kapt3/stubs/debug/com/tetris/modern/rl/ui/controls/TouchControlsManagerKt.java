@@ -1,8 +1,10 @@
 package com.tetris.modern.rl.ui.controls;
 
+import android.content.Context;
 import android.view.MotionEvent;
 import androidx.compose.foundation.gestures.*;
 import androidx.compose.foundation.layout.*;
+import androidx.compose.runtime.Composable;
 import androidx.compose.runtime.*;
 import androidx.compose.ui.Modifier;
 import androidx.compose.ui.input.pointer.*;

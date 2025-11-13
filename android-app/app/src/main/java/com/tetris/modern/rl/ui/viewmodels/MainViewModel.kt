@@ -14,6 +14,8 @@ import com.tetris.modern.rl.game.TetrisEngine
 import com.tetris.modern.rl.game.modes.*
 import com.tetris.modern.rl.achievements.AchievementSystem
 import com.tetris.modern.rl.progression.PlayerProgression
+import com.tetris.modern.rl.playgames.PlayGamesManager
+import com.tetris.modern.rl.auth.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +24,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
+import java.util.Date
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -32,7 +36,9 @@ class MainViewModel @Inject constructor(
     private val statisticsRepository: StatisticsRepository,
     private val progressionRepository: ProgressionRepository,
     val playerProgression: PlayerProgression,
-    val achievementSystem: AchievementSystem
+    val achievementSystem: AchievementSystem,
+    val playGamesManager: PlayGamesManager,
+    val authManager: AuthManager
 ) : ViewModel() {
     
     // UI State
@@ -49,7 +55,7 @@ class MainViewModel @Inject constructor(
     // Game State
     val gameState = tetrisEngine.gameState
     
-    // Scores
+    // Scores - Start with local DB but also fetch from API
     val topScores = scoreRepository.getTopScores()
     
     // Settings
@@ -76,6 +82,58 @@ class MainViewModel @Inject constructor(
         observeGameState()
         // Start menu music when app starts
         audioManager.playMusic(AudioManager.MUSIC_MENU)
+        // Fetch leaderboard from API on startup
+        refreshLeaderboard()
+        
+        // Initialize and sync progression on startup
+        initializeProgressionSync()
+    }
+    
+    fun refreshLeaderboard() {
+        viewModelScope.launch {
+            try {
+                // Fetch from API and update local DB
+                scoreRepository.refreshLeaderboard()
+                Timber.d("Leaderboard refreshed from API")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refresh leaderboard from API")
+            }
+        }
+    }
+    
+    /**
+     * Bidirectional sync:
+     * 1. Upload local unsynced scores to API
+     * 2. Download all scores from API and merge with local
+     */
+    fun syncLeaderboard() {
+        viewModelScope.launch {
+            try {
+                Timber.d("Starting bidirectional sync")
+                
+                // Step 1: Upload unsynced local scores to API
+                val unsyncedScores = scoreRepository.getUnsyncedScores()
+                Timber.d("Found ${unsyncedScores.size} unsynced scores")
+                
+                unsyncedScores.forEach { score ->
+                    try {
+                        val result = scoreRepository.saveScore(score)
+                        if (result.isSuccess) {
+                            Timber.d("Uploaded score: ${score.playerName} - ${score.score}")
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to upload score")
+                    }
+                }
+                
+                // Step 2: Download and merge scores from API
+                scoreRepository.refreshLeaderboard()
+                Timber.d("Bidirectional sync completed")
+                
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to sync leaderboard")
+            }
+        }
     }
     
     private fun observeGameState() {
@@ -172,8 +230,44 @@ class MainViewModel @Inject constructor(
                     level = state.level
                 )
                 
+                // Save score to database and API
+                val authState = authManager.authState.value
+                if (authState is AuthManager.AuthState.Authenticated) {
+                    val scoreEntity = ScoreEntity(
+                        id = 0, // Auto-generate
+                        playerName = authState.username,
+                        score = state.score,
+                        lines = state.lines,
+                        level = state.level,
+                        gameMode = state.gameMode,
+                        duration = state.gameDuration,
+                        date = Date(),
+                        isSynced = false
+                    )
+                    
+                    try {
+                        val result = scoreRepository.saveScore(scoreEntity)
+                        if (result.isSuccess) {
+                            Timber.d("Score saved and uploaded: ${result.getOrNull()?.localId}")
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to save score to API")
+                    }
+                }
+                
                 // Save progression to database (XP already added by processGameResults)
                 progressionRepository.saveProgression()
+                
+                // Sync progression with API
+                if (authState is AuthManager.AuthState.Authenticated) {
+                    try {
+                        // Sync progression with server
+                        progressionRepository.syncWithAPI(authState.userId)
+                        Timber.d("Progression sync initiated for user: ${authState.userId}")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to sync progression with API")
+                    }
+                }
                 
                 Timber.d("Game stats saved - Score: ${state.score}, Lines: ${state.lines}, XP earned")
             } catch (e: Exception) {
@@ -433,12 +527,104 @@ class MainViewModel @Inject constructor(
         }
     }
     
+    /**
+     * Sync data when app resumes
+     */
+    suspend fun syncOnResume() {
+        try {
+            val authState = authManager.authState.value
+            if (authState is AuthManager.AuthState.Authenticated) {
+                // Sync scores and progression
+                viewModelScope.launch {
+                    try {
+                        syncLeaderboard()
+                        Timber.d("Leaderboard synced on resume")
+                    } catch (e: Exception) {
+                        Timber.w(e, "Failed to sync leaderboard on resume")
+                    }
+                }
+                
+                viewModelScope.launch {
+                    try {
+                        progressionRepository.syncProgression()
+                        Timber.d("Progression synced on resume")
+                    } catch (e: Exception) {
+                        Timber.w(e, "Failed to sync progression on resume")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to sync on resume")
+        }
+    }
+    
     fun onPause() {
         // Handle app pause
         if (gameState.value.isPlaying && !gameState.value.isPaused) {
             pauseGame()
         }
         audioManager.pauseMusic()
+    }
+    
+    /**
+     * Save progression if needed - called from MainActivity.onPause()
+     */
+    suspend fun saveProgressionIfNeeded() {
+        try {
+            // Save current progression state
+            progressionRepository.saveProgression()
+            
+            // Also sync with server if authenticated
+            val authState = authManager.authState.value
+            if (authState is AuthManager.AuthState.Authenticated) {
+                progressionRepository.syncWithAPI(authState.userId)
+            }
+            
+            Timber.d("Progression auto-saved on app pause")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to save progression on pause")
+        }
+    }
+    
+    /**
+     * Initialize progression sync on app startup
+     */
+    private fun initializeProgressionSync() {
+        viewModelScope.launch {
+            try {
+                // Wait a bit for auth state to stabilize
+                kotlinx.coroutines.delay(1000)
+                
+                val authState = authManager.authState.value
+                if (authState is AuthManager.AuthState.Authenticated) {
+                    Timber.d("User authenticated, syncing progression on startup")
+                    
+                    // Load local progression first
+                    progressionRepository.getProgression()?.let { localProgression ->
+                        // Update player progression with saved data
+                        playerProgression.loadFromEntity(localProgression)
+                    }
+                    
+                    // Then sync with server (non-blocking)
+                    launch {
+                        try {
+                            progressionRepository.syncProgression()
+                            Timber.d("Progression sync completed on startup")
+                        } catch (e: Exception) {
+                            Timber.w(e, "Progression sync failed on startup, using local data")
+                        }
+                    }
+                } else {
+                    // Load local progression for offline/guest users
+                    progressionRepository.getProgression()?.let { localProgression ->
+                        playerProgression.loadFromEntity(localProgression)
+                        Timber.d("Loaded local progression for offline/guest user")
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to initialize progression sync")
+            }
+        }
     }
     
     override fun onCleared() {

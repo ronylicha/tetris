@@ -2,11 +2,13 @@ package com.tetris.modern.rl.ui.viewmodels;
 
 import com.tetris.modern.rl.achievements.AchievementSystem;
 import com.tetris.modern.rl.audio.AudioManager;
+import com.tetris.modern.rl.auth.AuthManager;
 import com.tetris.modern.rl.data.repository.ProgressionRepository;
 import com.tetris.modern.rl.data.repository.ScoreRepository;
 import com.tetris.modern.rl.data.repository.SettingsRepository;
 import com.tetris.modern.rl.data.repository.StatisticsRepository;
 import com.tetris.modern.rl.game.TetrisEngine;
+import com.tetris.modern.rl.playgames.PlayGamesManager;
 import com.tetris.modern.rl.progression.PlayerProgression;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -45,6 +47,10 @@ public final class MainViewModel_Factory implements Factory<MainViewModel> {
 
   private final Provider<AchievementSystem> achievementSystemProvider;
 
+  private final Provider<PlayGamesManager> playGamesManagerProvider;
+
+  private final Provider<AuthManager> authManagerProvider;
+
   public MainViewModel_Factory(Provider<TetrisEngine> tetrisEngineProvider,
       Provider<AudioManager> audioManagerProvider,
       Provider<ScoreRepository> scoreRepositoryProvider,
@@ -52,7 +58,9 @@ public final class MainViewModel_Factory implements Factory<MainViewModel> {
       Provider<StatisticsRepository> statisticsRepositoryProvider,
       Provider<ProgressionRepository> progressionRepositoryProvider,
       Provider<PlayerProgression> playerProgressionProvider,
-      Provider<AchievementSystem> achievementSystemProvider) {
+      Provider<AchievementSystem> achievementSystemProvider,
+      Provider<PlayGamesManager> playGamesManagerProvider,
+      Provider<AuthManager> authManagerProvider) {
     this.tetrisEngineProvider = tetrisEngineProvider;
     this.audioManagerProvider = audioManagerProvider;
     this.scoreRepositoryProvider = scoreRepositoryProvider;
@@ -61,11 +69,13 @@ public final class MainViewModel_Factory implements Factory<MainViewModel> {
     this.progressionRepositoryProvider = progressionRepositoryProvider;
     this.playerProgressionProvider = playerProgressionProvider;
     this.achievementSystemProvider = achievementSystemProvider;
+    this.playGamesManagerProvider = playGamesManagerProvider;
+    this.authManagerProvider = authManagerProvider;
   }
 
   @Override
   public MainViewModel get() {
-    return newInstance(tetrisEngineProvider.get(), audioManagerProvider.get(), scoreRepositoryProvider.get(), settingsRepositoryProvider.get(), statisticsRepositoryProvider.get(), progressionRepositoryProvider.get(), playerProgressionProvider.get(), achievementSystemProvider.get());
+    return newInstance(tetrisEngineProvider.get(), audioManagerProvider.get(), scoreRepositoryProvider.get(), settingsRepositoryProvider.get(), statisticsRepositoryProvider.get(), progressionRepositoryProvider.get(), playerProgressionProvider.get(), achievementSystemProvider.get(), playGamesManagerProvider.get(), authManagerProvider.get());
   }
 
   public static MainViewModel_Factory create(Provider<TetrisEngine> tetrisEngineProvider,
@@ -75,14 +85,17 @@ public final class MainViewModel_Factory implements Factory<MainViewModel> {
       Provider<StatisticsRepository> statisticsRepositoryProvider,
       Provider<ProgressionRepository> progressionRepositoryProvider,
       Provider<PlayerProgression> playerProgressionProvider,
-      Provider<AchievementSystem> achievementSystemProvider) {
-    return new MainViewModel_Factory(tetrisEngineProvider, audioManagerProvider, scoreRepositoryProvider, settingsRepositoryProvider, statisticsRepositoryProvider, progressionRepositoryProvider, playerProgressionProvider, achievementSystemProvider);
+      Provider<AchievementSystem> achievementSystemProvider,
+      Provider<PlayGamesManager> playGamesManagerProvider,
+      Provider<AuthManager> authManagerProvider) {
+    return new MainViewModel_Factory(tetrisEngineProvider, audioManagerProvider, scoreRepositoryProvider, settingsRepositoryProvider, statisticsRepositoryProvider, progressionRepositoryProvider, playerProgressionProvider, achievementSystemProvider, playGamesManagerProvider, authManagerProvider);
   }
 
   public static MainViewModel newInstance(TetrisEngine tetrisEngine, AudioManager audioManager,
       ScoreRepository scoreRepository, SettingsRepository settingsRepository,
       StatisticsRepository statisticsRepository, ProgressionRepository progressionRepository,
-      PlayerProgression playerProgression, AchievementSystem achievementSystem) {
-    return new MainViewModel(tetrisEngine, audioManager, scoreRepository, settingsRepository, statisticsRepository, progressionRepository, playerProgression, achievementSystem);
+      PlayerProgression playerProgression, AchievementSystem achievementSystem,
+      PlayGamesManager playGamesManager, AuthManager authManager) {
+    return new MainViewModel(tetrisEngine, audioManager, scoreRepository, settingsRepository, statisticsRepository, progressionRepository, playerProgression, achievementSystem, playGamesManager, authManager);
   }
 }

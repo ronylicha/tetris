@@ -2,6 +2,7 @@ package com.tetris.modern.rl;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.hilt.work.HiltWorkerFactory;
@@ -11,15 +12,17 @@ import androidx.hilt.work.WorkerFactoryModule_ProvideFactoryFactory;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import androidx.work.ListenableWorker;
+import androidx.work.WorkerParameters;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.Gson;
 import com.tetris.modern.rl.achievements.AchievementSystem;
 import com.tetris.modern.rl.audio.AudioManager;
+import com.tetris.modern.rl.auth.AuthManager;
 import com.tetris.modern.rl.data.dao.ProgressionDao;
 import com.tetris.modern.rl.data.dao.ScoreDao;
 import com.tetris.modern.rl.data.dao.SettingsDao;
 import com.tetris.modern.rl.data.dao.StatisticsDao;
 import com.tetris.modern.rl.data.database.TetrisDatabase;
-import com.tetris.modern.rl.data.preferences.TokenManager;
 import com.tetris.modern.rl.data.repository.ProgressionRepository;
 import com.tetris.modern.rl.data.repository.ScoreRepository;
 import com.tetris.modern.rl.data.repository.SettingsRepository;
@@ -30,20 +33,33 @@ import com.tetris.modern.rl.di.DatabaseModule_ProvideProgressionDaoFactory;
 import com.tetris.modern.rl.di.DatabaseModule_ProvideScoreDaoFactory;
 import com.tetris.modern.rl.di.DatabaseModule_ProvideSettingsDaoFactory;
 import com.tetris.modern.rl.di.DatabaseModule_ProvideStatisticsDaoFactory;
+import com.tetris.modern.rl.di.NetworkModule;
+import com.tetris.modern.rl.di.NetworkModule_ProvideApiServiceFactory;
+import com.tetris.modern.rl.di.NetworkModule_ProvideAuthInterceptorFactory;
+import com.tetris.modern.rl.di.NetworkModule_ProvideCacheFactory;
+import com.tetris.modern.rl.di.NetworkModule_ProvideGsonFactory;
+import com.tetris.modern.rl.di.NetworkModule_ProvideOkHttpClientFactory;
+import com.tetris.modern.rl.di.NetworkModule_ProvideRetrofitFactory;
 import com.tetris.modern.rl.game.TetrisEngine;
 import com.tetris.modern.rl.network.ApiService;
 import com.tetris.modern.rl.network.AuthInterceptor;
-import com.tetris.modern.rl.network.NetworkModule;
-import com.tetris.modern.rl.network.NetworkModule_ProvideApiServiceFactory;
-import com.tetris.modern.rl.network.NetworkModule_ProvideAuthInterceptorFactory;
-import com.tetris.modern.rl.network.NetworkModule_ProvideGsonFactory;
-import com.tetris.modern.rl.network.NetworkModule_ProvideOkHttpClientFactory;
-import com.tetris.modern.rl.network.NetworkModule_ProvideRetrofitFactory;
+import com.tetris.modern.rl.network.TokenManager;
+import com.tetris.modern.rl.notifications.TetrisFirebaseMessagingService;
+import com.tetris.modern.rl.notifications.TetrisFirebaseMessagingService_MembersInjector;
+import com.tetris.modern.rl.notifications.TetrisNotificationManager;
+import com.tetris.modern.rl.playgames.PlayGamesManager;
 import com.tetris.modern.rl.progression.PlayerProgression;
+import com.tetris.modern.rl.sync.SyncManager;
+import com.tetris.modern.rl.sync.SyncWorker;
+import com.tetris.modern.rl.sync.SyncWorker_AssistedFactory;
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel;
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.tetris.modern.rl.ui.viewmodels.SettingsViewModel;
 import com.tetris.modern.rl.ui.viewmodels.SettingsViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.tetris.modern.rl.viewmodel.AuthViewModel;
+import com.tetris.modern.rl.viewmodel.AuthViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.tetris.modern.rl.viewmodel.EnhancedLeaderboardViewModel;
+import com.tetris.modern.rl.viewmodel.EnhancedLeaderboardViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.flags.HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
@@ -65,11 +81,13 @@ import dagger.internal.DoubleCheck;
 import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
 import dagger.internal.SetBuilder;
+import dagger.internal.SingleCheck;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 
@@ -432,7 +450,7 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(2).add(MainViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(SettingsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return SetBuilder.<String>newSetBuilder(4).add(AuthViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(EnhancedLeaderboardViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MainViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(SettingsViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -458,6 +476,10 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
+    private Provider<AuthViewModel> authViewModelProvider;
+
+    private Provider<EnhancedLeaderboardViewModel> enhancedLeaderboardViewModelProvider;
+
     private Provider<MainViewModel> mainViewModelProvider;
 
     private Provider<SettingsViewModel> settingsViewModelProvider;
@@ -475,13 +497,15 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.settingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.authViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.enhancedLeaderboardViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.mainViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.settingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(2).put("com.tetris.modern.rl.ui.viewmodels.MainViewModel", ((Provider) mainViewModelProvider)).put("com.tetris.modern.rl.ui.viewmodels.SettingsViewModel", ((Provider) settingsViewModelProvider)).build();
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(4).put("com.tetris.modern.rl.viewmodel.AuthViewModel", ((Provider) authViewModelProvider)).put("com.tetris.modern.rl.viewmodel.EnhancedLeaderboardViewModel", ((Provider) enhancedLeaderboardViewModelProvider)).put("com.tetris.modern.rl.ui.viewmodels.MainViewModel", ((Provider) mainViewModelProvider)).put("com.tetris.modern.rl.ui.viewmodels.SettingsViewModel", ((Provider) settingsViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -505,10 +529,16 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.tetris.modern.rl.ui.viewmodels.MainViewModel 
-          return (T) new MainViewModel(singletonCImpl.tetrisEngineProvider.get(), singletonCImpl.audioManagerProvider.get(), singletonCImpl.scoreRepositoryProvider.get(), singletonCImpl.settingsRepositoryProvider.get(), singletonCImpl.statisticsRepositoryProvider.get(), singletonCImpl.progressionRepositoryProvider.get(), singletonCImpl.playerProgressionProvider.get(), singletonCImpl.achievementSystemProvider.get());
+          case 0: // com.tetris.modern.rl.viewmodel.AuthViewModel 
+          return (T) new AuthViewModel(singletonCImpl.authManagerProvider.get());
 
-          case 1: // com.tetris.modern.rl.ui.viewmodels.SettingsViewModel 
+          case 1: // com.tetris.modern.rl.viewmodel.EnhancedLeaderboardViewModel 
+          return (T) new EnhancedLeaderboardViewModel(singletonCImpl.scoreRepositoryProvider.get(), singletonCImpl.authManagerProvider.get(), singletonCImpl.syncManagerProvider.get());
+
+          case 2: // com.tetris.modern.rl.ui.viewmodels.MainViewModel 
+          return (T) new MainViewModel(singletonCImpl.tetrisEngineProvider.get(), singletonCImpl.audioManagerProvider.get(), singletonCImpl.scoreRepositoryProvider.get(), singletonCImpl.settingsRepositoryProvider.get(), singletonCImpl.statisticsRepositoryProvider.get(), singletonCImpl.progressionRepositoryProvider.get(), singletonCImpl.playerProgressionProvider.get(), singletonCImpl.achievementSystemProvider.get(), singletonCImpl.playGamesManagerProvider.get(), singletonCImpl.authManagerProvider.get());
+
+          case 3: // com.tetris.modern.rl.ui.viewmodels.SettingsViewModel 
           return (T) new SettingsViewModel(ApplicationContextModule_ProvideApplicationFactory.provideApplication(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
@@ -583,6 +613,19 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
 
     }
+
+    @Override
+    public void injectTetrisFirebaseMessagingService(
+        TetrisFirebaseMessagingService tetrisFirebaseMessagingService) {
+      injectTetrisFirebaseMessagingService2(tetrisFirebaseMessagingService);
+    }
+
+    @CanIgnoreReturnValue
+    private TetrisFirebaseMessagingService injectTetrisFirebaseMessagingService2(
+        TetrisFirebaseMessagingService instance) {
+      TetrisFirebaseMessagingService_MembersInjector.injectNotificationManager(instance, singletonCImpl.tetrisNotificationManagerProvider.get());
+      return instance;
+    }
   }
 
   private static final class SingletonCImpl extends TetrisApplication_HiltComponents.SingletonC {
@@ -590,13 +633,7 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<AudioManager> audioManagerProvider;
-
-    private Provider<TetrisEngine> tetrisEngineProvider;
-
-    private Provider<TetrisDatabase> provideDatabaseProvider;
-
-    private Provider<TokenManager> tokenManagerProvider;
+    private Provider<Cache> provideCacheProvider;
 
     private Provider<AuthInterceptor> provideAuthInterceptorProvider;
 
@@ -608,7 +645,21 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     private Provider<ApiService> provideApiServiceProvider;
 
+    private Provider<TetrisDatabase> provideDatabaseProvider;
+
+    private Provider<TokenManager> tokenManagerProvider;
+
+    private Provider<AuthManager> authManagerProvider;
+
+    private Provider<SyncManager> syncManagerProvider;
+
+    private Provider<SyncWorker_AssistedFactory> syncWorker_AssistedFactoryProvider;
+
     private Provider<ScoreRepository> scoreRepositoryProvider;
+
+    private Provider<AudioManager> audioManagerProvider;
+
+    private Provider<TetrisEngine> tetrisEngineProvider;
 
     private Provider<SettingsRepository> settingsRepositoryProvider;
 
@@ -620,18 +671,27 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     private Provider<AchievementSystem> achievementSystemProvider;
 
+    private Provider<PlayGamesManager> playGamesManagerProvider;
+
+    private Provider<TetrisNotificationManager> tetrisNotificationManagerProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
 
     }
 
-    private HiltWorkerFactory hiltWorkerFactory() {
-      return WorkerFactoryModule_ProvideFactoryFactory.provideFactory(Collections.<String, Provider<WorkerAssistedFactory<? extends ListenableWorker>>>emptyMap());
-    }
-
     private ScoreDao scoreDao() {
       return DatabaseModule_ProvideScoreDaoFactory.provideScoreDao(provideDatabaseProvider.get());
+    }
+
+    private Map<String, Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mapOfStringAndProviderOfWorkerAssistedFactoryOf(
+        ) {
+      return Collections.<String, Provider<WorkerAssistedFactory<? extends ListenableWorker>>>singletonMap("com.tetris.modern.rl.sync.SyncWorker", ((Provider) syncWorker_AssistedFactoryProvider));
+    }
+
+    private HiltWorkerFactory hiltWorkerFactory() {
+      return WorkerFactoryModule_ProvideFactoryFactory.provideFactory(mapOfStringAndProviderOfWorkerAssistedFactoryOf());
     }
 
     private SettingsDao settingsDao() {
@@ -648,21 +708,27 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.audioManagerProvider = DoubleCheck.provider(new SwitchingProvider<AudioManager>(singletonCImpl, 1));
-      this.tetrisEngineProvider = DoubleCheck.provider(new SwitchingProvider<TetrisEngine>(singletonCImpl, 0));
-      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<TetrisDatabase>(singletonCImpl, 3));
-      this.tokenManagerProvider = DoubleCheck.provider(new SwitchingProvider<TokenManager>(singletonCImpl, 8));
-      this.provideAuthInterceptorProvider = DoubleCheck.provider(new SwitchingProvider<AuthInterceptor>(singletonCImpl, 7));
-      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 6));
-      this.provideGsonProvider = DoubleCheck.provider(new SwitchingProvider<Gson>(singletonCImpl, 9));
-      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 5));
-      this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 4));
-      this.scoreRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ScoreRepository>(singletonCImpl, 2));
-      this.settingsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SettingsRepository>(singletonCImpl, 10));
-      this.statisticsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<StatisticsRepository>(singletonCImpl, 11));
-      this.playerProgressionProvider = DoubleCheck.provider(new SwitchingProvider<PlayerProgression>(singletonCImpl, 13));
-      this.progressionRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProgressionRepository>(singletonCImpl, 12));
-      this.achievementSystemProvider = DoubleCheck.provider(new SwitchingProvider<AchievementSystem>(singletonCImpl, 14));
+      this.provideCacheProvider = DoubleCheck.provider(new SwitchingProvider<Cache>(singletonCImpl, 5));
+      this.provideAuthInterceptorProvider = DoubleCheck.provider(new SwitchingProvider<AuthInterceptor>(singletonCImpl, 6));
+      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 4));
+      this.provideGsonProvider = DoubleCheck.provider(new SwitchingProvider<Gson>(singletonCImpl, 7));
+      this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 3));
+      this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 2));
+      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<TetrisDatabase>(singletonCImpl, 8));
+      this.tokenManagerProvider = DoubleCheck.provider(new SwitchingProvider<TokenManager>(singletonCImpl, 10));
+      this.authManagerProvider = DoubleCheck.provider(new SwitchingProvider<AuthManager>(singletonCImpl, 9));
+      this.syncManagerProvider = DoubleCheck.provider(new SwitchingProvider<SyncManager>(singletonCImpl, 1));
+      this.syncWorker_AssistedFactoryProvider = SingleCheck.provider(new SwitchingProvider<SyncWorker_AssistedFactory>(singletonCImpl, 0));
+      this.scoreRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ScoreRepository>(singletonCImpl, 11));
+      this.audioManagerProvider = DoubleCheck.provider(new SwitchingProvider<AudioManager>(singletonCImpl, 13));
+      this.tetrisEngineProvider = DoubleCheck.provider(new SwitchingProvider<TetrisEngine>(singletonCImpl, 12));
+      this.settingsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SettingsRepository>(singletonCImpl, 14));
+      this.statisticsRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<StatisticsRepository>(singletonCImpl, 15));
+      this.playerProgressionProvider = DoubleCheck.provider(new SwitchingProvider<PlayerProgression>(singletonCImpl, 17));
+      this.progressionRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProgressionRepository>(singletonCImpl, 16));
+      this.achievementSystemProvider = DoubleCheck.provider(new SwitchingProvider<AchievementSystem>(singletonCImpl, 18));
+      this.playGamesManagerProvider = DoubleCheck.provider(new SwitchingProvider<PlayGamesManager>(singletonCImpl, 19));
+      this.tetrisNotificationManagerProvider = DoubleCheck.provider(new SwitchingProvider<TetrisNotificationManager>(singletonCImpl, 20));
     }
 
     @Override
@@ -685,6 +751,7 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
       return new ServiceCBuilder(singletonCImpl);
     }
 
+    @CanIgnoreReturnValue
     private TetrisApplication injectTetrisApplication2(TetrisApplication instance) {
       TetrisApplication_MembersInjector.injectWorkerFactory(instance, hiltWorkerFactory());
       return instance;
@@ -704,50 +771,73 @@ public final class DaggerTetrisApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.tetris.modern.rl.game.TetrisEngine 
-          return (T) new TetrisEngine(singletonCImpl.audioManagerProvider.get());
+          case 0: // com.tetris.modern.rl.sync.SyncWorker_AssistedFactory 
+          return (T) new SyncWorker_AssistedFactory() {
+            @Override
+            public SyncWorker create(Context context, WorkerParameters params) {
+              return new SyncWorker(context, params, singletonCImpl.syncManagerProvider.get());
+            }
+          };
 
-          case 1: // com.tetris.modern.rl.audio.AudioManager 
-          return (T) new AudioManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+          case 1: // com.tetris.modern.rl.sync.SyncManager 
+          return (T) new SyncManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.scoreDao(), singletonCImpl.authManagerProvider.get());
 
-          case 2: // com.tetris.modern.rl.data.repository.ScoreRepository 
-          return (T) new ScoreRepository(singletonCImpl.scoreDao(), singletonCImpl.provideApiServiceProvider.get());
-
-          case 3: // com.tetris.modern.rl.data.database.TetrisDatabase 
-          return (T) DatabaseModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
-
-          case 4: // com.tetris.modern.rl.network.ApiService 
+          case 2: // com.tetris.modern.rl.network.ApiService 
           return (T) NetworkModule_ProvideApiServiceFactory.provideApiService(singletonCImpl.provideRetrofitProvider.get());
 
-          case 5: // retrofit2.Retrofit 
+          case 3: // retrofit2.Retrofit 
           return (T) NetworkModule_ProvideRetrofitFactory.provideRetrofit(singletonCImpl.provideOkHttpClientProvider.get(), singletonCImpl.provideGsonProvider.get());
 
-          case 6: // okhttp3.OkHttpClient 
-          return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient(singletonCImpl.provideAuthInterceptorProvider.get());
+          case 4: // okhttp3.OkHttpClient 
+          return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideCacheProvider.get(), singletonCImpl.provideAuthInterceptorProvider.get());
 
-          case 7: // com.tetris.modern.rl.network.AuthInterceptor 
-          return (T) NetworkModule_ProvideAuthInterceptorFactory.provideAuthInterceptor(singletonCImpl.tokenManagerProvider.get());
+          case 5: // okhttp3.Cache 
+          return (T) NetworkModule_ProvideCacheFactory.provideCache(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 8: // com.tetris.modern.rl.data.preferences.TokenManager 
-          return (T) new TokenManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+          case 6: // com.tetris.modern.rl.network.AuthInterceptor 
+          return (T) NetworkModule_ProvideAuthInterceptorFactory.provideAuthInterceptor(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 9: // com.google.gson.Gson 
+          case 7: // com.google.gson.Gson 
           return (T) NetworkModule_ProvideGsonFactory.provideGson();
 
-          case 10: // com.tetris.modern.rl.data.repository.SettingsRepository 
+          case 8: // com.tetris.modern.rl.data.database.TetrisDatabase 
+          return (T) DatabaseModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 9: // com.tetris.modern.rl.auth.AuthManager 
+          return (T) new AuthManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.provideAuthInterceptorProvider.get(), singletonCImpl.tokenManagerProvider.get());
+
+          case 10: // com.tetris.modern.rl.network.TokenManager 
+          return (T) new TokenManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 11: // com.tetris.modern.rl.data.repository.ScoreRepository 
+          return (T) new ScoreRepository(singletonCImpl.scoreDao(), singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.authManagerProvider.get(), singletonCImpl.syncManagerProvider.get());
+
+          case 12: // com.tetris.modern.rl.game.TetrisEngine 
+          return (T) new TetrisEngine(singletonCImpl.audioManagerProvider.get());
+
+          case 13: // com.tetris.modern.rl.audio.AudioManager 
+          return (T) new AudioManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 14: // com.tetris.modern.rl.data.repository.SettingsRepository 
           return (T) new SettingsRepository(singletonCImpl.settingsDao());
 
-          case 11: // com.tetris.modern.rl.data.repository.StatisticsRepository 
+          case 15: // com.tetris.modern.rl.data.repository.StatisticsRepository 
           return (T) new StatisticsRepository(singletonCImpl.statisticsDao());
 
-          case 12: // com.tetris.modern.rl.data.repository.ProgressionRepository 
-          return (T) new ProgressionRepository(singletonCImpl.progressionDao(), singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.playerProgressionProvider.get());
+          case 16: // com.tetris.modern.rl.data.repository.ProgressionRepository 
+          return (T) new ProgressionRepository(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.progressionDao(), singletonCImpl.scoreDao(), singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.authManagerProvider.get(), singletonCImpl.playerProgressionProvider.get());
 
-          case 13: // com.tetris.modern.rl.progression.PlayerProgression 
+          case 17: // com.tetris.modern.rl.progression.PlayerProgression 
           return (T) new PlayerProgression();
 
-          case 14: // com.tetris.modern.rl.achievements.AchievementSystem 
+          case 18: // com.tetris.modern.rl.achievements.AchievementSystem 
           return (T) new AchievementSystem(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 19: // com.tetris.modern.rl.playgames.PlayGamesManager 
+          return (T) new PlayGamesManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 20: // com.tetris.modern.rl.notifications.TetrisNotificationManager 
+          return (T) new TetrisNotificationManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
         }

@@ -45,7 +45,7 @@ fun ModeSpecificDisplay(
                 textAlign = TextAlign.Center,
                 style = androidx.compose.ui.text.TextStyle(
                     brush = Brush.horizontalGradient(
-                        colors = listOf(NeonColors.Cyan, NeonColors.Magenta)
+                        colors = listOf(NeonColors.cyan, NeonColors.magenta)
                     )
                 )
             )
@@ -110,7 +110,7 @@ private fun ModeInfoRow(
                 Text(
                     text = value,
                     fontSize = 16.sp,
-                    color = NeonColors.Cyan,
+                    color = NeonColors.cyan,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
                 )
@@ -129,9 +129,9 @@ private fun ModeInfoRow(
             
             // Highlight important values with color
             val valueColor = when {
-                label.contains("Lines", ignoreCase = true) -> NeonColors.Yellow
-                label.contains("Level", ignoreCase = true) -> NeonColors.Magenta
-                label.contains("Score", ignoreCase = true) -> NeonColors.Green
+                label.contains("Lines", ignoreCase = true) -> NeonColors.yellow
+                label.contains("Level", ignoreCase = true) -> NeonColors.magenta
+                label.contains("Score", ignoreCase = true) -> NeonColors.green
                 else -> Color.White
             }
             

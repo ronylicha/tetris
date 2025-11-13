@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import com.tetris.modern.rl.MainActivity;
 import com.tetris.modern.rl.R;
+import com.tetris.modern.rl.data.database.TetrisDatabase;
 import kotlinx.coroutines.Dispatchers;
 import timber.log.Timber;
 

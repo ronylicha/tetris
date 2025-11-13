@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.sp
 import com.tetris.modern.rl.ui.theme.NeonColors
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.tetris.modern.rl.R
 
 @Composable
 fun ScoreDisplay(
@@ -36,23 +38,23 @@ fun ScoreDisplay(
         ) {
             // Score
             ScoreItem(
-                label = "SCORE",
+                label = stringResource(R.string.score),
                 value = NumberFormat.getNumberInstance(Locale.US).format(score),
-                color = NeonColors.Cyan
+                color = NeonColors.cyan
             )
             
             // Lines
             ScoreItem(
-                label = "LINES",
+                label = stringResource(R.string.lines),
                 value = lines.toString(),
-                color = NeonColors.Magenta
+                color = NeonColors.magenta
             )
             
             // Level
             ScoreItem(
-                label = "LEVEL",
+                label = stringResource(R.string.level),
                 value = level.toString(),
-                color = NeonColors.Yellow
+                color = NeonColors.yellow
             )
         }
     }

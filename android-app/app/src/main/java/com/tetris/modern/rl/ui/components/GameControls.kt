@@ -171,7 +171,7 @@ fun DirectionalPad(
                 .border(
                     width = 2.dp,
                     brush = Brush.linearGradient(
-                        colors = listOf(NeonColors.Cyan, NeonColors.Magenta)
+                        colors = listOf(NeonColors.cyan, NeonColors.magenta)
                     ),
                     shape = CircleShape
                 )
@@ -247,14 +247,14 @@ fun DPadButton(
             .scale(scale)
             .background(
                 color = if (isPressed) 
-                    NeonColors.Cyan.copy(alpha = 0.3f)
+                    NeonColors.cyan.copy(alpha = 0.3f)
                 else 
                     Color(0xFF2A2A3E).copy(alpha = 0.6f),
                 shape = CircleShape
             )
             .border(
                 width = 1.dp,
-                color = if (isPressed) NeonColors.Cyan else Color.White.copy(alpha = 0.3f),
+                color = if (isPressed) NeonColors.cyan else Color.White.copy(alpha = 0.3f),
                 shape = CircleShape
             )
             .clickable(
@@ -266,7 +266,7 @@ fun DPadButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (isPressed) NeonColors.Cyan else Color.White,
+            tint = if (isPressed) NeonColors.cyan else Color.White,
             modifier = Modifier.size(32.dp)
         )
     }
@@ -298,7 +298,7 @@ fun ActionButtons(
             ActionButton(
                 icon = Icons.Default.SwapVert,
                 onClick = onHold,
-                color = NeonColors.Yellow,
+                color = NeonColors.yellow,
                 size = 50.dp
             )
         }
@@ -310,14 +310,14 @@ fun ActionButtons(
             ActionButton(
                 icon = Icons.Default.RotateLeft,
                 onClick = onRotateCCW,
-                color = NeonColors.Magenta,
+                color = NeonColors.magenta,
                 size = 60.dp
             )
             
             ActionButton(
                 icon = Icons.Default.RotateRight,
                 onClick = onRotateCW,
-                color = NeonColors.Cyan,
+                color = NeonColors.cyan,
                 size = 70.dp
             )
         }

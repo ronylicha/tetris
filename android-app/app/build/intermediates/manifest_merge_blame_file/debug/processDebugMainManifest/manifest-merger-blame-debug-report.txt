@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.tetris.modern.rl.debug"
-4    android:versionCode="11"
-5    android:versionName="1.1.0-DEBUG" >
+4    android:versionCode="18"
+5    android:versionName="1.2.6-DEBUG" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="24"
@@ -75,149 +75,150 @@
 41        <package android:name="com.android.vending" />
 41-->[com.google.android.gms:play-services-games-v2:19.0.0] /home/rony/.gradle/caches/8.9/transforms/3b3cb401e18f34d6b61277e01389584f/transformed/jetified-play-services-games-v2-19.0.0/AndroidManifest.xml:9:9-55
 41-->[com.google.android.gms:play-services-games-v2:19.0.0] /home/rony/.gradle/caches/8.9/transforms/3b3cb401e18f34d6b61277e01389584f/transformed/jetified-play-services-games-v2-19.0.0/AndroidManifest.xml:9:18-52
-42    </queries>
-43
-44    <permission
-44-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
-45        android:name="com.tetris.modern.rl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-45-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
-46        android:protectionLevel="signature" />
-46-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
-47
-48    <uses-permission android:name="com.tetris.modern.rl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-48-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
-48-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
-49
-50    <application
-50-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:21:5-93:19
-51        android:name="com.tetris.modern.rl.TetrisApplication"
-51-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:22:9-42
-52        android:allowBackup="true"
-52-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:23:9-35
-53        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-53-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
-54        android:dataExtractionRules="@xml/data_extraction_rules"
-54-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:24:9-65
-55        android:debuggable="true"
-56        android:extractNativeLibs="false"
-57        android:fullBackupContent="@xml/backup_rules"
-57-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:25:9-54
-58        android:hardwareAccelerated="true"
-58-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:31:9-43
-59        android:icon="@mipmap/ic_launcher"
-59-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:26:9-43
-60        android:label="@string/app_name"
-60-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:27:9-41
-61        android:largeHeap="true"
-61-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:32:9-33
-62        android:roundIcon="@mipmap/ic_launcher_round"
-62-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:28:9-54
-63        android:supportsRtl="true"
-63-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:29:9-35
-64        android:theme="@style/Theme.ModernTetris" >
-64-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:30:9-50
-65
-66        <!-- Main Activity -->
-67        <activity
-67-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:36:9-53:20
-68            android:name="com.tetris.modern.rl.MainActivity"
-68-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:37:13-41
-69            android:configChanges="orientation|keyboardHidden|screenSize"
-69-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:40:13-74
-70            android:exported="true"
-70-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:38:13-36
-71            android:launchMode="singleTop"
-71-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:41:13-43
-72            android:screenOrientation="portrait"
-72-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:39:13-49
+42    </queries> <!-- Required by older versions of Google Play services to create IID tokens -->
+43    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+43-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:26:5-82
+43-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:26:22-79
+44
+45    <permission
+45-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+46        android:name="com.tetris.modern.rl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+46-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+47        android:protectionLevel="signature" />
+47-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+48
+49    <uses-permission android:name="com.tetris.modern.rl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+49-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+49-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+50
+51    <application
+51-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:21:5-92:19
+52        android:name="com.tetris.modern.rl.TetrisApplication"
+52-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:22:9-42
+53        android:allowBackup="true"
+53-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:23:9-35
+54        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+54-->[androidx.core:core:1.13.1] /home/rony/.gradle/caches/8.9/transforms/94f9117b46cd0a6ef2c0ab6748fd7f29/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+55        android:dataExtractionRules="@xml/data_extraction_rules"
+55-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:24:9-65
+56        android:debuggable="true"
+57        android:extractNativeLibs="false"
+58        android:fullBackupContent="@xml/backup_rules"
+58-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:25:9-54
+59        android:hardwareAccelerated="true"
+59-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:31:9-43
+60        android:icon="@mipmap/ic_launcher"
+60-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:26:9-43
+61        android:label="@string/app_name"
+61-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:27:9-41
+62        android:largeHeap="true"
+62-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:32:9-33
+63        android:roundIcon="@mipmap/ic_launcher_round"
+63-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:28:9-54
+64        android:supportsRtl="true"
+64-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:29:9-35
+65        android:theme="@style/Theme.ModernTetris" >
+65-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:30:9-50
+66
+67        <!-- Main Activity -->
+68        <activity
+68-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:36:9-52:20
+69            android:name="com.tetris.modern.rl.MainActivity"
+69-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:37:13-41
+70            android:configChanges="orientation|keyboardHidden|screenSize"
+70-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:39:13-74
+71            android:exported="true"
+71-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:38:13-36
+72            android:launchMode="singleTop"
+72-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:40:13-43
 73            android:theme="@style/Theme.ModernTetris.Fullscreen" >
-73-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:42:13-65
+73-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:41:13-65
 74            <intent-filter>
-74-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:43:13-46:29
+74-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:42:13-45:29
 75                <action android:name="android.intent.action.MAIN" />
-75-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:17-69
-75-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:25-66
+75-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:43:17-69
+75-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:43:25-66
 76
 77                <category android:name="android.intent.category.LAUNCHER" />
-77-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:45:17-77
-77-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:45:27-74
+77-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:17-77
+77-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:27-74
 78            </intent-filter>
 79
 80            <!-- Game Controller Support -->
 81            <intent-filter>
-81-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:49:13-52:29
+81-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:48:13-51:29
 82                <action android:name="android.intent.action.MAIN" />
-82-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:17-69
-82-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:44:25-66
+82-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:43:17-69
+82-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:43:25-66
 83
 84                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-84-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:51:17-86
-84-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:51:27-83
+84-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:50:17-86
+84-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:50:27-83
 85            </intent-filter>
 86        </activity>
 87
 88        <!-- Music Service -->
 89        <service
-89-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:56:9-59:61
+89-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:55:9-58:61
 90            android:name="com.tetris.modern.rl.audio.MusicService"
-90-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:57:13-47
+90-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:56:13-47
 91            android:exported="false"
-91-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:58:13-37
+91-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:57:13-37
 92            android:foregroundServiceType="mediaPlayback" />
-92-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:59:13-58
+92-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:58:13-58
 93
 94        <!-- Google Play Games meta-data -->
 95        <meta-data
-95-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:62:9-64:46
+95-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:61:9-63:46
 96            android:name="com.google.android.gms.games.APP_ID"
-96-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:63:13-63
+96-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:62:13-63
 97            android:value="@string/app_id" />
-97-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:64:13-43
+97-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:63:13-43
 98        <meta-data
-98-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:66:9-68:69
+98-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:65:9-67:69
 99            android:name="com.google.android.gms.version"
-99-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:67:13-58
+99-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:66:13-58
 100            android:value="@integer/google_play_services_version" />
-100-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:68:13-66
+100-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:67:13-66
 101
 102        <!-- File Provider for sharing -->
 103        <provider
 104            android:name="androidx.core.content.FileProvider"
-104-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:72:13-62
+104-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:71:13-62
 105            android:authorities="com.tetris.modern.rl.debug.fileprovider"
-105-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:73:13-64
+105-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:72:13-64
 106            android:exported="false"
-106-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:74:13-37
+106-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:73:13-37
 107            android:grantUriPermissions="true" >
-107-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:75:13-47
+107-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:74:13-47
 108            <meta-data
-108-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:76:13-78:54
+108-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:75:13-77:54
 109                android:name="android.support.FILE_PROVIDER_PATHS"
-109-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:77:17-67
+109-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:76:17-67
 110                android:resource="@xml/file_paths" />
-110-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:78:17-51
+110-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:77:17-51
 111        </provider>
 112
 113        <!-- Widget Provider -->
 114        <receiver
-114-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:82:9-91:20
+114-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:81:9-90:20
 115            android:name="com.tetris.modern.rl.widget.TetrisWidgetProvider"
-115-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:83:13-56
+115-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:82:13-56
 116            android:exported="false" >
-116-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:84:13-37
+116-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:83:13-37
 117            <intent-filter>
-117-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:85:13-87:29
+117-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:84:13-86:29
 118                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-118-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:86:17-84
-118-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:86:25-81
+118-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:85:17-84
+118-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:85:25-81
 119            </intent-filter>
 120
 121            <meta-data
-121-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:88:13-90:62
+121-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:87:13-89:62
 122                android:name="android.appwidget.provider"
-122-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:89:17-58
+122-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:88:17-58
 123                android:resource="@xml/tetris_widget_info" />
-123-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:90:17-59
+123-->/var/www/html/tetris/android-app/app/src/main/AndroidManifest.xml:89:17-59
 124        </receiver>
 125
 126        <provider
@@ -485,74 +486,218 @@
 263-->[com.google.android.gms:play-services-auth:20.7.0] /home/rony/.gradle/caches/8.9/transforms/34291fe94cbaeba9d4b73c619e611edb/transformed/jetified-play-services-auth-20.7.0/AndroidManifest.xml:36:13-107
 264            android:visibleToInstantApps="true" />
 264-->[com.google.android.gms:play-services-auth:20.7.0] /home/rony/.gradle/caches/8.9/transforms/34291fe94cbaeba9d4b73c619e611edb/transformed/jetified-play-services-auth-20.7.0/AndroidManifest.xml:37:13-48
-265
-266        <activity
-266-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
-267            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-267-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:19-85
-268            android:exported="false"
-268-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:22:19-43
-269            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-269-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:21:19-78
-270        <activity
-270-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:23:9-25:39
-271            android:name="androidx.compose.ui.tooling.PreviewActivity"
-271-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:24:13-71
-272            android:exported="true" />
-272-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:25:13-36
-273        <activity
-273-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:23:9-25:39
-274            android:name="androidx.activity.ComponentActivity"
-274-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:24:13-63
-275            android:exported="true" />
-275-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:25:13-36
-276
-277        <service
-277-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
-278            android:name="androidx.room.MultiInstanceInvalidationService"
-278-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
-279            android:directBootAware="true"
-279-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
-280            android:exported="false" />
-280-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
-281
-282        <receiver
-282-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
-283            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-283-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
-284            android:directBootAware="false"
-284-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
-285            android:enabled="true"
-285-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
-286            android:exported="true"
-286-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
-287            android:permission="android.permission.DUMP" >
-287-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
-288            <intent-filter>
-288-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
-289                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-289-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
-289-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
-290            </intent-filter>
-291            <intent-filter>
-291-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
-292                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-292-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
-292-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
-293            </intent-filter>
-294            <intent-filter>
-294-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
-295                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-295-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
-295-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
-296            </intent-filter>
-297            <intent-filter>
-297-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
-298                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-298-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
-298-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
-299            </intent-filter>
-300        </receiver>
-301    </application>
+265        <service
+265-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:23:9-29:19
+266            android:name="com.google.firebase.components.ComponentDiscoveryService"
+266-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:24:13-84
+267            android:directBootAware="true"
+267-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:32:13-43
+268            android:exported="false" >
+268-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:25:13-37
+269            <meta-data
+269-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:26:13-28:85
+270                android:name="com.google.firebase.components:com.google.firebase.messaging.ktx.FirebaseMessagingLegacyRegistrar"
+270-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:27:17-129
+271                android:value="com.google.firebase.components.ComponentRegistrar" />
+271-->[com.google.firebase:firebase-messaging-ktx:23.4.0] /home/rony/.gradle/caches/8.9/transforms/649e8565335986f841886e49856d8e1f/transformed/jetified-firebase-messaging-ktx-23.4.0/AndroidManifest.xml:28:17-82
+272            <meta-data
+272-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:57:13-59:85
+273                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar"
+273-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:58:17-122
+274                android:value="com.google.firebase.components.ComponentRegistrar" />
+274-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:59:17-82
+275            <meta-data
+275-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:60:13-62:85
+276                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar"
+276-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:61:17-119
+277                android:value="com.google.firebase.components.ComponentRegistrar" />
+277-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:62:17-82
+278            <meta-data
+278-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:15:13-17:85
+279                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar"
+279-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:16:17-130
+280                android:value="com.google.firebase.components.ComponentRegistrar" />
+280-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:17:17-82
+281            <meta-data
+281-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:18:13-20:85
+282                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+282-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:19:17-127
+283                android:value="com.google.firebase.components.ComponentRegistrar" />
+283-->[com.google.firebase:firebase-installations:17.2.0] /home/rony/.gradle/caches/8.9/transforms/a1a5fc1315e9809d8006ee0b0ba686d5/transformed/jetified-firebase-installations-17.2.0/AndroidManifest.xml:20:17-82
+284            <meta-data
+284-->[com.google.firebase:firebase-common-ktx:20.4.2] /home/rony/.gradle/caches/8.9/transforms/292a23181fdf58635a7584ab09a38692/transformed/jetified-firebase-common-ktx-20.4.2/AndroidManifest.xml:12:13-14:85
+285                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
+285-->[com.google.firebase:firebase-common-ktx:20.4.2] /home/rony/.gradle/caches/8.9/transforms/292a23181fdf58635a7584ab09a38692/transformed/jetified-firebase-common-ktx-20.4.2/AndroidManifest.xml:13:17-116
+286                android:value="com.google.firebase.components.ComponentRegistrar" />
+286-->[com.google.firebase:firebase-common-ktx:20.4.2] /home/rony/.gradle/caches/8.9/transforms/292a23181fdf58635a7584ab09a38692/transformed/jetified-firebase-common-ktx-20.4.2/AndroidManifest.xml:14:17-82
+287            <meta-data
+287-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:35:13-37:85
+288                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+288-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:36:17-109
+289                android:value="com.google.firebase.components.ComponentRegistrar" />
+289-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:37:17-82
+290            <meta-data
+290-->[com.google.firebase:firebase-datatransport:18.1.7] /home/rony/.gradle/caches/8.9/transforms/bd01676e53400e45a1fefb45d94cac40/transformed/jetified-firebase-datatransport-18.1.7/AndroidManifest.xml:27:13-29:85
+291                android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar"
+291-->[com.google.firebase:firebase-datatransport:18.1.7] /home/rony/.gradle/caches/8.9/transforms/bd01676e53400e45a1fefb45d94cac40/transformed/jetified-firebase-datatransport-18.1.7/AndroidManifest.xml:28:17-115
+292                android:value="com.google.firebase.components.ComponentRegistrar" />
+292-->[com.google.firebase:firebase-datatransport:18.1.7] /home/rony/.gradle/caches/8.9/transforms/bd01676e53400e45a1fefb45d94cac40/transformed/jetified-firebase-datatransport-18.1.7/AndroidManifest.xml:29:17-82
+293        </service>
+294
+295        <receiver
+295-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:29:9-40:20
+296            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+296-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:30:13-78
+297            android:exported="true"
+297-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:31:13-36
+298            android:permission="com.google.android.c2dm.permission.SEND" >
+298-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:32:13-73
+299            <intent-filter>
+299-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:33:13-35:29
+300                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+300-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:34:17-81
+300-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:34:25-78
+301            </intent-filter>
 302
-303</manifest>
+303            <meta-data
+303-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:37:13-39:40
+304                android:name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED"
+304-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:38:17-92
+305                android:value="true" />
+305-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:39:17-37
+306        </receiver>
+307        <!--
+308             FirebaseMessagingService performs security checks at runtime,
+309             but set to not exported to explicitly avoid allowing another app to call it.
+310        -->
+311        <service
+311-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:46:9-53:19
+312            android:name="com.google.firebase.messaging.FirebaseMessagingService"
+312-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:47:13-82
+313            android:directBootAware="true"
+313-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:48:13-43
+314            android:exported="false" >
+314-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:49:13-37
+315            <intent-filter android:priority="-500" >
+315-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:50:13-52:29
+315-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:50:28-51
+316                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+316-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:51:17-78
+316-->[com.google.firebase:firebase-messaging:23.4.0] /home/rony/.gradle/caches/8.9/transforms/56019447644b7701f303d30a9fca182e/transformed/jetified-firebase-messaging-23.4.0/AndroidManifest.xml:51:25-75
+317            </intent-filter>
+318        </service>
+319
+320        <activity
+320-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+321            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+321-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+322            android:exported="false"
+322-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+323            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+323-->[com.google.android.gms:play-services-base:18.0.1] /home/rony/.gradle/caches/8.9/transforms/e1eb568d0ab36b881aca783fec04d18f/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+324
+325        <provider
+325-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:23:9-28:39
+326            android:name="com.google.firebase.provider.FirebaseInitProvider"
+326-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:24:13-77
+327            android:authorities="com.tetris.modern.rl.debug.firebaseinitprovider"
+327-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:25:13-72
+328            android:directBootAware="true"
+328-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:26:13-43
+329            android:exported="false"
+329-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:27:13-37
+330            android:initOrder="100" />
+330-->[com.google.firebase:firebase-common:20.4.2] /home/rony/.gradle/caches/8.9/transforms/91fec4b76fc8957488bdf94035c386f4/transformed/jetified-firebase-common-20.4.2/AndroidManifest.xml:28:13-36
+331
+332        <service
+332-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+333            android:name="androidx.room.MultiInstanceInvalidationService"
+333-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+334            android:directBootAware="true"
+334-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+335            android:exported="false" />
+335-->[androidx.room:room-runtime:2.6.1] /home/rony/.gradle/caches/8.9/transforms/b4cd9333a2b2cee900a0cd6c222e0a61/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+336
+337        <activity
+337-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:23:9-25:39
+338            android:name="androidx.compose.ui.tooling.PreviewActivity"
+338-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:24:13-71
+339            android:exported="true" />
+339-->[androidx.compose.ui:ui-tooling-android:1.6.8] /home/rony/.gradle/caches/8.9/transforms/2aa4477226b32bd11e57bcc2d7d3285b/transformed/jetified-ui-tooling-release/AndroidManifest.xml:25:13-36
+340        <activity
+340-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:23:9-25:39
+341            android:name="androidx.activity.ComponentActivity"
+341-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:24:13-63
+342            android:exported="true" />
+342-->[androidx.compose.ui:ui-test-manifest:1.6.8] /home/rony/.gradle/caches/8.9/transforms/f1a16666ec26134781a998679d2c5afa/transformed/jetified-ui-test-manifest-1.6.8/AndroidManifest.xml:25:13-36
+343
+344        <receiver
+344-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+345            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+345-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+346            android:directBootAware="false"
+346-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+347            android:enabled="true"
+347-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+348            android:exported="true"
+348-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+349            android:permission="android.permission.DUMP" >
+349-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+350            <intent-filter>
+350-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+351                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+351-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+351-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+352            </intent-filter>
+353            <intent-filter>
+353-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+354                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+354-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+354-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+355            </intent-filter>
+356            <intent-filter>
+356-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+357                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+357-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+357-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+358            </intent-filter>
+359            <intent-filter>
+359-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+360                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+360-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+360-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/rony/.gradle/caches/8.9/transforms/319fb09beeff663a494af148fb222215/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+361            </intent-filter>
+362        </receiver>
+363
+364        <service
+364-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:28:9-34:19
+365            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+365-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:29:13-103
+366            android:exported="false" >
+366-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:30:13-37
+367            <meta-data
+367-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:31:13-33:39
+368                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+368-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:32:17-94
+369                android:value="cct" />
+369-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /home/rony/.gradle/caches/8.9/transforms/f8cc7cbaee9aea9c0fca5a929daee709/transformed/jetified-transport-backend-cct-3.1.8/AndroidManifest.xml:33:17-36
+370        </service>
+371        <service
+371-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:26:9-30:19
+372            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+372-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:27:13-117
+373            android:exported="false"
+373-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:28:13-37
+374            android:permission="android.permission.BIND_JOB_SERVICE" >
+374-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:29:13-69
+375        </service>
+376
+377        <receiver
+377-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:32:9-34:40
+378            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+378-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:33:13-132
+379            android:exported="false" />
+379-->[com.google.android.datatransport:transport-runtime:3.1.8] /home/rony/.gradle/caches/8.9/transforms/02947e0a38c5dd4c2ef025a65dbe2e63/transformed/jetified-transport-runtime-3.1.8/AndroidManifest.xml:34:13-37
+380    </application>
+381
+382</manifest>

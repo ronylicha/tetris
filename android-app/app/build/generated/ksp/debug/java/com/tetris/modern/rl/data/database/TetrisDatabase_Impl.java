@@ -17,6 +17,8 @@ import com.tetris.modern.rl.data.dao.CustomizationDao;
 import com.tetris.modern.rl.data.dao.CustomizationDao_Impl;
 import com.tetris.modern.rl.data.dao.DailyChallengeDao;
 import com.tetris.modern.rl.data.dao.DailyChallengeDao_Impl;
+import com.tetris.modern.rl.data.dao.DailyStreakDao;
+import com.tetris.modern.rl.data.dao.DailyStreakDao_Impl;
 import com.tetris.modern.rl.data.dao.GameStateDao;
 import com.tetris.modern.rl.data.dao.GameStateDao_Impl;
 import com.tetris.modern.rl.data.dao.ProgressionDao;
@@ -66,10 +68,12 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
 
   private volatile StatisticsDao _statisticsDao;
 
+  private volatile DailyStreakDao _dailyStreakDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `scores` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `playerName` TEXT NOT NULL, `score` INTEGER NOT NULL, `level` INTEGER NOT NULL, `lines` INTEGER NOT NULL, `gameMode` TEXT NOT NULL, `date` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL)");
@@ -82,8 +86,9 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `customizations` (`itemId` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `isUnlocked` INTEGER NOT NULL, `unlockLevel` INTEGER NOT NULL, `previewImage` TEXT, `data` TEXT, PRIMARY KEY(`itemId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `unlockables` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `requiredLevel` INTEGER NOT NULL, `requiredXP` INTEGER NOT NULL, `requiredAchievement` TEXT, `cost` INTEGER NOT NULL, `isUnlocked` INTEGER NOT NULL, `isSelected` INTEGER NOT NULL, `metadata` TEXT, `iconResource` TEXT, `previewResource` TEXT, `rarity` TEXT NOT NULL, `orderIndex` INTEGER NOT NULL, `unlockedAt` INTEGER, `usageCount` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `statistics` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gameMode` TEXT NOT NULL, `totalGamesPlayed` INTEGER NOT NULL, `totalLinesCleared` INTEGER NOT NULL, `totalScore` INTEGER NOT NULL, `highScore` INTEGER NOT NULL, `bestCombo` INTEGER NOT NULL, `totalPiecesPlaced` INTEGER NOT NULL, `totalTSpins` INTEGER NOT NULL, `totalTetrisClears` INTEGER NOT NULL, `totalPerfectClears` INTEGER NOT NULL, `totalTimePlayed` INTEGER NOT NULL, `averageScore` REAL NOT NULL, `averageLinesPerGame` REAL NOT NULL, `winRate` REAL NOT NULL, `longestSurvivalTime` INTEGER NOT NULL, `fastestSprint40` INTEGER NOT NULL, `highestLevel` INTEGER NOT NULL, `totalXPEarned` INTEGER NOT NULL, `favoriteMode` TEXT, `lastPlayedTimestamp` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `daily_streaks` (`id` INTEGER NOT NULL, `currentStreak` INTEGER NOT NULL, `longestStreak` INTEGER NOT NULL, `lastLoginDate` INTEGER, `totalDaysPlayed` INTEGER NOT NULL, `lastCompletedChallengeDate` INTEGER, `dailyChallengesCompleted` INTEGER NOT NULL, `missedDays` INTEGER NOT NULL, `streakStartDate` INTEGER, `isStreakActive` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c8c3a47767820b5a36573011b623d68c')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a48c155b231e6494b3106be5d735550b')");
       }
 
       @Override
@@ -98,6 +103,7 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
         db.execSQL("DROP TABLE IF EXISTS `customizations`");
         db.execSQL("DROP TABLE IF EXISTS `unlockables`");
         db.execSQL("DROP TABLE IF EXISTS `statistics`");
+        db.execSQL("DROP TABLE IF EXISTS `daily_streaks`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -366,9 +372,29 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
                   + " Expected:\n" + _infoStatistics + "\n"
                   + " Found:\n" + _existingStatistics);
         }
+        final HashMap<String, TableInfo.Column> _columnsDailyStreaks = new HashMap<String, TableInfo.Column>(10);
+        _columnsDailyStreaks.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("currentStreak", new TableInfo.Column("currentStreak", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("longestStreak", new TableInfo.Column("longestStreak", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("lastLoginDate", new TableInfo.Column("lastLoginDate", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("totalDaysPlayed", new TableInfo.Column("totalDaysPlayed", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("lastCompletedChallengeDate", new TableInfo.Column("lastCompletedChallengeDate", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("dailyChallengesCompleted", new TableInfo.Column("dailyChallengesCompleted", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("missedDays", new TableInfo.Column("missedDays", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("streakStartDate", new TableInfo.Column("streakStartDate", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyStreaks.put("isStreakActive", new TableInfo.Column("isStreakActive", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysDailyStreaks = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesDailyStreaks = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoDailyStreaks = new TableInfo("daily_streaks", _columnsDailyStreaks, _foreignKeysDailyStreaks, _indicesDailyStreaks);
+        final TableInfo _existingDailyStreaks = TableInfo.read(db, "daily_streaks");
+        if (!_infoDailyStreaks.equals(_existingDailyStreaks)) {
+          return new RoomOpenHelper.ValidationResult(false, "daily_streaks(com.tetris.modern.rl.data.entities.DailyStreakEntity).\n"
+                  + " Expected:\n" + _infoDailyStreaks + "\n"
+                  + " Found:\n" + _existingDailyStreaks);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "c8c3a47767820b5a36573011b623d68c", "699de8867df83fb923e9156c818902b0");
+    }, "a48c155b231e6494b3106be5d735550b", "183432e6f3abb4167ea9619ba1f5a90f");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -379,7 +405,7 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "scores","game_states","progression","achievements","puzzle_progress","settings","daily_challenges","customizations","unlockables","statistics");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "scores","game_states","progression","achievements","puzzle_progress","settings","daily_challenges","customizations","unlockables","statistics","daily_streaks");
   }
 
   @Override
@@ -398,6 +424,7 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
       _db.execSQL("DELETE FROM `customizations`");
       _db.execSQL("DELETE FROM `unlockables`");
       _db.execSQL("DELETE FROM `statistics`");
+      _db.execSQL("DELETE FROM `daily_streaks`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -422,6 +449,7 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
     _typeConvertersMap.put(CustomizationDao.class, CustomizationDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(UnlockableDao.class, UnlockableDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(StatisticsDao.class, StatisticsDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(DailyStreakDao.class, DailyStreakDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -576,6 +604,20 @@ public final class TetrisDatabase_Impl extends TetrisDatabase {
           _statisticsDao = new StatisticsDao_Impl(this);
         }
         return _statisticsDao;
+      }
+    }
+  }
+
+  @Override
+  public DailyStreakDao dailyStreakDao() {
+    if (_dailyStreakDao != null) {
+      return _dailyStreakDao;
+    } else {
+      synchronized(this) {
+        if(_dailyStreakDao == null) {
+          _dailyStreakDao = new DailyStreakDao_Impl(this);
+        }
+        return _dailyStreakDao;
       }
     }
   }

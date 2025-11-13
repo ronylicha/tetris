@@ -152,6 +152,61 @@ fun SettingsScreen(
             
             // Controls Settings
             SettingsSection(title = stringResource(R.string.controls)) {
+                // Control Type Selection
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Control Type",
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = viewModel.controlType.value == "touch",
+                            onClick = { viewModel.updateControlType("touch") },
+                            label = { Text("Touch Gestures") },
+                            leadingIcon = if (viewModel.controlType.value == "touch") {
+                                { Icon(Icons.Default.Check, contentDescription = null) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Primary,
+                                selectedLabelColor = Color.Black,
+                                containerColor = Surface,
+                                labelColor = TextPrimary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = viewModel.controlType.value == "pad",
+                            onClick = { viewModel.updateControlType("pad") },
+                            label = { Text("Visual Pad") },
+                            leadingIcon = if (viewModel.controlType.value == "pad") {
+                                { Icon(Icons.Default.Check, contentDescription = null) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Primary,
+                                selectedLabelColor = Color.Black,
+                                containerColor = Surface,
+                                labelColor = TextPrimary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Text(
+                        text = if (viewModel.controlType.value == "touch") 
+                            "Swipe to move, tap to rotate, long press to hard drop"
+                        else 
+                            "Use on-screen buttons to control pieces",
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
                 SwitchSetting(
                     label = stringResource(R.string.vibration),
                     checked = settings?.vibrationEnabled ?: true,
@@ -197,68 +252,10 @@ fun SettingsScreen(
                 )
             }
             
-            // Account & Sync
-            SettingsSection(title = stringResource(R.string.account_sync)) {
-                val isGooglePlaySignedIn by viewModel.isGooglePlaySignedIn.collectAsState()
-                
-                if (isGooglePlaySignedIn) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text("Google Play Games", color = TextPrimary)
-                            Text("Connected", fontSize = 12.sp, color = NeonColors.Green)
-                        }
-                        OutlinedButton(
-                            onClick = { /* Sign out */ },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Error
-                            )
-                        ) {
-                            Text("Sign Out")
-                        }
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text("Google Play Games", color = TextPrimary)
-                            Text("Not connected", fontSize = 12.sp, color = TextSecondary)
-                        }
-                        Button(
-                            onClick = { 
-                                // Trigger Google Play sign in
-                                // This should be handled by MainActivity
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = NeonColors.Cyan,
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Icon(Icons.Default.PlayArrow, contentDescription = "Google Play")
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Connect")
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    "Connect to save your progress and compete on leaderboards",
-                    fontSize = 12.sp,
-                    color = TextSecondary
-                )
-            }
             
             // About
             SettingsSection(title = stringResource(R.string.about)) {
-                InfoRow(label = stringResource(R.string.version), value = "1.1.0")
+                InfoRow(label = stringResource(R.string.version), value = com.tetris.modern.rl.BuildConfig.VERSION_NAME)
                 InfoRow(label = stringResource(R.string.developer), value = stringResource(R.string.developer_name))
             }
         }

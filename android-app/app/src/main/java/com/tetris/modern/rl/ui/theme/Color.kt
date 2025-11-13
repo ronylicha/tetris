@@ -84,3 +84,17 @@ val GradientEnd = Color(0xFFFF00FF)
 val NeonGlow = Color(0xFF00FFFF)
 val NeonGlowStrong = Color(0xFFFFFFFF)
 val NeonGreen = Color(0xFF00FF00)
+
+// NeonColors object for consistent usage
+object NeonColors {
+    val cyan = Color(0xFF00FFFF)
+    val magenta = Color(0xFFFF00FF)
+    val yellow = Color(0xFFFFFF00)
+    val green = Color(0xFF00FF00)
+    val orange = Color(0xFFFF9800)
+    val purple = Color(0xFF9C27B0)
+    val red = Color(0xFFFF0000)
+    val blue = Color(0xFF0000FF)
+    
+    val pieceColors = listOf(cyan, yellow, magenta, green, red, blue, orange)
+}

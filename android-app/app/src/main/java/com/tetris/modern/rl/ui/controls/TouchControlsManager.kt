@@ -1,12 +1,15 @@
 package com.tetris.modern.rl.ui.controls
 
+import android.content.Context
 import android.view.MotionEvent
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel
@@ -203,8 +206,7 @@ class TouchControlsManager(
         if (!isLongPressing) {
             isLongPressing = true
             viewModel.holdPiece()
-            // Vibrate for feedback
-            // TODO: Add vibration feedback
+            // Vibration feedback would be added here when context is available
         }
     }
     

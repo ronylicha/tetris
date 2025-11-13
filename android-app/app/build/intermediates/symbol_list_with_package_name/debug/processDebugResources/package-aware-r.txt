@@ -189,6 +189,11 @@ attr emojiCompatEnabled
 attr enterAnim
 attr exitAnim
 attr expandActivityOverflowButtonDrawable
+attr fastScrollEnabled
+attr fastScrollHorizontalThumbDrawable
+attr fastScrollHorizontalTrackDrawable
+attr fastScrollVerticalThumbDrawable
+attr fastScrollVerticalTrackDrawable
 attr firstBaselineToTopHeight
 attr font
 attr fontFamily
@@ -224,6 +229,7 @@ attr lStar
 attr lastBaselineToBottomHeight
 attr launchSingleTop
 attr layout
+attr layoutManager
 attr lineHeight
 attr listChoiceBackgroundIndicator
 attr listChoiceIndicatorMultipleAnimated
@@ -302,7 +308,9 @@ attr radioButtonStyle
 attr ratingBarStyle
 attr ratingBarStyleIndicator
 attr ratingBarStyleSmall
+attr recyclerViewStyle
 attr restoreState
+attr reverseLayout
 attr route
 attr scopeUris
 attr searchHintIcon
@@ -318,12 +326,14 @@ attr showDividers
 attr showText
 attr showTitle
 attr singleChoiceItemLayout
+attr spanCount
 attr spinBars
 attr spinnerDropDownItemStyle
 attr spinnerStyle
 attr splashScreenIconSize
 attr splitTrack
 attr srcCompat
+attr stackFromEnd
 attr startDestination
 attr state_above_anchor
 attr strokeColor
@@ -677,6 +687,10 @@ dimen abc_text_size_subhead_material
 dimen abc_text_size_subtitle_material_toolbar
 dimen abc_text_size_title_material
 dimen abc_text_size_title_material_toolbar
+dimen button_height
+dimen button_min_width
+dimen card_corner_radius
+dimen card_elevation
 dimen compat_button_inset_horizontal_material
 dimen compat_button_inset_vertical_material
 dimen compat_button_padding_horizontal_material
@@ -684,8 +698,18 @@ dimen compat_button_padding_vertical_material
 dimen compat_control_corner_material
 dimen compat_notification_large_icon_max_height
 dimen compat_notification_large_icon_max_width
+dimen control_button_size
+dimen dialog_max_width
+dimen dialog_padding
 dimen disabled_alpha_material_dark
 dimen disabled_alpha_material_light
+dimen fab_size
+dimen fastscroll_default_thickness
+dimen fastscroll_margin
+dimen fastscroll_minimum_range
+dimen game_grid_cell_size
+dimen game_grid_max_height
+dimen game_grid_max_width
 dimen highlight_alpha_material_colored
 dimen highlight_alpha_material_dark
 dimen highlight_alpha_material_light
@@ -693,6 +717,13 @@ dimen hint_alpha_material_dark
 dimen hint_alpha_material_light
 dimen hint_pressed_alpha_material_dark
 dimen hint_pressed_alpha_material_light
+dimen hold_piece_size
+dimen item_touch_helper_max_drag_scroll_per_frame
+dimen item_touch_helper_swipe_escape_max_velocity
+dimen item_touch_helper_swipe_escape_velocity
+dimen mode_card_height
+dimen mode_card_min_width
+dimen next_piece_size
 dimen notification_action_icon_size
 dimen notification_action_text_size
 dimen notification_big_circle_margin
@@ -708,6 +739,11 @@ dimen notification_small_icon_size_as_large
 dimen notification_subtext_size
 dimen notification_top_pad
 dimen notification_top_pad_large_text
+dimen spacing_large
+dimen spacing_medium
+dimen spacing_small
+dimen spacing_tiny
+dimen spacing_xlarge
 dimen splashscreen_icon_mask_size_no_background
 dimen splashscreen_icon_mask_size_with_background
 dimen splashscreen_icon_mask_stroke_no_background
@@ -715,6 +751,12 @@ dimen splashscreen_icon_mask_stroke_with_background
 dimen splashscreen_icon_size
 dimen splashscreen_icon_size_no_background
 dimen splashscreen_icon_size_with_background
+dimen text_size_large
+dimen text_size_medium
+dimen text_size_small
+dimen text_size_tiny
+dimen text_size_title
+dimen text_size_xlarge
 dimen tooltip_corner_radius
 dimen tooltip_horizontal_padding
 dimen tooltip_margin
@@ -837,6 +879,8 @@ drawable compat_splash_screen_no_icon_background
 drawable dialog_background
 drawable googleg_disabled_color_18
 drawable googleg_standard_color_18
+drawable ic_achievement
+drawable ic_calendar
 drawable ic_call_answer
 drawable ic_call_answer_low
 drawable ic_call_answer_video
@@ -844,7 +888,14 @@ drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
 drawable ic_launcher_foreground
+drawable ic_leaderboard
+drawable ic_play
+drawable ic_share
 drawable ic_splash_logo
+drawable ic_star
+drawable ic_sync_complete
+drawable ic_sync_error
+drawable ic_trophy
 drawable icon_background
 drawable logo_tetris
 drawable neon_glow_background
@@ -949,6 +1000,7 @@ id center_vertical
 id checkbox
 id checked
 id chronometer
+id coil_request_manager
 id collapseActionView
 id compose_view_saveable_id_tag
 id consume_window_insets_tag
@@ -986,6 +1038,7 @@ id info
 id inspection_slot_table_set
 id is_pooling_container_tag
 id italic
+id item_touch_helper_previous_elevation
 id light
 id line1
 id line3
@@ -1157,6 +1210,7 @@ layout support_simple_spinner_dropdown_item
 layout widget_tetris
 mipmap ic_launcher
 mipmap ic_launcher_round
+raw firebase_common_keep
 raw music_chiptune
 raw music_game_over_music
 raw music_jazz
@@ -1215,6 +1269,7 @@ string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
 string about
 string account
+string account_created
 string account_sync
 string achievement_unlocked
 string achievements
@@ -1224,6 +1279,7 @@ string ai_expert
 string ai_hard
 string ai_master
 string ai_normal
+string all_time
 string androidx_startup
 string app_description
 string app_id
@@ -1289,6 +1345,8 @@ string connect_description
 string connected
 string control_type
 string controls
+string create_account
+string currently_playing_as
 string daily_challenge
 string dark_mode
 string das_delay
@@ -1297,15 +1355,19 @@ string default_popup_window_title
 string defeat
 string developer
 string developer_name
+string display_name
 string double_tap_down
 string drop_pieces
 string drop_pieces_desc
 string dropdown_menu
 string dynamic_colors
 string email
+string email_already_used
+string email_available
 string error_occurred
 string failed
 string favorite_mode
+string fcm_fallback_notification_channel_label
 string game_over
 string gameplay
 string gameplay_statistics
@@ -1344,6 +1406,8 @@ string lines
 string lines_format
 string loading
 string locked
+string login_failed
+string login_successful
 string long_press
 string longest_combo
 string m3c_bottom_sheet_collapse_description
@@ -1447,9 +1511,11 @@ string off
 string offline_mode
 string ok
 string on
+string or
 string overall_performance
 string pad
 string password
+string passwords_dont_match
 string pause
 string paused
 string perfect_clears
@@ -1485,12 +1551,14 @@ string rank_mythic
 string rank_novice
 string rate
 string register
+string registration_failed
 string restart
 string resume
 string rotate
 string rotate_desc
 string rotate_piece
 string round_format
+string save_progress_message
 string saving
 string score
 string search_menu_title
@@ -1504,6 +1572,7 @@ string show_fps
 string show_ghost_piece
 string show_grid
 string sign_in
+string sign_in_with_google
 string sign_out
 string signed_in_as
 string skip
@@ -1520,6 +1589,7 @@ string success
 string swipe_down
 string swipe_left_right
 string swipe_sensitivity
+string swipe_up
 string switch_role
 string sync_data
 string syncing
@@ -1555,8 +1625,11 @@ string trophy_gold
 string trophy_platinum
 string trophy_silver
 string try_again
+string upgrade_account
 string use_hint
 string username
+string username_available
+string username_taken
 string version
 string vibration
 string victory
@@ -2025,6 +2098,7 @@ styleable Navigator android_label android_id route
 styleable PopupWindow android_popupBackground android_popupAnimationStyle overlapAnchor
 styleable PopupWindowBackgroundState state_above_anchor
 styleable RecycleListView paddingBottomNoButtons paddingTopNoTitle
+styleable RecyclerView android_orientation android_clipToPadding android_descendantFocusability fastScrollEnabled fastScrollHorizontalThumbDrawable fastScrollHorizontalTrackDrawable fastScrollVerticalThumbDrawable fastScrollVerticalTrackDrawable layoutManager reverseLayout spanCount stackFromEnd
 styleable SearchView android_focusable android_maxWidth android_inputType android_imeOptions closeIcon commitIcon defaultQueryHint goIcon iconifiedByDefault layout queryBackground queryHint searchHintIcon searchIcon submitBackground suggestionRowLayout voiceIcon
 styleable SignInButton buttonSize colorScheme scopeUris
 styleable Spinner android_entries android_popupBackground android_prompt android_dropDownWidth popupTheme

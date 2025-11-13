@@ -3,18 +3,22 @@ package com.tetris.modern.rl.network.models;
 import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
-@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000(\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0002\b\t\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0002\b\u0086\b\u0018\u00002\u00020\u0001B\u0015\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u00a2\u0006\u0002\u0010\u0006J\t\u0010\u000b\u001a\u00020\u0003H\u00c6\u0003J\t\u0010\f\u001a\u00020\u0005H\u00c6\u0003J\u001d\u0010\r\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u0005H\u00c6\u0001J\u0013\u0010\u000e\u001a\u00020\u000f2\b\u0010\u0010\u001a\u0004\u0018\u00010\u0001H\u00d6\u0003J\t\u0010\u0011\u001a\u00020\u0012H\u00d6\u0001J\t\u0010\u0013\u001a\u00020\u0003H\u00d6\u0001R\u0016\u0010\u0004\u001a\u00020\u00058\u0006X\u0087\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\bR\u0016\u0010\u0002\u001a\u00020\u00038\u0006X\u0087\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\t\u0010\n\u00a8\u0006\u0014"}, d2 = {"Lcom/tetris/modern/rl/network/models/ProgressionMergeRequest;", "", "playerId", "", "guestData", "Lcom/tetris/modern/rl/network/models/ProgressionData;", "(Ljava/lang/String;Lcom/tetris/modern/rl/network/models/ProgressionData;)V", "getGuestData", "()Lcom/tetris/modern/rl/network/models/ProgressionData;", "getPlayerId", "()Ljava/lang/String;", "component1", "component2", "copy", "equals", "", "other", "hashCode", "", "toString", "app_debug"})
+@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000(\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0002\b\f\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0002\b\u0086\b\u0018\u00002\u00020\u0001B\u001d\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u0012\u0006\u0010\u0006\u001a\u00020\u0003\u00a2\u0006\u0002\u0010\u0007J\t\u0010\r\u001a\u00020\u0003H\u00c6\u0003J\t\u0010\u000e\u001a\u00020\u0005H\u00c6\u0003J\t\u0010\u000f\u001a\u00020\u0003H\u00c6\u0003J\'\u0010\u0010\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u00052\b\b\u0002\u0010\u0006\u001a\u00020\u0003H\u00c6\u0001J\u0013\u0010\u0011\u001a\u00020\u00122\b\u0010\u0013\u001a\u0004\u0018\u00010\u0001H\u00d6\u0003J\t\u0010\u0014\u001a\u00020\u0015H\u00d6\u0001J\t\u0010\u0016\u001a\u00020\u0003H\u00d6\u0001R\u0016\u0010\u0004\u001a\u00020\u00058\u0006X\u0087\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\b\u0010\tR\u0016\u0010\u0006\u001a\u00020\u00038\u0006X\u0087\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\n\u0010\u000bR\u0016\u0010\u0002\u001a\u00020\u00038\u0006X\u0087\u0004\u00a2\u0006\b\n\u0000\u001a\u0004\b\f\u0010\u000b\u00a8\u0006\u0017"}, d2 = {"Lcom/tetris/modern/rl/network/models/ProgressionMergeRequest;", "", "playerId", "", "localData", "Lcom/tetris/modern/rl/network/models/ProgressionData;", "mergeStrategy", "(Ljava/lang/String;Lcom/tetris/modern/rl/network/models/ProgressionData;Ljava/lang/String;)V", "getLocalData", "()Lcom/tetris/modern/rl/network/models/ProgressionData;", "getMergeStrategy", "()Ljava/lang/String;", "getPlayerId", "component1", "component2", "component3", "copy", "equals", "", "other", "hashCode", "", "toString", "app_debug"})
 public final class ProgressionMergeRequest {
     @com.google.gson.annotations.SerializedName(value = "player_id")
     @org.jetbrains.annotations.NotNull
     private final java.lang.String playerId = null;
-    @com.google.gson.annotations.SerializedName(value = "guest_data")
+    @com.google.gson.annotations.SerializedName(value = "local_data")
     @org.jetbrains.annotations.NotNull
-    private final com.tetris.modern.rl.network.models.ProgressionData guestData = null;
+    private final com.tetris.modern.rl.network.models.ProgressionData localData = null;
+    @com.google.gson.annotations.SerializedName(value = "merge_strategy")
+    @org.jetbrains.annotations.NotNull
+    private final java.lang.String mergeStrategy = null;
     
     public ProgressionMergeRequest(@org.jetbrains.annotations.NotNull
     java.lang.String playerId, @org.jetbrains.annotations.NotNull
-    com.tetris.modern.rl.network.models.ProgressionData guestData) {
+    com.tetris.modern.rl.network.models.ProgressionData localData, @org.jetbrains.annotations.NotNull
+    java.lang.String mergeStrategy) {
         super();
     }
     
@@ -24,7 +28,12 @@ public final class ProgressionMergeRequest {
     }
     
     @org.jetbrains.annotations.NotNull
-    public final com.tetris.modern.rl.network.models.ProgressionData getGuestData() {
+    public final com.tetris.modern.rl.network.models.ProgressionData getLocalData() {
+        return null;
+    }
+    
+    @org.jetbrains.annotations.NotNull
+    public final java.lang.String getMergeStrategy() {
         return null;
     }
     
@@ -39,9 +48,15 @@ public final class ProgressionMergeRequest {
     }
     
     @org.jetbrains.annotations.NotNull
+    public final java.lang.String component3() {
+        return null;
+    }
+    
+    @org.jetbrains.annotations.NotNull
     public final com.tetris.modern.rl.network.models.ProgressionMergeRequest copy(@org.jetbrains.annotations.NotNull
     java.lang.String playerId, @org.jetbrains.annotations.NotNull
-    com.tetris.modern.rl.network.models.ProgressionData guestData) {
+    com.tetris.modern.rl.network.models.ProgressionData localData, @org.jetbrains.annotations.NotNull
+    java.lang.String mergeStrategy) {
         return null;
     }
     

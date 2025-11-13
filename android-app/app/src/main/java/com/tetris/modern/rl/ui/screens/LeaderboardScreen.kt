@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,14 @@ import com.tetris.modern.rl.data.entities.ScoreEntity
 import com.tetris.modern.rl.ui.theme.*
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.Flow
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.tetris.modern.rl.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,20 +39,54 @@ fun LeaderboardScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val scores by viewModel.topScores.collectAsState(initial = emptyList())
-    var selectedMode by remember { mutableStateOf("All") }
+    val allTimeString = stringResource(R.string.all_time)
+    var selectedMode by remember { mutableStateOf(allTimeString) }
+    var isRefreshing by remember { mutableStateOf(false) }
+    var isSyncing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Filter scores based on selected mode
+    val filteredScores = when (selectedMode) {
+        allTimeString -> scores
+        stringResource(R.string.mode_classic) -> scores.filter { it.gameMode.equals("Classic", ignoreCase = true) }
+        stringResource(R.string.mode_sprint) -> scores.filter { it.gameMode.equals("Sprint", ignoreCase = true) }
+        stringResource(R.string.mode_marathon) -> scores.filter { it.gameMode.equals("Marathon", ignoreCase = true) }
+        stringResource(R.string.mode_zen) -> scores.filter { it.gameMode.equals("Zen", ignoreCase = true) }
+        stringResource(R.string.mode_puzzle) -> scores.filter { it.gameMode.equals("Puzzle", ignoreCase = true) }
+        stringResource(R.string.mode_battle) -> scores.filter { it.gameMode.equals("Battle", ignoreCase = true) }
+        else -> scores
+    }
+    
+    // Sync on screen open
+    LaunchedEffect(Unit) {
+        isSyncing = true
+        viewModel.syncLeaderboard()
+        delay(1000) // Show sync indicator for at least 1 second
+        isSyncing = false
+    }
+    
+    // Pull to refresh function
+    val onRefresh: () -> Unit = {
+        coroutineScope.launch {
+            isRefreshing = true
+            viewModel.syncLeaderboard()
+            delay(500) // Show refresh indicator briefly
+            isRefreshing = false
+        }
+    }
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
-                        "Leaderboard",
+                        stringResource(R.string.leaderboard),
                         style = MaterialTheme.typography.headlineMedium
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -57,20 +100,51 @@ fun LeaderboardScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Back button and title
+            // Back button and title with sync indicator
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back), tint = Color.White)
+                    }
+                    Text(
+                        stringResource(R.string.leaderboard),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
-                Text(
-                    "Leaderboard",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+                
+                // Sync indicator
+                if (isSyncing || isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = NeonColors.cyan,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    IconButton(
+                        onClick = { 
+                            coroutineScope.launch {
+                                isRefreshing = true
+                                viewModel.syncLeaderboard()
+                                delay(500)
+                                isRefreshing = false
+                            }
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Sync,
+                            contentDescription = stringResource(R.string.sync_data),
+                            tint = NeonColors.cyan
+                        )
+                    }
+                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -80,7 +154,15 @@ fun LeaderboardScreen(
                 containerColor = Surface,
                 contentColor = TextPrimary
             ) {
-                listOf("All", "Classic", "Sprint", "Marathon", "Zen", "Puzzle", "Battle").forEachIndexed { index, mode ->
+                listOf(
+                    stringResource(R.string.all_time),
+                    stringResource(R.string.mode_classic),
+                    stringResource(R.string.mode_sprint),
+                    stringResource(R.string.mode_marathon),
+                    stringResource(R.string.mode_zen),
+                    stringResource(R.string.mode_puzzle),
+                    stringResource(R.string.mode_battle)
+                ).forEachIndexed { index, mode ->
                     Tab(
                         selected = selectedMode == mode,
                         onClick = { selectedMode = mode },
@@ -92,14 +174,45 @@ fun LeaderboardScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             // Scores list
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                itemsIndexed(scores) { index, score ->
-                    ScoreCard(
-                        rank = index + 1,
-                        score = score
-                    )
+            if (filteredScores.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Leaderboard,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = TextSecondary
+                        )
+                        Text(
+                            text = "No scores yet",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = TextSecondary
+                        )
+                        Text(
+                            text = "Be the first to set a high score!",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    itemsIndexed(filteredScores) { index, score ->
+                        ScoreCard(
+                            rank = index + 1,
+                            score = score
+                        )
+                    }
                 }
             }
         }
@@ -181,15 +294,16 @@ fun ScoreCard(
     }
 }
 
+@Composable
 fun getTabIndex(mode: String): Int {
-    return when(mode) {
-        "All" -> 0
-        "Classic" -> 1
-        "Sprint" -> 2
-        "Marathon" -> 3
-        "Zen" -> 4
-        "Puzzle" -> 5
-        "Battle" -> 6
-        else -> 0
-    }
+    val modes = listOf(
+        stringResource(R.string.all_time),
+        stringResource(R.string.mode_classic),
+        stringResource(R.string.mode_sprint),
+        stringResource(R.string.mode_marathon),
+        stringResource(R.string.mode_zen),
+        stringResource(R.string.mode_puzzle),
+        stringResource(R.string.mode_battle)
+    )
+    return modes.indexOf(mode).takeIf { it >= 0 } ?: 0
 }

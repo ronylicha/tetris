@@ -2,9 +2,13 @@ package com.tetris.modern.rl;
 
 import androidx.hilt.work.HiltWrapper_WorkerFactoryModule;
 import com.tetris.modern.rl.di.DatabaseModule;
-import com.tetris.modern.rl.network.NetworkModule;
+import com.tetris.modern.rl.di.NetworkModule;
+import com.tetris.modern.rl.notifications.TetrisFirebaseMessagingService_GeneratedInjector;
+import com.tetris.modern.rl.sync.SyncWorker_HiltModule;
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel_HiltModules;
 import com.tetris.modern.rl.ui.viewmodels.SettingsViewModel_HiltModules;
+import com.tetris.modern.rl.viewmodel.AuthViewModel_HiltModules;
+import com.tetris.modern.rl.viewmodel.EnhancedLeaderboardViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -133,6 +137,7 @@ public final class TetrisApplication_HiltComponents {
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
           HiltWrapper_WorkerFactoryModule.class,
           NetworkModule.class,
+          SyncWorker_HiltModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class
       }
@@ -148,7 +153,8 @@ public final class TetrisApplication_HiltComponents {
 
   @Subcomponent
   @ServiceScoped
-  public abstract static class ServiceC implements ServiceComponent,
+  public abstract static class ServiceC implements TetrisFirebaseMessagingService_GeneratedInjector,
+      ServiceComponent,
       GeneratedComponent {
     @Subcomponent.Builder
     abstract interface Builder extends ServiceComponentBuilder {
@@ -157,6 +163,8 @@ public final class TetrisApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.KeyModule.class,
+          EnhancedLeaderboardViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           MainViewModel_HiltModules.KeyModule.class,
           SettingsViewModel_HiltModules.KeyModule.class,
@@ -197,6 +205,8 @@ public final class TetrisApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.BindsModule.class,
+          EnhancedLeaderboardViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           MainViewModel_HiltModules.BindsModule.class,
           SettingsViewModel_HiltModules.BindsModule.class

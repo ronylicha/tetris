@@ -1,13 +1,18 @@
 package com.tetris.modern.rl.data.repository
 
+import android.content.Context
 import com.google.gson.Gson
+import com.tetris.modern.rl.auth.AuthManager
 import com.tetris.modern.rl.data.dao.ProgressionDao
+import com.tetris.modern.rl.data.dao.ScoreDao
 import com.tetris.modern.rl.data.entities.ProgressionEntity
 import com.tetris.modern.rl.network.ApiService
 import com.tetris.modern.rl.network.models.*
 import com.tetris.modern.rl.progression.PlayerProgression
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -16,8 +21,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ProgressionRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val progressionDao: ProgressionDao,
+    private val scoreDao: ScoreDao,
     private val apiService: ApiService,
+    private val authManager: AuthManager,
     private val playerProgression: PlayerProgression
 ) {
     private val gson = Gson()
@@ -83,11 +91,11 @@ class ProgressionRepository @Inject constructor(
                 
                 // Try to sync with server
                 try {
+                    val playerId = authManager.getCurrentUserId() ?: "guest_${android.provider.Settings.Secure.getString(context.contentResolver, android.provider.Settings.Secure.ANDROID_ID)}"
                     val request = ProgressionUpdateRequest(
-                        playerId = "player1", // TODO: Get actual player ID
-                        xpGained = xpGained,
-                        source = source,
-                        gameData = gameData
+                        playerId = playerId,
+                        xpEarned = xpGained,
+                        source = source
                     )
                     
                     val response = apiService.updateProgression(request)
@@ -101,9 +109,10 @@ class ProgressionRepository @Inject constructor(
                             ProgressionUpdateResponse(
                                 success = true,
                                 newLevel = currentState.level,
-                                newXP = currentState.currentXP,
+                                newXp = currentState.currentXP,
                                 levelUp = false,
-                                unlocks = null
+                                newUnlocks = null,
+                                message = null
                             )
                         )
                     }
@@ -114,9 +123,10 @@ class ProgressionRepository @Inject constructor(
                         ProgressionUpdateResponse(
                             success = true,
                             newLevel = currentState.level,
-                            newXP = currentState.currentXP,
+                            newXp = currentState.currentXP,
                             levelUp = false,
-                            unlocks = null
+                            newUnlocks = null,
+                            message = null
                         )
                     )
                 }
@@ -133,53 +143,122 @@ class ProgressionRepository @Inject constructor(
     suspend fun syncProgression() {
         withContext(Dispatchers.IO) {
             try {
-                // Get server progression
-                val response = apiService.getProgression("player1") // TODO: Get actual player ID
+                val playerId = authManager.getCurrentUserId() ?: return@withContext
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val serverData = response.body()?.progression
-                    serverData?.let { sd ->
-                        // Compare with local and merge
-                        val localData = progressionDao.getProgression().firstOrNull()
+                // Get local state
+                val currentState = playerProgression.progressionState.value
+                val localProgression = progressionDao.getProgression().firstOrNull()
+                
+                // Get server progression first to check if we need to merge
+                val getResponse = apiService.getProgression(playerId)
+                
+                if (getResponse.isSuccessful && getResponse.body()?.success == true) {
+                    val serverData = getResponse.body()!!
+                    
+                    // Decide sync strategy based on XP comparison
+                    if (serverData.totalXp > currentState.totalXP) {
+                        // Server has more progress, update local
+                        Timber.d("Server has more XP (${serverData.totalXp} vs ${currentState.totalXP}), updating local")
                         
-                        if (localData == null || sd.totalXP > localData.totalXp) {
-                            // Server has more progress, update local
-                            val updatedEntity = ProgressionEntity(
-                                currentLevel = sd.level,
-                                currentXp = sd.currentXP,
-                                totalXp = sd.totalXP,
-                                currentRank = sd.rank,
-                                unlockedThemes = gson.toJson(sd.unlockedItems.themes),
-                                unlockedMusic = gson.toJson(sd.unlockedItems.music),
-                                unlockedPieceStyles = gson.toJson(sd.unlockedItems.pieceStyles),
-                                unlockedEffects = gson.toJson(sd.unlockedItems.effects),
-                                statistics = gson.toJson(sd.statistics)
-                            )
-                            progressionDao.updateProgression(updatedEntity)
-                            
-                            // Update in-memory state
-                            playerProgression.reset()
-                            repeat(sd.totalXP) {
-                                playerProgression.addXP(1, "sync")
-                            }
-                        } else if (localData.totalXp > sd.totalXP) {
-                            // Local has more progress, push to server
-                            val localTotalXP = localData.totalXp
-                            val request = ProgressionSyncRequest(
-                                playerId = "player1", // TODO: Get actual player ID
-                                totalXP = localTotalXP,
-                                level = localData.currentLevel,
-                                rank = localData.currentRank,
-                                unlockedItems = listOf() // TODO: Parse from JSON
-                            )
-                            apiService.syncProgression(request)
-                        }
+                        val updatedEntity = ProgressionEntity(
+                            currentLevel = serverData.level,
+                            currentXp = serverData.currentXp,
+                            totalXp = serverData.totalXp,
+                            currentRank = serverData.rank,
+                            unlockedThemes = gson.toJson(serverData.unlocks?.get("themes") ?: listOf("default")),
+                            unlockedMusic = gson.toJson(serverData.unlocks?.get("music") ?: listOf("classic")),
+                            unlockedPieceStyles = gson.toJson(serverData.unlocks?.get("piece_styles") ?: listOf("neon")),
+                            unlockedEffects = gson.toJson(serverData.unlocks?.get("effects") ?: listOf("basic")),
+                            statistics = gson.toJson(serverData.statistics ?: mapOf<String, Any>())
+                        )
+                        progressionDao.updateProgression(updatedEntity)
+                        
+                        // Update in-memory state
+                        // Note: This is a simplified update, you might want to properly merge the data
+                        playerProgression.reset()
+                        playerProgression.addXP(serverData.totalXp, "sync")
+                        
+                    } else if (currentState.totalXP > serverData.totalXp) {
+                        // Local has more progress, push to server
+                        Timber.d("Local has more XP (${currentState.totalXP} vs ${serverData.totalXp}), pushing to server")
+                        
+                        pushProgressionToServer()
+                    } else {
+                        Timber.d("Progression is already in sync")
                     }
+                } else {
+                    // Server doesn't have data or error, push local data
+                    Timber.d("No server data found, pushing local progression")
+                    pushProgressionToServer()
                 }
+                
             } catch (e: Exception) {
                 Timber.e(e, "Failed to sync progression")
             }
         }
+    }
+    
+    /**
+     * Push local progression to server
+     */
+    private suspend fun pushProgressionToServer() {
+        try {
+            val playerId = authManager.getCurrentUserId() ?: return
+            val currentState = playerProgression.progressionState.value
+            
+            // Get statistics from database
+            val scores = scoreDao.getAllScores().first()
+            val stats = currentState.statistics
+            
+            val statistics = mapOf(
+                "total_games_played" to stats.totalGamesPlayed,
+                "total_score" to stats.totalScore,
+                "total_lines" to stats.totalLinesCleared,
+                "highest_score" to stats.highestScore,
+                "total_tspins" to stats.totalTSpins,
+                "total_tetrises" to stats.totalTetrises,
+                "perfect_clears" to stats.totalPerfectClears,
+                "longest_combo" to stats.longestCombo,
+                "total_play_time" to stats.totalPlayTime
+            )
+            
+            val request = ProgressionSyncRequest(
+                action = "sync_progression",
+                playerId = playerId,
+                level = currentState.level,
+                currentXp = currentState.currentXP,
+                totalXp = currentState.totalXP,
+                rank = currentState.rank.displayName,
+                unlockedThemes = currentState.unlockedThemes.toList(),
+                unlockedMusic = currentState.unlockedMusic.toList(),
+                unlockedPieceStyles = currentState.unlockedPieceStyles.toList(),
+                unlockedEffects = currentState.unlockedEffects.toList(),
+                statistics = statistics,
+                totalGamesPlayed = stats.totalGamesPlayed,
+                totalPlayTime = stats.totalPlayTime,
+                favoriteMode = stats.favoriteMode,
+                dailyStreak = playerProgression.progressionState.value.dailyStreak,
+                dailyChallengesCompleted = playerProgression.progressionState.value.dailyChallengesCompleted
+            )
+            
+            val response = apiService.syncProgression(request)
+            
+            if (response.isSuccessful) {
+                Timber.d("Progression successfully synced to server")
+            } else {
+                Timber.w("Failed to sync progression: ${response.message()}")
+            }
+            
+        } catch (e: Exception) {
+            Timber.e(e, "Error pushing progression to server")
+        }
+    }
+    
+    /**
+     * Sync progression with API - call this after each game
+     */
+    suspend fun syncWithAPI(userId: String) {
+        syncProgression()
     }
     
     /**

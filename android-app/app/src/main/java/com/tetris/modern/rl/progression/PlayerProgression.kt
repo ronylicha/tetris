@@ -7,6 +7,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.pow
+import com.google.gson.Gson
 
 @Singleton
 class PlayerProgression @Inject constructor() {
@@ -37,7 +38,9 @@ class PlayerProgression @Inject constructor() {
         val unlockedMusic: Set<String> = setOf("theme_a"),
         val unlockedPieceStyles: Set<String> = setOf("standard"),
         val unlockedEffects: Set<String> = setOf("basic"),
-        val statistics: PlayerStatistics = PlayerStatistics()
+        val statistics: PlayerStatistics = PlayerStatistics(),
+        val dailyStreak: Int = 0,
+        val dailyChallengesCompleted: Int = 0
     )
     
     enum class Rank(val minLevel: Int, val displayName: String, val color: String) {
@@ -278,5 +281,41 @@ class PlayerProgression @Inject constructor() {
     
     fun reset() {
         _progressionState.value = ProgressionState()
+    }
+    
+    /**
+     * Load progression from database entity
+     */
+    fun loadFromEntity(entity: com.tetris.modern.rl.data.entities.ProgressionEntity) {
+        try {
+            val rank = Rank.values().find { it.displayName == entity.currentRank } ?: Rank.NOVICE
+            
+            _progressionState.value = _progressionState.value.copy(
+                level = entity.currentLevel,
+                currentXP = entity.currentXp,
+                totalXP = entity.totalXp,
+                rank = rank,
+                unlockedThemes = parseJsonSet(entity.unlockedThemes),
+                unlockedMusic = parseJsonSet(entity.unlockedMusic),
+                unlockedPieceStyles = parseJsonSet(entity.unlockedPieceStyles),
+                unlockedEffects = parseJsonSet(entity.unlockedEffects)
+            )
+            
+            Timber.d("Loaded progression from entity: Level ${entity.currentLevel}, XP ${entity.currentXp}")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to load progression from entity")
+        }
+    }
+    
+    /**
+     * Parse JSON string to Set<String>
+     */
+    private fun parseJsonSet(json: String): Set<String> {
+        return try {
+            com.google.gson.Gson().fromJson(json, object : com.google.gson.reflect.TypeToken<Set<String>>() {}.type) ?: emptySet()
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to parse JSON set: $json")
+            emptySet()
+        }
     }
 }

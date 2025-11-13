@@ -18,6 +18,7 @@ data class GameState(
     val gameDuration: Long = 0L,
     val piecesPlaced: Int = 0,
     val isVictory: Boolean = false,
+    val clearedLines: List<Int> = emptyList(), // Lines that were just cleared for explosion effect
     
     // Mode-specific data
     val targetLines: Int? = null, // For Sprint/Marathon modes

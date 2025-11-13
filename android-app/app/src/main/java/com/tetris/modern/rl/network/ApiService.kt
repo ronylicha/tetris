@@ -7,7 +7,7 @@ import retrofit2.http.*
 interface ApiService {
     
     // Score endpoints
-    @GET("api/scores.php")
+    @GET("api/scores.php?action=leaderboard")
     suspend fun getLeaderboard(
         @Query("mode") mode: String? = null,
         @Query("limit") limit: Int = 100,
@@ -26,7 +26,7 @@ interface ApiService {
     ): Response<PlayerScoresResponse>
     
     // Progression endpoints
-    @GET("api/player-progression.php")
+    @GET("api/player-progression.php?action=get_progression")
     suspend fun getProgression(
         @Query("player_id") playerId: String
     ): Response<ProgressionResponse>
@@ -36,7 +36,7 @@ interface ApiService {
         @Body progressionRequest: ProgressionUpdateRequest
     ): Response<ProgressionUpdateResponse>
     
-    @POST("api/player-progression.php?action=sync")
+    @POST("api/player-progression.php")
     suspend fun syncProgression(
         @Body request: ProgressionSyncRequest
     ): Response<ProgressionSyncResponse>
@@ -93,6 +93,11 @@ interface ApiService {
     suspend fun refreshToken(
         @Header("Authorization") token: String
     ): Response<TokenRefreshResponse>
+    
+    @POST("api/auth.php?action=check")
+    suspend fun checkAvailability(
+        @Body checkRequest: AvailabilityCheckRequest
+    ): Response<AvailabilityCheckResponse>
     
     // Puzzle endpoints
     @GET("api/puzzles.php")

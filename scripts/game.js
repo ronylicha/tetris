@@ -93,6 +93,42 @@ export class TetrisGame {
         this.startGameLoop();
     }
 
+    setupCanvas() {
+        // Get the CSS-defined dimensions
+        const computedStyle = window.getComputedStyle(this.canvas);
+        const cssWidth = parseInt(computedStyle.width) || 288; // 18em = 288px (assuming 16px/em)
+        const cssHeight = parseInt(computedStyle.height) || 576; // 36em = 576px
+        
+        // Use CSS dimensions for display
+        this.canvas.style.width = cssWidth + 'px';
+        this.canvas.style.height = cssHeight + 'px';
+        
+        // Calculate cell size based on CSS dimensions
+        this.cellSize = Math.floor(Math.min(cssWidth / GRID_WIDTH, cssHeight / GRID_HEIGHT));
+        
+        // Ensure minimum cell size
+        this.cellSize = Math.max(this.cellSize, 10);
+        
+        // Set internal canvas dimensions for rendering
+        this.canvas.width = GRID_WIDTH * this.cellSize;
+        this.canvas.height = GRID_HEIGHT * this.cellSize;
+        
+        // Ensure canvas is visible
+        this.canvas.style.display = 'block';
+        this.canvas.style.visibility = 'visible';
+        
+        // Enable crisp rendering
+        this.ctx.imageSmoothingEnabled = false;
+        
+        console.log('Canvas setup:', {
+            cssWidth: cssWidth,
+            cssHeight: cssHeight,
+            internalWidth: this.canvas.width,
+            internalHeight: this.canvas.height,
+            cellSize: this.cellSize
+        });
+    }
+
     initializeGame() {
         // Setup canvas
         this.setupCanvas();
@@ -120,25 +156,59 @@ export class TetrisGame {
             window.tetrisGame = this;
         }
     }
-
-    setupCanvas() {
-        // Fixed internal resolution
-        const internalWidth = 400;
-        const internalHeight = 800;
+    
+    checkAllGameAchievements(stats) {
+        console.log('[Game] Checking all achievements with stats:', stats);
         
-        // Set internal dimensions
-        this.canvas.width = internalWidth;
-        this.canvas.height = internalHeight;
-        
-        // CSS will handle the display size
-        // The canvas will scale to fit its container
-        
-        // Setup rendering context
-        this.ctx.imageSmoothingEnabled = false;
-        this.cellSize = internalWidth / GRID_WIDTH;
-        
+        // Update achievement progress
+        if (achievementSystem) {
+            // Update cumulative stats
+            achievementSystem.updateProgress('totalLines', stats.lines, true);
+            achievementSystem.updateProgress('highScore', stats.score);
+            achievementSystem.updateProgress('maxCombo', stats.combo);
+            achievementSystem.updateProgress('tspins', stats.tspins, true);
+            achievementSystem.updateProgress('perfectClears', stats.perfectClears, true);
+            
+            // Check specific achievements
+            achievementSystem.checkAchievement('SCORE_10K', stats.score >= 10000);
+            achievementSystem.checkAchievement('SCORE_100K', stats.score >= 100000);
+            achievementSystem.checkAchievement('SCORE_1M', stats.score >= 1000000);
+            
+            // Check line achievements
+            const totalLines = achievementSystem.progress.totalLines || 0;
+            achievementSystem.checkAchievement('LINES_100', totalLines >= 100);
+            achievementSystem.checkAchievement('LINES_1000', totalLines >= 1000);
+            achievementSystem.checkAchievement('LINES_10000', totalLines >= 10000);
+            
+            // Check combo achievements
+            achievementSystem.checkAchievement('COMBO_5', stats.combo >= 5);
+            achievementSystem.checkAchievement('COMBO_10', stats.combo >= 10);
+            achievementSystem.checkAchievement('COMBO_20', stats.combo >= 20);
+            
+            // Check T-spin achievements
+            const totalTspins = achievementSystem.progress.tspins || 0;
+            achievementSystem.checkAchievement('FIRST_TSPIN', totalTspins >= 1);
+            achievementSystem.checkAchievement('TSPIN_MASTER', totalTspins >= 100);
+            
+            // Check perfect clear achievements
+            const totalPerfectClears = achievementSystem.progress.perfectClears || 0;
+            achievementSystem.checkAchievement('PERFECT_CLEAR', totalPerfectClears >= 1);
+            achievementSystem.checkAchievement('PERFECT_CLEAR_5', totalPerfectClears >= 5);
+            
+            // Check Tetris achievements
+            achievementSystem.checkAchievement('FIRST_TETRIS', stats.tetris >= 1);
+            
+            // Check mode-specific achievements
+            if (stats.mode === 'sprint' && this.gameMode && this.gameMode.elapsedTime) {
+                achievementSystem.checkAchievement('SPRINT_SUB60', this.gameMode.elapsedTime < 60);
+            }
+            
+            if (stats.mode === 'marathon' && stats.lines >= 150) {
+                achievementSystem.checkAchievement('MARATHON_COMPLETE', true);
+            }
+        }
     }
-
+    
     // Game loop
     startGameLoop() {
         let lastRenderTime = 0;
@@ -1181,58 +1251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (desktopAccount) {
             observer.observe(desktopAccount, { childList: true, characterData: true, subtree: true });
-        }
-    }
-    
-    checkAllGameAchievements(stats) {
-        console.log('[Game] Checking all achievements with stats:', stats);
-        
-        // Update achievement progress
-        if (achievementSystem) {
-            // Update cumulative stats
-            achievementSystem.updateProgress('totalLines', stats.lines, true);
-            achievementSystem.updateProgress('highScore', stats.score);
-            achievementSystem.updateProgress('maxCombo', stats.combo);
-            achievementSystem.updateProgress('tspins', stats.tspins, true);
-            achievementSystem.updateProgress('perfectClears', stats.perfectClears, true);
-            
-            // Check specific achievements
-            achievementSystem.checkAchievement('SCORE_10K', stats.score >= 10000);
-            achievementSystem.checkAchievement('SCORE_100K', stats.score >= 100000);
-            achievementSystem.checkAchievement('SCORE_1M', stats.score >= 1000000);
-            
-            // Check line achievements
-            const totalLines = achievementSystem.progress.totalLines || 0;
-            achievementSystem.checkAchievement('LINES_100', totalLines >= 100);
-            achievementSystem.checkAchievement('LINES_1000', totalLines >= 1000);
-            achievementSystem.checkAchievement('LINES_10000', totalLines >= 10000);
-            
-            // Check combo achievements
-            achievementSystem.checkAchievement('COMBO_5', stats.combo >= 5);
-            achievementSystem.checkAchievement('COMBO_10', stats.combo >= 10);
-            achievementSystem.checkAchievement('COMBO_20', stats.combo >= 20);
-            
-            // Check T-spin achievements
-            const totalTspins = achievementSystem.progress.tspins || 0;
-            achievementSystem.checkAchievement('FIRST_TSPIN', totalTspins >= 1);
-            achievementSystem.checkAchievement('TSPIN_MASTER', totalTspins >= 100);
-            
-            // Check perfect clear achievements
-            const totalPerfectClears = achievementSystem.progress.perfectClears || 0;
-            achievementSystem.checkAchievement('PERFECT_CLEAR', totalPerfectClears >= 1);
-            achievementSystem.checkAchievement('PERFECT_CLEAR_5', totalPerfectClears >= 5);
-            
-            // Check Tetris achievements
-            achievementSystem.checkAchievement('FIRST_TETRIS', stats.tetris >= 1);
-            
-            // Check mode-specific achievements
-            if (stats.mode === 'sprint' && this.gameMode && this.gameMode.elapsedTime) {
-                achievementSystem.checkAchievement('SPRINT_SUB60', this.gameMode.elapsedTime < 60);
-            }
-            
-            if (stats.mode === 'marathon' && stats.lines >= 150) {
-                achievementSystem.checkAchievement('MARATHON_COMPLETE', true);
-            }
         }
     }
 });

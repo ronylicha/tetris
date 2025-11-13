@@ -163,11 +163,13 @@ class TetrisAI(private val difficultyLevel: Int = 2) {
         
         // Try using hold if available
         if (useHold && canHold && holdPiece != null) {
-            val heldPieceMoves = findMovesForPiece(
-                Piece(holdPiece!!, TetrisEngine.GRID_WIDTH / 2, 0, 0)
-            )
-            heldPieceMoves.forEach { move ->
-                moves.add(move.copy(useHold = true))
+            holdPiece?.let { heldPieceType ->
+                val heldPieceMoves = findMovesForPiece(
+                    Piece(heldPieceType, TetrisEngine.GRID_WIDTH / 2, 0, 0)
+                    )
+                heldPieceMoves.forEach { move ->
+                    moves.add(move.copy(useHold = true))
+                }
             }
         }
         
@@ -235,26 +237,26 @@ class TetrisAI(private val difficultyLevel: Int = 2) {
         val deepHoles = countDeepHoles(testGrid)
         val transitions = countTransitions(testGrid)
         
-        // Calculate weighted score
+        // Calculate weighted score with safe access
         var score = 0.0
-        score += WEIGHTS["height"]!! * height
-        score += WEIGHTS["holes"]!! * holes
-        score += WEIGHTS["bumpiness"]!! * bumpiness
-        score += WEIGHTS["wells"]!! * wells
-        score += WEIGHTS["lines"]!! * lines * lines // Square for emphasis
-        score += WEIGHTS["deepHoles"]!! * deepHoles
-        score += WEIGHTS["transitions"]!! * transitions
+        score += (WEIGHTS["height"] ?: -0.510066) * height
+        score += (WEIGHTS["holes"] ?: -0.35663) * holes
+        score += (WEIGHTS["bumpiness"] ?: -0.184483) * bumpiness
+        score += (WEIGHTS["wells"] ?: -0.35663) * wells
+        score += (WEIGHTS["lines"] ?: 0.760666) * lines * lines // Square for emphasis
+        score += (WEIGHTS["deepHoles"] ?: -0.7) * deepHoles
+        score += (WEIGHTS["transitions"] ?: -0.3) * transitions
         
         // Advanced strategies for higher difficulties
         if (difficultyLevel >= LEVEL_HARD) {
             // Check for T-spin setups
             if (piece.type == PieceType.T && checkTSpinSetup(testGrid, piece)) {
-                score += WEIGHTS["tSpinSetup"]!! * 100
+                score += (WEIGHTS["tSpinSetup"] ?: 0.4) * 100
             }
             
             // Check for Tetris well
             if (checkTetrisWell(testGrid)) {
-                score += WEIGHTS["tetrisWell"]!! * 50
+                score += (WEIGHTS["tetrisWell"] ?: 0.3) * 50
             }
         }
         

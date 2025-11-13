@@ -432,7 +432,8 @@ class TetrisEngine @Inject constructor(
         if (clearedLines.isNotEmpty()) {
             _gameState.value = _gameState.value.copy(
                 combo = _gameState.value.combo + 1,
-                score = _gameState.value.score + score + (_gameState.value.combo * POINTS_COMBO_MULTIPLIER)
+                score = _gameState.value.score + score + (_gameState.value.combo * POINTS_COMBO_MULTIPLIER),
+                clearedLines = clearedLines // Track cleared lines for explosion effect
             )
             
             // Play appropriate sound and vibration feedback
@@ -449,7 +450,7 @@ class TetrisEngine @Inject constructor(
                 audioManager.playComboFeedback(_gameState.value.combo)
             }
         } else {
-            _gameState.value = _gameState.value.copy(combo = 0)
+            _gameState.value = _gameState.value.copy(combo = 0, clearedLines = emptyList())
         }
         
         // Update level
@@ -614,6 +615,11 @@ class TetrisEngine @Inject constructor(
             }
             ghostPiece
         }
+    }
+    
+    fun clearExplosionState() {
+        // Clear the cleared lines list after explosion animation completes
+        _gameState.value = _gameState.value.copy(clearedLines = emptyList())
     }
     
     private fun adjustMusicTempo(level: Int) {

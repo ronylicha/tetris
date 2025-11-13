@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-73:/values-bs/values-bs.xml",
+            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-84:/values-bs/values-bs.xml",
             "map": [
                 {
                     "source": "/home/rony/.gradle/caches/8.9/transforms/581eb88c0bd251195627650614172117/transformed/jetified-material3-release/res/values-bs/values-bs.xml",

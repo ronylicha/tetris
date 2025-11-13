@@ -17,8 +17,8 @@ android {
         applicationId = "com.tetris.modern.rl"
         minSdk = 24
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.1.0"
+        versionCode = 18
+        versionName = "1.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -116,6 +116,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     
+    // Lifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
@@ -126,10 +129,21 @@ dependencies {
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-paging:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
+    
+    // Paging
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+    implementation("androidx.paging:paging-compose:3.2.1")
     
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    
+    // Firebase
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
     
     // Networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -146,6 +160,9 @@ dependencies {
     // Accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
     
     // Lottie for animations
     implementation("com.airbnb.android:lottie-compose:6.1.0")

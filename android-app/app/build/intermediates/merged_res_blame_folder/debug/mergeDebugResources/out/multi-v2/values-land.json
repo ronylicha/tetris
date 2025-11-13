@@ -1,8 +1,25 @@
 {
     "logs": [
         {
-            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-73:/values-land/values-land.xml",
+            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-84:/values-land/values-land.xml",
             "map": [
+                {
+                    "source": "/var/www/html/tetris/android-app/app/src/main/res/values-land/dimens.xml",
+                    "from": {
+                        "startLines": "19,20,24,5,7,6,9,23,8,15,14,13,12,16",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "729,774,919,152,255,203,355,870,308,591,545,501,458,636",
+                        "endColumns": "44,50,46,50,52,51,46,48,46,44,45,43,42,45",
+                        "endOffsets": "769,820,961,198,303,250,397,914,350,631,586,540,496,677"
+                    },
+                    "to": {
+                        "startLines": "5,6,7,8,9,10,11,12,13,14,15,16,17,18",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "264,309,360,407,458,511,563,610,659,706,751,797,841,884",
+                        "endColumns": "44,50,46,50,52,51,46,48,46,44,45,43,42,45",
+                        "endOffsets": "304,355,402,453,506,558,605,654,701,746,792,836,879,925"
+                    }
+                },
                 {
                     "source": "/home/rony/.gradle/caches/8.9/transforms/66279ad2943373106fb702411ecdd15f/transformed/appcompat-1.6.1/res/values-land/values-land.xml",
                     "from": {

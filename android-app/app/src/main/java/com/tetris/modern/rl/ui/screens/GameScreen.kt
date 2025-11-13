@@ -33,9 +33,15 @@ import com.tetris.modern.rl.ui.components.ScoreDisplay
 import com.tetris.modern.rl.ui.components.EnhancedTouchControls
 import com.tetris.modern.rl.ui.components.ModeSpecificDisplay
 import com.tetris.modern.rl.ui.viewmodels.MainViewModel
+import com.tetris.modern.rl.effects.LineExplosionEffect
+import com.tetris.modern.rl.effects.LineExplosion
+import com.tetris.modern.rl.effects.createLineExplosion
+import com.tetris.modern.rl.effects.explosionColors
 import kotlinx.coroutines.delay
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import com.tetris.modern.rl.R
 
 @Composable
 fun GameScreen(
@@ -118,17 +124,6 @@ fun GameScreen(
                         viewModel = viewModel,
                         modifier = Modifier.fillMaxSize()
                     )
-                    
-                    // Pause overlay
-                    if (gameState.isPaused) {
-                        PauseOverlay(
-                            onResume = { 
-                                viewModel.resumeGame()
-                            },
-                            onQuit = onBackToMenu,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
                 }
             }
             
@@ -193,6 +188,17 @@ fun GameScreen(
                 level = gameState.level
             )
         }
+        
+        // Pause overlay - placed at the top level to cover everything
+        if (gameState.isPaused) {
+            PauseOverlay(
+                onResume = { 
+                    viewModel.resumeGame()
+                },
+                onQuit = onBackToMenu,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
@@ -204,6 +210,42 @@ fun TetrisGameCanvas(
     var canvasSize by remember { mutableStateOf(Size.Zero) }
     val gameState by viewModel.gameState.collectAsState()
     var refreshTrigger by remember { mutableStateOf(0) }
+    
+    // Track active explosions with size limit
+    val explosions = remember { mutableStateListOf<LineExplosion>() }
+    val maxExplosions = 5 // Limit concurrent explosions to prevent memory issues
+    
+    // Create explosions when lines are cleared
+    LaunchedEffect(gameState.clearedLines) {
+        if (gameState.clearedLines.isNotEmpty()) {
+            // Remove old explosions if we have too many
+            while (explosions.size + gameState.clearedLines.size > maxExplosions && explosions.isNotEmpty()) {
+                explosions.removeAt(0)
+            }
+            
+            gameState.clearedLines.forEach { lineY ->
+                if (explosions.size < maxExplosions) {
+                    explosions.add(
+                        createLineExplosion(
+                            lineY = lineY,
+                            gridWidth = TetrisEngine.GRID_WIDTH,
+                            colors = explosionColors
+                        )
+                    )
+                }
+            }
+            // Clear the engine state after creating explosions
+            delay(50) // Small delay to ensure explosions are created
+            viewModel.tetrisEngine.clearExplosionState()
+        }
+    }
+    
+    // Clean up explosions when component is disposed
+    DisposableEffect(Unit) {
+        onDispose {
+            explosions.clear()
+        }
+    }
     
     // Force canvas refresh at 60 FPS
     // Also force refresh when resuming from pause
@@ -218,32 +260,51 @@ fun TetrisGameCanvas(
         }
     }
     
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0A0A)),
-        onDraw = {
-        canvasSize = size
+    Box(modifier = modifier) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF0A0A0A)),
+            onDraw = {
+            canvasSize = size
+            
+            val cellSize = size.width / TetrisEngine.GRID_WIDTH
+            val gridHeight = cellSize * TetrisEngine.GRID_HEIGHT
+            val offsetY = (size.height - gridHeight) / 2
+            
+            // Draw grid background
+            drawGrid(cellSize, offsetY)
+            
+            // Draw placed pieces
+            drawPlacedPieces(viewModel, cellSize, offsetY)
+            
+            // Draw ghost piece
+            drawGhostPiece(viewModel, cellSize, offsetY)
+            
+            // Draw current piece
+            drawCurrentPiece(viewModel, cellSize, offsetY)
+            
+            // Force recomposition based on refresh trigger
+            refreshTrigger.toString()
+        })
         
-        val cellSize = size.width / TetrisEngine.GRID_WIDTH
-        val gridHeight = cellSize * TetrisEngine.GRID_HEIGHT
-        val offsetY = (size.height - gridHeight) / 2
-        
-        // Draw grid background
-        drawGrid(cellSize, offsetY)
-        
-        // Draw placed pieces
-        drawPlacedPieces(viewModel, cellSize, offsetY)
-        
-        // Draw ghost piece
-        drawGhostPiece(viewModel, cellSize, offsetY)
-        
-        // Draw current piece
-        drawCurrentPiece(viewModel, cellSize, offsetY)
-        
-        // Force recomposition based on refresh trigger
-        refreshTrigger.toString()
-    })
+        // Render explosion effects on top
+        if (explosions.isNotEmpty() && canvasSize != Size.Zero) {
+            val cellSize = canvasSize.width / TetrisEngine.GRID_WIDTH
+            val gridHeight = cellSize * TetrisEngine.GRID_HEIGHT
+            val offsetY = (canvasSize.height - gridHeight) / 2
+            
+            LineExplosionEffect(
+                explosions = explosions,
+                cellSize = cellSize,
+                offsetY = offsetY,
+                modifier = Modifier.fillMaxSize(),
+                onExplosionComplete = { explosion ->
+                    explosions.remove(explosion)
+                }
+            )
+        }
+    }
 }
 
 fun DrawScope.drawGrid(cellSize: Float, offsetY: Float) {
@@ -398,14 +459,17 @@ fun HoldPieceDisplay(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .width(80.dp)
+                .fillMaxHeight()
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "HOLD",
+                text = stringResource(R.string.hold),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Visible
             )
             
             heldPiece?.let { pieceType ->
@@ -505,7 +569,7 @@ fun PauseOverlay(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "PAUSED",
+                    text = stringResource(R.string.paused),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color.White
                 )
@@ -522,7 +586,7 @@ fun PauseOverlay(
                     )
                 ) {
                     Text(
-                        "RESUME",
+                        stringResource(R.string.resume),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -547,7 +611,7 @@ fun PauseOverlay(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "TOUCH CONTROLS HELP",
+                        stringResource(R.string.touch_controls_help),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF00FF00)
@@ -562,7 +626,7 @@ fun PauseOverlay(
                     border = BorderStroke(2.dp, Color(0xFFFF00FF))
                 ) {
                     Text(
-                        "QUIT TO MENU",
+                        stringResource(R.string.quit_to_menu),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFFF00FF)
@@ -622,11 +686,11 @@ fun GameOverOverlay(
             ) {
                 // Dynamic title based on success/failure
                 val titleText = when {
-                    isVictory -> "CHALLENGE COMPLETE!"
-                    gameMode == "Sprint" && lines >= 40 -> "SPRINT COMPLETE!"
-                    gameMode == "Marathon" && lines >= 150 -> "MARATHON COMPLETE!"
-                    gameMode == "Puzzle" && isVictory -> "PUZZLE SOLVED!"
-                    else -> "GAME OVER"
+                    isVictory -> stringResource(R.string.challenge_complete)
+                    gameMode == "Sprint" && lines >= 40 -> stringResource(R.string.sprint_complete)
+                    gameMode == "Marathon" && lines >= 150 -> stringResource(R.string.marathon_complete)
+                    gameMode == "Puzzle" && isVictory -> stringResource(R.string.puzzle_solved)
+                    else -> stringResource(R.string.game_over)
                 }
                 
                 val titleColor = if (isVictory) Color(0xFF00FF00) else Color.Red
@@ -650,7 +714,7 @@ fun GameOverOverlay(
                 }
                 
                 Text(
-                    text = "SCORE",
+                    text = stringResource(R.string.score),
                     style = if (isMobile) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
                     color = Color.White.copy(alpha = 0.7f)
                 )
@@ -669,11 +733,11 @@ fun GameOverOverlay(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("LINES", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+                        Text(stringResource(R.string.lines), color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
                         Text(lines.toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("LEVEL", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+                        Text(stringResource(R.string.level), color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
                         Text(level.toString(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -690,7 +754,7 @@ fun GameOverOverlay(
                     )
                 ) {
                     Text(
-                        "PLAY AGAIN",
+                        stringResource(R.string.play_again),
                         fontSize = if (isMobile) 16.sp else 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -705,7 +769,7 @@ fun GameOverOverlay(
                     border = BorderStroke(2.dp, Color(0xFFFFFF00))
                 ) {
                     Text(
-                        "CHANGE MODE",
+                        stringResource(R.string.change_mode),
                         fontSize = if (isMobile) 16.sp else 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFFFFFF00)
@@ -719,7 +783,7 @@ fun GameOverOverlay(
                         .height(if (isMobile) 40.dp else 48.dp)
                 ) {
                     Text(
-                        "MAIN MENU",
+                        stringResource(R.string.main_menu),
                         fontSize = if (isMobile) 14.sp else 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.8f)

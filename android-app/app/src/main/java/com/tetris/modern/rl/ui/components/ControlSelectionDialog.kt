@@ -46,7 +46,7 @@ fun ControlSelectionDialog(
                     Icons.Default.Gamepad,
                     contentDescription = "Controls",
                     modifier = Modifier.size(48.dp),
-                    tint = NeonColors.Cyan
+                    tint = NeonColors.cyan
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -101,7 +101,7 @@ fun ControlSelectionDialog(
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonColors.Cyan
+                        containerColor = NeonColors.cyan
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -142,7 +142,7 @@ private fun ControlOption(
                 if (isSelected) {
                     Modifier.border(
                         width = 2.dp,
-                        color = NeonColors.Cyan,
+                        color = NeonColors.cyan,
                         shape = RoundedCornerShape(12.dp)
                     )
                 } else {
@@ -168,7 +168,7 @@ private fun ControlOption(
                 imageVector = icon,
                 contentDescription = title,
                 modifier = Modifier.size(32.dp),
-                tint = if (isSelected) NeonColors.Cyan else Color.Gray
+                tint = if (isSelected) NeonColors.cyan else Color.Gray
             )
             
             Spacer(modifier = Modifier.width(12.dp))
@@ -196,7 +196,7 @@ private fun ControlOption(
                     Icons.Default.CheckCircle,
                     contentDescription = "Selected",
                     modifier = Modifier.size(24.dp),
-                    tint = NeonColors.Cyan
+                    tint = NeonColors.cyan
                 )
             }
         }

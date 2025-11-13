@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-73:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.tetris.modern.rl.app-mergeDebugResources-84:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
                     "source": "/home/rony/.gradle/caches/8.9/transforms/34291fe94cbaeba9d4b73c619e611edb/transformed/jetified-play-services-auth-20.7.0/res/values-watch-v20/values.xml",

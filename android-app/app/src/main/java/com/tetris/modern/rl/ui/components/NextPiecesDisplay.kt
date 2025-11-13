@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tetris.modern.rl.game.Piece
 import com.tetris.modern.rl.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.tetris.modern.rl.R
 
 @Composable
 fun NextPiecesDisplay(
@@ -33,7 +35,7 @@ fun NextPiecesDisplay(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "NEXT",
+                text = stringResource(R.string.next),
                 fontSize = 10.sp,
                 color = TextSecondary,
                 fontWeight = FontWeight.Medium,

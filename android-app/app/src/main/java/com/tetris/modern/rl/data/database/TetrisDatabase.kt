@@ -19,9 +19,10 @@ import com.tetris.modern.rl.data.entities.*
         DailyChallengeEntity::class,
         CustomizationEntity::class,
         UnlockableEntity::class,
-        StatisticsEntity::class
+        StatisticsEntity::class,
+        DailyStreakEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -37,6 +38,7 @@ abstract class TetrisDatabase : RoomDatabase() {
     abstract fun customizationDao(): CustomizationDao
     abstract fun unlockableDao(): UnlockableDao
     abstract fun statisticsDao(): StatisticsDao
+    abstract fun dailyStreakDao(): DailyStreakDao
     
     companion object {
         @Volatile
